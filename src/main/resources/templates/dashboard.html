@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+        nav a {
+            margin-right: 15px;
+            color: white;
+            text-decoration: none;
+        }
+        .content {
+            padding: 20px;
+        }
+        .user-info {
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>Admin Dashboard</h1>
+    <nav>
+        <a th:href="@{/dashboard}">Dashboard</a>
+        <a th:href="@{/logout}">Logout</a>
+    </nav>
+</header>
+
+<div class="content">
+    <div class="user-info">
+        <p>Welcome, <span th:text="${#authentication.name}">Admin</span>!</p>
+        <p>Your role: <span th:text="${#authentication.authorities}">ROLE_ADMIN</span></p>
+    </div>
+
+    <h2>Admin Actions</h2>
+    <ul>
+        <li><a th:href="@{/users}">Manage Users</a></li>
+        <li><a th:href="@{/reports}">View Reports</a></li>
+        <li><a th:href="@{/settings}">Settings</a></li>
+    </ul>
+</div>
+
+</body>
+</html>
