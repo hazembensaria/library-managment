@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <title>Ressources</title>
+  </head>
+  <body>
+    <h2>Liste des Ressources</h2>
+
+    <a href="/ressources/add">Ajouter une ressource</a>
+
+    <table border="1">
+      <tr>
+        <th>ID</th>
+        <th>Titre</th>
+        <th>Auteur</th>
+        <th>Type</th>
+        <th>Actions</th>
+      </tr>
+
+      <tr th:each="r : ${ressources}">
+        <td th:text="${r.id}"></td>
+        <td th:text="${r.titre}"></td>
+        <td th:text="${r.auteur}"></td>
+        <td th:text="${r.typeRessource}"></td>
+
+        <td>
+          <a th:href="@{'/ressources/edit/' + ${r.id}}">Modifier</a>
+          |
+          <a th:href="@{'/exemplaires/ressource/' + ${r.id}}">Exemplaires</a>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

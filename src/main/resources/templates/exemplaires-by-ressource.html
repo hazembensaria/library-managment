@@ -1,0 +1,23 @@
+<h2 th:text="'Exemplaires pour : ' + ${ressource.titre}"></h2>
+
+<a th:href="@{'/exemplaires/add/' + ${ressource.id}}">Ajouter un exemplaire</a>
+
+<table border="1">
+    <tr>
+        <th>Code Barre</th>
+        <th>Bibliothèque</th>
+        <th>État</th>
+        <th>Disponible</th>
+        <th>Actions</th>
+    </tr>
+
+    <tr th:each="ex : ${exemplaires}">
+        <td th:text="${ex.codeBarre}"></td>
+        <td th:text="${ex.bibliotheque.nom}"></td>
+        <td th:text="${ex.etat}"></td>
+        <td th:text="${ex.disponible}"></td>
+        <td>
+            <a th:href="@{'/exemplaires/delete/' + ${ex.id}}">Supprimer</a>
+        </td>
+    </tr>
+</table>
