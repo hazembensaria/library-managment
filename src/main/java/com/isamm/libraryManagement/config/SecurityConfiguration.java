@@ -23,23 +23,27 @@ public class SecurityConfiguration {
         this.authenticationProvider = authenticationProvider;
     }
 
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         return http
                 .csrf(csrf -> csrf.disable())
+                // .authorizeHttpRequests(auth -> auth
+
+                // .requestMatchers("/",
+                // "/bibliotheques/**",
+                // "/ressources/**",
+                // "/exemplaires/**",
+                // "/api/v1/auth/**")
+                // .permitAll()
+                // .requestMatchers("/login", "/register", "/css/**", "/js/**").permitAll()
+                // .requestMatchers("/dashboard").hasRole("ADMIN")
+
+                // .anyRequest().authenticated())
                 .authorizeHttpRequests(auth -> auth
+                        .anyRequest().permitAll())
 
-                        .requestMatchers("/api/v1/auth/**").permitAll()
-                        .requestMatchers("/login", "/register", "/css/**", "/js/**").permitAll()
-                        .requestMatchers("/dashboard").hasRole("ADMIN")
-
-                        .anyRequest().authenticated()
-                )
-                .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

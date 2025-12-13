@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Bibliothèques</title>
+</head>
+<body>
+
+<h2>Liste des Bibliothèques</h2>
+
+<a href="/bibliotheques/add">Ajouter une bibliothèque</a>
+
+<table border="1">
+    <tr>
+        <th>ID</th>
+        <th>Nom</th>
+        <th>Adresse</th>
+        <th>Actions</th>
+    </tr>
+
+    <tr th:each="b : ${bibliotheques}">
+        <td th:text="${b.id}"></td>
+        <td th:text="${b.nom}"></td>
+        <td th:text="${b.adresse}"></td>
+
+        <td>
+            <a th:href="@{'/bibliotheques/edit/' + ${b.id}}">Modifier</a>
+            <a th:href="@{'/bibliotheques/delete/' + ${b.id}}">Supprimer</a>
+        </td>
+    </tr>
+</table>
+
+</body>
+</html>

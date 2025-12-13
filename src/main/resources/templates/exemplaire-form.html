@@ -1,0 +1,28 @@
+<h2>Ajouter un exemplaire</h2>
+
+<form
+  th:action="@{'/exemplaires/save/' + ${ressource.id}}"
+  th:object="${exemplaire}"
+  method="post"
+>
+  <label>Code Barre :</label>
+  <input th:field="*{codeBarre}" /><br />
+
+  <label>État :</label>
+  <select th:field="*{etat}">
+    <option value="neuf">Neuf</option>
+    <option value="bon">Bon</option>
+    <option value="abime">Abîmé</option></select
+  ><br />
+
+  <label>Bibliothèque :</label>
+  <select name="bibliothequeId">
+    <option
+      th:each="b : ${bibliotheques}"
+      th:value="${b.id}"
+      th:text="${b.nom}"
+    ></option></select
+  ><br />
+
+  <button type="submit">Enregistrer</button>
+</form>

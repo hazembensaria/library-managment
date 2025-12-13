@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <title>Ressource</title>
+  </head>
+  <body>
+    <h2
+      th:text="${ressource.id == null ? 'Ajouter Ressource' : 'Modifier Ressource'}"
+    ></h2>
+
+    <form
+      th:action="@{/ressources/save}"
+      th:object="${ressource}"
+      method="post"
+    >
+      <input type="hidden" th:field="*{id}" />
+
+      <label>Titre :</label>
+      <input type="text" th:field="*{titre}" required /><br />
+
+      <label>Auteur :</label>
+      <input type="text" th:field="*{auteur}" required /><br />
+
+      <label>Type :</label>
+      <select th:field="*{typeRessource}">
+        <option value="LIVRE">Livre</option>
+        <option value="CD">CD</option>
+        <option value="DOCUMENT">DOCUMENT</option>
+        <option value="REVUE">Revue</option>
+      </select>
+      <br />
+
+      <button type="submit">Enregistrer</button>
+    </form>
+  </body>
+</html>
