@@ -17,7 +17,6 @@ public class LibraryManagementApplication {
 		SpringApplication.run(LibraryManagementApplication.class, args);
 	}
 
-
 	@Bean
 	public CommandLineRunner commandLineRunner(AuthenticationService service) {
 		return args -> {
