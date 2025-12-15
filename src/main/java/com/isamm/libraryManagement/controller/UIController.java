@@ -24,9 +24,10 @@ public class UIController {
         return "dashboard"; // create a simple dashboard.html
     }
 
-    
+
 
 }
+
 
 
 
