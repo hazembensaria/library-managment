@@ -25,11 +25,6 @@ public class UIController {
     }
 
 
-    @RequestMapping("/home")
-    public String home() {
-        return "home"; // create a simple dashboard.html
-    }
-}
 
 
 
