@@ -18,6 +18,7 @@ public class LibraryManagementApplication {
 	}
 
 
+
 //	@Bean
 //	public CommandLineRunner commandLineRunner(AuthenticationService service) {
 //		return args -> {
@@ -33,5 +34,6 @@ public class LibraryManagementApplication {
 //			System.out.println("Admin token: " + service.register(admin));
 //		};
 //	}
+
 
 }

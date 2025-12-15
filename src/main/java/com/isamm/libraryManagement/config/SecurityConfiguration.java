@@ -45,7 +45,12 @@ public class SecurityConfiguration {
 //                .authorizeHttpRequests(auth -> auth
 //                        .anyRequest().permitAll())
 
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                // 3) Ne JAMAIS accéder directement au dossier uploads
+                // .requestMatchers("/uploads/**").denyAll()
+                // .requestMatchers("/ressources/**").authenticated()
+                // .anyRequest().authenticated())
+
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

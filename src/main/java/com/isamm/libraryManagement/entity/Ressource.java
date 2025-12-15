@@ -19,8 +19,12 @@ public class Ressource {
     private String auteur;
     private String description;
     private String categorie;
+    // chemin vers l'img du couerture
     private String coverPath;
 
+    // chemin vers le fichier de preview (PDF ou images)
+    private String previewPath;
+    
     @Enumerated(EnumType.STRING)
     @Column(name = "type_ressource")
     private TypeRessource typeRessource;
