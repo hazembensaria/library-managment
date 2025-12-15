@@ -34,6 +34,9 @@ public class Exemplaire {
     @JoinColumn(name = "bibliotheque_id")
     private Bibliotheque bibliotheque;
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 3d1183696545fc79ba2791077b427b2268eb245a
 
     @PrePersist
     public void prePersist() {
@@ -47,6 +50,10 @@ public class Exemplaire {
         }
     }
 }
+<<<<<<< HEAD
 =======
 }
 >>>>>>> 3545eab516ecbe0e6d3b0f64602a1b3e1e5eb51d
+=======
+}
+>>>>>>> 3d1183696545fc79ba2791077b427b2268eb245a
