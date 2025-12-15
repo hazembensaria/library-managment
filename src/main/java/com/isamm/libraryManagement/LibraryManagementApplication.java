@@ -1,14 +1,7 @@
 package com.isamm.libraryManagement;
 
-import com.isamm.libraryManagement.dto.RegisterRequest;
-import com.isamm.libraryManagement.entity.Role;
-import com.isamm.libraryManagement.entity.User;
-import com.isamm.libraryManagement.repository.UserRepository;
-import com.isamm.libraryManagement.service.AuthenticationService;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication
 public class LibraryManagementApplication {
