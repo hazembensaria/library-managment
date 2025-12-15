@@ -4,10 +4,19 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.ui.Model;
+import com.isamm.libraryManagement.service.DashboardService;
 
 @Controller
 public class UIController {
 
+	  private final DashboardService dashboardService ;
+	  
+	  public UIController(DashboardService dashboardService) {
+	        this.dashboardService = dashboardService;
+	    }
+	  
+	  
     @RequestMapping("/register")
     public String registerPage() {
         return "register"; // Thymeleaf template register.html
@@ -19,34 +28,20 @@ public class UIController {
         return "login";
     }
 
-    @RequestMapping("/dashboard")
-    public String dashboard() {
-        return "dashboard"; // create a simple dashboard.html
+    @GetMapping("/dashboard")
+    public String dashboard(Model model) {
+        model.addAttribute("kpis", dashboardService.getDashboardKpis());
+        return "dashboard";
     }
+
     
     
-    // Dashboards par rôle
-    @GetMapping("/admin/dashboard")
-    public String adminDashboard() {
-        return "AdminDashboard";
-    }
 
-    @GetMapping("/user/dashboard")
-    public String userDashboard() {
-        return "UserDashboard";
+    @GetMapping({"/", "/home"})
+    public String home(Model model) {
+      model.addAttribute("kpis", dashboardService.getDashboardKpis());
+      return "home";
     }
-
-    @GetMapping("/librarian/dashboard")
-    public String librarianDashboard() {
-        return "LibrarianDashboard";
-
-    }
-    
-    @RequestMapping("/home")
-    public String home() {
-        return "home"; // create a simple dashboard.html
-    }
-
 
 
 }

@@ -52,6 +52,9 @@
 
         <!-- User menu item -->
         <a th:href="@{/profile}" sec:authorize="hasAuthority('USER')">Profile</a>
+        
+          <!-- Dashboard USER -->
+          <a th:href="@{/dashboard}" sec:authorize="hasAuthority('USER')">Dashboard</a>
 
         <!-- Logout button -->
         <form th:action="@{/logout}" method="post" style="display:inline;">

@@ -1,79 +1,531 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
+<html lang="fr"
+      xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
-    <meta charset="UTF-8">
-    <title>Dashboard</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 40px;
-        }
-        header {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        nav a, nav button {
-            margin-right: 15px;
-            color: white;
-            text-decoration: none;
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 1em;
-        }
-        nav button:hover, nav a:hover {
-            text-decoration: underline;
-        }
-        .content {
-            padding: 20px;
-        }
-        .section {
-            margin-bottom: 20px;
-            border: 1px solid #ddd;
-            padding: 15px;
-            border-radius: 5px;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Library Hub - Dashboard</title>
+
+  <style>
+    :root{
+      --bg: #0b1220;
+      --panel: rgba(255,255,255,.05);
+      --card: rgba(255,255,255,.06);
+      --stroke: rgba(255,255,255,.10);
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.62);
+      --accent: #28d7c3;
+      --accent2: #6ea8ff;
+      --danger: #ff6b6b;
+
+      --shadow: 0 18px 55px rgba(0,0,0,.38);
+      --shadow2: 0 10px 30px rgba(0,0,0,.22);
+
+      --radius: 18px;
+      --radius2: 14px;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Helvetica Neue", sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(1100px 700px at 18% 10%, rgba(110,168,255,.22), transparent 60%),
+        radial-gradient(900px 650px at 85% 5%, rgba(40,215,195,.18), transparent 55%),
+        radial-gradient(900px 700px at 60% 100%, rgba(255,255,255,.06), transparent 55%),
+        var(--bg);
+      overflow-x:hidden;
+    }
+
+    /* subtle grain */
+    body:before{
+      content:"";
+      position:fixed; inset:0;
+      background-image: radial-gradient(rgba(255,255,255,.04) 1px, transparent 1px);
+      background-size: 24px 24px;
+      opacity:.18;
+      pointer-events:none;
+    }
+
+    /* layout */
+    .app{
+      display:grid;
+      grid-template-columns: 300px 1fr;
+      min-height:100vh;
+    }
+
+    /* sidebar */
+    .sidebar{
+      position:sticky; top:0;
+      height:100vh;
+      padding:22px 18px;
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+      border-right: 1px solid var(--stroke);
+      backdrop-filter: blur(12px);
+    }
+
+    .brand{
+      display:flex; align-items:center; gap:12px;
+      padding:12px 12px;
+      border-radius: 16px;
+      background: rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.10);
+      box-shadow: var(--shadow2);
+    }
+    .logo{
+      width:44px; height:44px;
+      border-radius: 16px;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,.40), transparent 45%),
+        linear-gradient(135deg, var(--accent), var(--accent2));
+      display:grid; place-items:center;
+      color:#06101f;
+      font-weight:900;
+      letter-spacing:.5px;
+    }
+    .brand h1{
+      margin:0;
+      font-size:14px;
+      letter-spacing:.6px;
+      text-transform:uppercase;
+    }
+    .brand p{
+      margin:4px 0 0;
+      font-size:12px;
+      color:var(--muted);
+    }
+
+    .nav{
+      margin-top:18px;
+      display:flex; flex-direction:column;
+      gap:10px;
+    }
+    .nav a, .nav button{
+      display:flex; align-items:center; justify-content:space-between;
+      width:100%;
+      padding:12px 12px;
+      border-radius: 14px;
+      color:var(--text);
+      text-decoration:none;
+      background: transparent;
+      border:1px solid transparent;
+      cursor:pointer;
+      font-size:14px;
+      transition: .15s ease;
+    }
+    .nav a:hover, .nav button:hover{
+      background: rgba(255,255,255,.06);
+      border-color: rgba(255,255,255,.12);
+      transform: translateY(-1px);
+    }
+
+    .pill{
+      font-size:12px;
+      color: rgba(255,255,255,.78);
+      padding:4px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.07);
+      border:1px solid rgba(255,255,255,.10);
+      white-space:nowrap;
+    }
+
+    .btn-danger{
+      border-color: rgba(255,107,107,.28) !important;
+      background: rgba(255,107,107,.12) !important;
+      color:#ffe1e1 !important;
+      justify-content:center !important;
+      gap:8px;
+    }
+
+    .sidebar-footer{
+      position:absolute;
+      left:18px; right:18px; bottom:18px;
+      padding:14px;
+      border-radius: 16px;
+      background: rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.10);
+      box-shadow: var(--shadow2);
+    }
+    .who{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:12px;
+    }
+    .who small{ color:var(--muted); display:block; margin-top:6px; }
+    .avatar{
+      width:40px; height:40px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.12);
+      display:grid; place-items:center;
+      font-weight:800;
+    }
+
+    .role-badges{ display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }
+    .badge{
+      display:inline-flex; align-items:center;
+      padding:4px 10px;
+      border-radius: 999px;
+      font-size:12px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.07);
+      color: rgba(255,255,255,.85);
+      white-space:nowrap;
+    }
+    .badge.live{
+      background: rgba(40,215,195,.12);
+      border-color: rgba(40,215,195,.28);
+      color:#c9fffa;
+    }
+    .badge.admin{
+      background: rgba(110,168,255,.12);
+      border-color: rgba(110,168,255,.28);
+      color:#d7e7ff;
+    }
+    .badge.user{
+      background: rgba(255,255,255,.08);
+      border-color: rgba(255,255,255,.14);
+      color: rgba(255,255,255,.86);
+    }
+
+    /* main */
+    .main{ padding:26px 26px 36px; }
+
+    .topbar{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:14px;
+      padding:16px 16px;
+      border-radius: var(--radius);
+      background: rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.10);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+      position:relative;
+      overflow:hidden;
+    }
+    .topbar:after{
+      content:"";
+      position:absolute; inset:-60px -60px auto auto;
+      width:220px; height:220px;
+      background: radial-gradient(circle at 30% 30%, rgba(40,215,195,.22), transparent 60%);
+      transform: rotate(12deg);
+      pointer-events:none;
+    }
+
+    .topbar-left h2{
+      margin:0;
+      font-size:20px;
+      letter-spacing:.2px;
+    }
+    .topbar-left p{
+      margin:6px 0 0;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.4;
+    }
+
+    .actions{ display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end; }
+    .btn{
+      display:inline-flex; align-items:center; gap:10px;
+      padding:10px 12px;
+      border-radius: 14px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      color:var(--text);
+      text-decoration:none;
+      font-size:13px;
+      cursor:pointer;
+      transition: .15s ease;
+    }
+    .btn:hover{
+      background: rgba(255,255,255,.10);
+      transform: translateY(-1px);
+    }
+    .btn-primary{
+      background: linear-gradient(135deg, rgba(40,215,195,.95), rgba(110,168,255,.95));
+      border-color: transparent;
+      color:#06101f;
+      font-weight:800;
+    }
+
+    /* grid */
+    .grid{
+      margin-top:18px;
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap:16px;
+    }
+
+    .card{
+      border-radius: var(--radius);
+      background: rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.10);
+      box-shadow: var(--shadow2);
+      overflow:hidden;
+    }
+    .card-header{
+      padding:16px 16px 10px;
+      display:flex; align-items:flex-start; justify-content:space-between;
+      gap:12px;
+    }
+    .card-header h3{
+      margin:0;
+      font-size:15px;
+      letter-spacing:.2px;
+    }
+    .card-header p{
+      margin:6px 0 0;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.45;
+    }
+    .card-body{ padding: 0 16px 16px; }
+
+    /* stats */
+    .stats{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap:12px;
+      margin-top:12px;
+    }
+    .stat{
+      padding:14px;
+      border-radius: var(--radius2);
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid rgba(255,255,255,.10);
+      position:relative;
+      overflow:hidden;
+      transition:.15s ease;
+    }
+    .stat:before{
+      content:"";
+      position:absolute;
+      inset:-40px -40px auto auto;
+      width:140px; height:140px;
+      background: radial-gradient(circle at 30% 30%, rgba(110,168,255,.18), transparent 60%);
+      pointer-events:none;
+    }
+    .stat:hover{
+      transform: translateY(-2px);
+      border-color: rgba(255,255,255,.16);
+    }
+    .kpi{
+      font-size:22px;
+      font-weight:900;
+      letter-spacing:.3px;
+      line-height:1.1;
+    }
+    .label{
+      margin-top:8px;
+      color:var(--muted);
+      font-size:12px;
+    }
+
+    .stack{ display:flex; flex-direction:column; gap:16px; }
+
+    .hint{
+      margin-top:12px;
+      padding:12px 12px;
+      border-radius: var(--radius2);
+      background: rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.10);
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.55;
+    }
+
+    /* mobile */
+    @media (max-width: 980px){
+      .app{ grid-template-columns: 1fr; }
+      .sidebar{ position:relative; height:auto; }
+      .sidebar-footer{ position:relative; left:auto; right:auto; bottom:auto; margin-top:14px; }
+      .grid{ grid-template-columns: 1fr; }
+      .stats{ grid-template-columns: 1fr; }
+      .topbar{ flex-direction:column; align-items:flex-start; }
+      .actions{ width:100%; justify-content:flex-start; }
+    }
+  </style>
 </head>
+
 <body>
-<header>
-    <h1>Dashboard</h1>
-    <nav>
-        <a th:href="@{/dashboard}">Dashboard</a>
+<div class="app">
 
-        <!-- Logout form -->
-        <form th:action="@{/logout}" method="post" style="display:inline;">
-            <button type="submit">Logout</button>
-        </form>
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">LH</div>
+      <div>
+        <h1>Library Hub</h1>
+        <p>Dashboard & Statistiques</p>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <a th:href="@{/home}">Accueil <span class="pill">Home</span></a>
+
+      <a th:href="@{/dashboard}" sec:authorize="hasAnyAuthority('ADMIN','USER')">
+        Dashboard <span class="pill">KPI</span>
+      </a>
+
+      <a th:href="@{/profile}" sec:authorize="isAuthenticated()">
+        Profil <span class="pill">Compte</span>
+      </a>
+
+      <form th:action="@{/logout}" method="post" sec:authorize="isAuthenticated()">
+        <button class="btn btn-danger" type="submit">
+          Se déconnecter
+        </button>
+      </form>
     </nav>
-</header>
 
-<div class="content">
+    <div class="sidebar-footer" sec:authorize="isAuthenticated()">
+      <div class="who">
+        <div>
+          <div style="font-weight:900" th:text="${#authentication.name}">username</div>
+          <div class="role-badges">
+            <span class="badge admin" sec:authorize="hasAuthority('ADMIN')">ADMIN</span>
+            <span class="badge user" sec:authorize="hasAuthority('USER')">USER</span>
+          </div>
+        </div>
+        <div class="avatar" th:text="${#strings.substring(#authentication.name,0,1)}">U</div>
+      </div>
+    </div>
+  </aside>
 
-    <!-- Content for ADMIN role only -->
-    <div class="section" sec:authorize="hasAuthority('ADMIN')">
-        <h2>Admin Section</h2>
-        <p>Welcome, Admin! Here you can manage users, see reports, and configure the system.</p>
+  <!-- MAIN -->
+  <main class="main">
+
+    <div class="topbar">
+      <div class="topbar-left">
+        <h2>Dashboard 👋</h2>
+        <p>KPI calculées depuis la base (Bibliothèques, Ressources, Exemplaires + Disponibilité).</p>
+      </div>
+
+      <!-- Exports ADMIN ONLY -->
+      <div class="actions" sec:authorize="hasAuthority('ADMIN')">
+        <a class="btn" th:href="@{/export/csv}">Export CSV</a>
+        <a class="btn" th:href="@{/export/pdf}">Export PDF</a>
+      </div>
     </div>
 
-    <!-- Content for USER role only -->
-    <div class="section" sec:authorize="hasAuthority('USER')">
-        <h2>User Section</h2>
-        <p>Welcome, User! Here you can see your dashboard, manage your profile, and access resources.</p>
-    </div>
+    <div class="grid">
 
-    <!-- Content for any authenticated user -->
-    <div class="section" sec:authorize="isAuthenticated()">
-        <h2>General Section</h2>
-        <p>This content is visible to any logged-in user.</p>
-    </div>
+      <!-- LEFT -->
+      <section class="card">
+        <div class="card-header">
+          <div>
+            <h3>Indicateurs (Base de données)</h3>
+            <p>Données réelles récupérées depuis la DB via DashboardService.</p>
+          </div>
+          <span class="badge live">LIVE</span>
+        </div>
 
+        <div class="card-body">
+
+          <div class="stats">
+            <div class="stat">
+              <div class="kpi" th:text="${kpis.totalBibliotheques} ?: 0">0</div>
+              <div class="label">Bibliothèques</div>
+            </div>
+            <div class="stat">
+              <div class="kpi" th:text="${kpis.totalRessources} ?: 0">0</div>
+              <div class="label">Ressources</div>
+            </div>
+            <div class="stat">
+              <div class="kpi" th:text="${kpis.totalExemplaires} ?: 0">0</div>
+              <div class="label">Exemplaires</div>
+            </div>
+          </div>
+
+          <div class="stats" style="margin-top:12px;">
+            <div class="stat">
+              <div class="kpi" th:text="${kpis.exemplairesDisponibles} ?: 0">0</div>
+              <div class="label">Disponibles</div>
+            </div>
+            <div class="stat">
+              <div class="kpi" th:text="${kpis.exemplairesIndisponibles} ?: 0">0</div>
+              <div class="label">Indisponibles</div>
+            </div>
+            <div class="stat">
+              <div class="kpi" th:text="${kpis.totalExemplaires} ?: 0">0</div>
+              <div class="label">Total exemplaires</div>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top:14px;" sec:authorize="hasAuthority('USER')">
+            <div class="card-header">
+              <div>
+                <h3>Espace USER</h3>
+                <p>Prêts / réservations seront ajoutés après intégration Git.</p>
+              </div>
+              <span class="badge user">USER</span>
+            </div>
+            <div class="card-body">
+              <div class="hint">
+                Pour le moment : navigation + consultation DB. Dès que le module “prêts” est push,
+                on affichera la liste réelle ici.
+              </div>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top:14px;" sec:authorize="hasAuthority('ADMIN')">
+            <div class="card-header">
+              <div>
+                <h3>Espace ADMIN</h3>
+                <p>Exports CSV/PDF + futurs graphiques Chart.js.</p>
+              </div>
+              <span class="badge admin">ADMIN</span>
+            </div>
+            <div class="card-body">
+              <div class="hint">
+                Conseil : on peut ajouter des charts (exemplaires par catégorie, disponibilité par bibliothèque).
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- RIGHT -->
+      <aside class="stack">
+
+        <section class="card">
+          <div class="card-header">
+            <div>
+              <h3>Actions rapides</h3>
+              <p>Accès direct aux modules disponibles.</p>
+            </div>
+            <span class="badge">Quick</span>
+          </div>
+          <div class="card-body" style="display:flex; gap:10px; flex-wrap:wrap; padding-top:12px;">
+            <a class="btn btn-primary" th:href="@{/catalog}">Catalogue</a>
+            <a class="btn" sec:authorize="hasAuthority('ADMIN')" th:href="@{/admin/users}">Utilisateurs</a>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-header">
+            <div>
+              <h3>Infos</h3>
+              <p>Rappel technique</p>
+            </div>
+            <span class="badge">Info</span>
+          </div>
+          <div class="card-body">
+            <div class="hint">
+              • KPI : DB réelle via repositories<br/>
+              • Export : visible ADMIN uniquement<br/>
+              • Module prêts/réservations : en attente (Git)
+            </div>
+          </div>
+        </section>
+
+      </aside>
+
+    </div>
+  </main>
 </div>
 </body>
 </html>
