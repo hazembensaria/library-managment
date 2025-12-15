@@ -59,6 +59,7 @@ public class ExemplaireController {
         exemplaire.setBibliotheque(bibliothequeService.getById(bibliothequeId));
 
         exemplaireService.save(exemplaire);
+
         return "redirect:/exemplaires/ressource/" + ressourceId;
     }
 
