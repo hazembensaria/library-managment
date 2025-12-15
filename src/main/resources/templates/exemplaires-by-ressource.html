@@ -4,6 +4,7 @@
 
 <table border="1">
     <tr>
+        <th>ID</th>
         <th>Code Barre</th>
         <th>Bibliothèque</th>
         <th>État</th>
@@ -12,6 +13,7 @@
     </tr>
 
     <tr th:each="ex : ${exemplaires}">
+        <td th:text="${ex.id}"></td>
         <td th:text="${ex.codeBarre}"></td>
         <td th:text="${ex.bibliotheque.nom}"></td>
         <td th:text="${ex.etat}"></td>

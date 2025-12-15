@@ -2,6 +2,7 @@ package com.isamm.libraryManagement.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.List;
 
@@ -21,5 +22,6 @@ public class Bibliotheque {
     private String horaires;
 
     @OneToMany(mappedBy = "bibliotheque", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Exemplaire> exemplaires;
 }

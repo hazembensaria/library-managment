@@ -2,6 +2,7 @@ package com.isamm.libraryManagement.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.List;
 
@@ -26,5 +27,6 @@ public class Ressource {
     private TypeRessource typeRessource;
 
     @OneToMany(mappedBy = "ressource", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Exemplaire> exemplaires;
 }

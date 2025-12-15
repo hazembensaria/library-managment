@@ -27,4 +27,16 @@ public class Exemplaire {
     @ManyToOne
     @JoinColumn(name = "bibliotheque_id")
     private Bibliotheque bibliotheque;
+
+    @PrePersist
+    public void prePersist() {
+        // Si "disponible" n'est pas renseigné, on le considère disponible par défaut
+        if (disponible == null) {
+            disponible = true;
+        }
+        // Si "etat" n'est pas renseigné, on met un état par défaut
+        if (etat == null || etat.isBlank()) {
+            etat = "bon";
+        }
+    }
 }
