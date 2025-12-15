@@ -1,12 +1,10 @@
 package com.isamm.libraryManagement.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import lombok.*;
-import java.util.Date;
-import org.springframework.format.annotation.DateTimeFormat; // <-- à ajouter
 import org.springframework.format.annotation.DateTimeFormat;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
+import java.util.Date;
 
 @Entity
 @Data
@@ -18,42 +16,28 @@ public class Exemplaire {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Le code barre est obligatoire")
     private String codeBarre;
+
+    @NotNull(message = "La disponibilité doit être indiquée")
     private Boolean disponible;
+
+    @NotBlank(message = "L’état de l’exemplaire est obligatoire")
     private String etat;
 
-    @Temporal(TemporalType.DATE)
+    // @NotNull(message = "La date d’acquisition est obligatoire")
+    @PastOrPresent(message = "La date d’acquisition ne peut pas être dans le futur")
+
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date dateAcquisition;
 
     @ManyToOne
     @JoinColumn(name = "ressource_id")
+    @NotNull(message = "La ressource associée est obligatoire")
     private Ressource ressource;
 
     @ManyToOne
     @JoinColumn(name = "bibliotheque_id")
+    @NotNull(message = "La bibliothèque associée est obligatoire")
     private Bibliotheque bibliotheque;
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 3d1183696545fc79ba2791077b427b2268eb245a
-
-    @PrePersist
-    public void prePersist() {
-        // Si "disponible" n'est pas renseigné, on le considère disponible par défaut
-        if (disponible == null) {
-            disponible = true;
-        }
-        // Si "etat" n'est pas renseigné, on met un état par défaut
-        if (etat == null || etat.isBlank()) {
-            etat = "bon";
-        }
-    }
 }
-<<<<<<< HEAD
-=======
-}
->>>>>>> 3545eab516ecbe0e6d3b0f64602a1b3e1e5eb51d
-=======
-}
->>>>>>> 3d1183696545fc79ba2791077b427b2268eb245a
