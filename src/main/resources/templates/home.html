@@ -3,7 +3,7 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard</title>
+    <title>Home Page</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -13,12 +13,12 @@
             background-color: #4CAF50;
             color: white;
             padding: 10px;
-            margin-bottom: 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 20px;
         }
-        nav a, nav button {
+        nav a, nav form button {
             margin-right: 15px;
             color: white;
             text-decoration: none;
@@ -27,7 +27,7 @@
             cursor: pointer;
             font-size: 1em;
         }
-        nav button:hover, nav a:hover {
+        nav a:hover, nav form button:hover {
             text-decoration: underline;
         }
         .content {
@@ -43,11 +43,17 @@
 </head>
 <body>
 <header>
-    <h1>Dashboard</h1>
+    <h1>My Application</h1>
     <nav>
-        <a th:href="@{/dashboard}">Dashboard</a>
+        <a th:href="@{/home}">Home</a>
 
-        <!-- Logout form -->
+        <!-- Admin menu item -->
+        <a th:href="@{/dashboard}" sec:authorize="hasAuthority('ADMIN')">Dashboard</a>
+
+        <!-- User menu item -->
+        <a th:href="@{/profile}" sec:authorize="hasAuthority('USER')">Profile</a>
+
+        <!-- Logout button -->
         <form th:action="@{/logout}" method="post" style="display:inline;">
             <button type="submit">Logout</button>
         </form>
@@ -56,22 +62,22 @@
 
 <div class="content">
 
-    <!-- Content for ADMIN role only -->
+    <!-- General content visible to all authenticated users -->
+    <div class="section" sec:authorize="isAuthenticated()">
+        <h2>Welcome!</h2>
+        <p>This content is visible to any logged-in user.</p>
+    </div>
+
+    <!-- Admin-only content -->
     <div class="section" sec:authorize="hasAuthority('ADMIN')">
         <h2>Admin Section</h2>
-        <p>Welcome, Admin! Here you can manage users, see reports, and configure the system.</p>
+        <p>You are an admin. Here you can manage users, view reports, and configure the system.</p>
     </div>
 
-    <!-- Content for USER role only -->
+    <!-- User-only content -->
     <div class="section" sec:authorize="hasAuthority('USER')">
         <h2>User Section</h2>
-        <p>Welcome, User! Here you can see your dashboard, manage your profile, and access resources.</p>
-    </div>
-
-    <!-- Content for any authenticated user -->
-    <div class="section" sec:authorize="isAuthenticated()">
-        <h2>General Section</h2>
-        <p>This content is visible to any logged-in user.</p>
+        <p>You are a regular user. Here you can see your dashboard, manage your profile, and access resources.</p>
     </div>
 
 </div>

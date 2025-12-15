@@ -23,4 +23,13 @@ public class UIController {
     public String dashboard() {
         return "dashboard"; // create a simple dashboard.html
     }
+
+
+    @RequestMapping("/home")
+    public String home() {
+        return "home"; // create a simple dashboard.html
+    }
 }
+
+
+
