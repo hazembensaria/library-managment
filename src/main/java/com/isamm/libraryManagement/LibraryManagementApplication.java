@@ -18,20 +18,22 @@ public class LibraryManagementApplication {
 	}
 
 
-	@Bean
-	public CommandLineRunner commandLineRunner(AuthenticationService service) {
-		return args -> {
-			// Create RegisterRequest using default constructor and setters
-			RegisterRequest admin = new RegisterRequest();
-			admin.setFirstname("Admin");
-			admin.setLastname("Admin");
-			admin.setEmail("admin@mail.com");
-			admin.setPassword("password");
-			admin.setRole(Role.ADMIN);
 
-			// Register the admin and print the JWT token
-			System.out.println("Admin token: " + service.register(admin));
-		};
-	}
+//	@Bean
+//	public CommandLineRunner commandLineRunner(AuthenticationService service) {
+//		return args -> {
+//			// Create RegisterRequest using default constructor and setters
+//			RegisterRequest admin = new RegisterRequest();
+//			admin.setFirstname("Admin");
+//			admin.setLastname("Admin");
+//			admin.setEmail("admin@mail.com");
+//			admin.setPassword("password");
+//			admin.setRole(Role.ADMIN);
+//
+//			// Register the admin and print the JWT token
+//			System.out.println("Admin token: " + service.register(admin));
+//		};
+//	}
+
 
 }

@@ -1,36 +1,583 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
-    <title>Ressource</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title
+      th:text="${ressource.id == null ? 'New Resource' : 'Edit the Resource'}"
+    >
+      Ressource
+    </title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"
+    />
+    <style>
+      :root {
+        --primary-color: #667eea;
+        --secondary-color: #764ba2;
+      }
+
+      body {
+        background: #f5f7fa;
+        min-height: 100vh;
+        padding: 2rem 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      .form-container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 0 1rem;
+      }
+      .top-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        gap: 1rem;
+      }
+
+      .form-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        overflow: hidden;
+      }
+
+      .form-header {
+        background: #4a90e2;
+        color: white;
+        padding: 2rem;
+        text-align: center;
+      }
+
+      .form-header h2 {
+        margin: 0;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+      }
+
+      .form-header i {
+        font-size: 2rem;
+      }
+
+      .form-body {
+        padding: 2.5rem;
+      }
+
+      .form-section {
+        margin-bottom: 2rem;
+        padding-bottom: 2rem;
+        border-bottom: 2px solid #f0f0f0;
+      }
+
+      .form-section:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+      }
+
+      .section-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .section-title i {
+        color: var(--primary-color);
+        font-size: 1.5rem;
+      }
+
+      .form-label {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .form-label i {
+        color: var(--primary-color);
+      }
+
+      .form-control,
+      .form-select,
+      .form-textarea {
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s;
+        font-size: 1rem;
+      }
+
+      .form-control:focus,
+      .form-select:focus,
+      .form-textarea:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+      }
+
+      .form-textarea {
+        min-height: 120px;
+        resize: vertical;
+      }
+
+      .file-upload-wrapper {
+        position: relative;
+        display: block;
+      }
+
+      .file-upload-input {
+        position: absolute;
+        opacity: 0;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+      }
+
+      .file-upload-label {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        padding: 1.5rem;
+        border: 2px dashed #d0d0d0;
+        border-radius: 10px;
+        background: #f8f9fa;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-align: center;
+      }
+
+      .file-upload-label:hover {
+        border-color: var(--primary-color);
+        background: #e7f1ff;
+      }
+
+      .file-upload-label i {
+        font-size: 2rem;
+        color: var(--primary-color);
+      }
+
+      .file-name {
+        margin-top: 0.5rem;
+        font-size: 0.9rem;
+        color: #28a745;
+        font-weight: 600;
+      }
+
+      .current-file-display {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+      }
+
+      .current-file-display img {
+        max-width: 200px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      .current-file-display a {
+        color: var(--primary-color);
+        text-decoration: none;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .current-file-display a:hover {
+        text-decoration: underline;
+      }
+
+      .btn-submit {
+        background: #4a90e2;
+        border: none;
+        color: white;
+        padding: 1rem 3rem;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 1.1rem;
+        transition: transform 0.3s, box-shadow 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(74, 144, 226, 0.4);
+        background: #357abd;
+      }
+
+      .btn-cancel {
+        background: #6c757d;
+        border: none;
+        color: white;
+        padding: 1rem 2rem;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .btn-cancel:hover {
+        background: #5a6268;
+        color: white;
+        transform: translateY(-2px);
+      }
+
+      .form-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 2px solid #f0f0f0;
+      }
+
+      .alert-info {
+        background: #e7f1ff;
+        border: 2px solid #b3d7ff;
+        border-radius: 10px;
+        padding: 1rem;
+        color: #004085;
+      }
+
+      @media (max-width: 768px) {
+        .form-body {
+          padding: 1.5rem;
+        }
+
+        .form-actions {
+          flex-direction: column;
+        }
+
+        .btn-submit,
+        .btn-cancel {
+          width: 100%;
+          justify-content: center;
+        }
+      }
+    </style>
   </head>
   <body>
-    <h2
-      th:text="${ressource.id == null ? 'Ajouter Ressource' : 'Modifier Ressource'}"
-    ></h2>
+    <div class="form-container">
+      <div class="form-card">
+        <div class="form-header">
+          <h2>
+            <i
+              th:class="${ressource.id == null ? 'bi bi-plus-circle-fill' : 'bi bi-pencil-square'}"
+            ></i>
+            <span
+              th:text="${ressource.id == null ? 'Nouvelle Ressource' : 'Modifier la Ressource'}"
+            ></span>
+          </h2>
+        </div>
 
-    <form
-      th:action="@{/ressources/save}"
-      th:object="${ressource}"
-      method="post"
-    >
-      <input type="hidden" th:field="*{id}" />
+        <div class="form-body">
+          <form
+            th:action="@{/ressources/save}"
+            th:object="${ressource}"
+            method="post"
+            enctype="multipart/form-data"
+          >
+            <input type="hidden" th:field="*{id}" />
 
-      <label>Titre :</label>
-      <input type="text" th:field="*{titre}" required /><br />
+            <!-- Section: Informations principales -->
+            <div class="form-section">
+              <h3 class="section-title">
+                <i class="bi bi-info-circle-fill"></i>
+                Main information
+              </h3>
 
-      <label>Auteur :</label>
-      <input type="text" th:field="*{auteur}" required /><br />
+              <div class="mb-4">
+                <label class="form-label">
+                  <i class="bi bi-card-heading"></i>
+                  Resource Title
+                </label>
+                <input
+                  type="text"
+                  class="form-control"
+                  th:field="*{titre}"
+                  placeholder="Entrez le titre complet"
+                  required
+                />
+              </div>
 
-      <label>Type :</label>
-      <select th:field="*{typeRessource}">
-        <option value="LIVRE">Livre</option>
-        <option value="CD">CD</option>
-        <option value="DOCUMENT">DOCUMENT</option>
-        <option value="REVUE">Revue</option>
-      </select>
-      <br />
+              <div class="mb-4">
+                <label class="form-label">
+                  <i class="bi bi-person-fill"></i>
+                  Author
+                </label>
+                <input
+                  type="text"
+                  class="form-control"
+                  th:field="*{auteur}"
+                  placeholder="Nom de l'auteur"
+                  required
+                />
+              </div>
 
-      <button type="submit">Enregistrer</button>
-    </form>
+              <div class="mb-4">
+                <label class="form-label">
+                  <i class="bi bi-tag-fill"></i>
+                  Resource type
+                </label>
+                <select
+                  class="form-select"
+                  th:field="*{typeRessource}"
+                  id="typeRessource"
+                >
+                  <option value="LIVRE">📚 BOOK</option>
+                  <option value="DOCUMENT">📄 Document</option>
+                  <option value="CD">💿 CD</option>
+                  <option value="DVD">📀 DVD</option>
+                  <option value="REVUE">📰 Review</option>
+                </select>
+              </div>
+
+              <!-- NOUVEAU CHAMP: Catégorie -->
+              <div class="mb-4">
+                <label class="form-label">
+                  <i class="bi bi-tags-fill"></i>
+                  Catégorie
+                </label>
+                <select
+                  class="form-select"
+                  th:field="*{categorie}"
+                  id="categorie"
+                >
+                  <option value="ROMAN">📖 Novel</option>
+                  <option value="DETECTIVE">🔍 Detective</option>
+                  <option value="SCIENCE_FICTION">🚀 Science Fiction</option>
+                  <option value="FANTASY">🧙 Fantasy</option>
+                  <option value="HISTORICAL">🏛️ Historical</option>
+                  <option value="BIOGRAPHY">👤 Biography</option>
+                  <option value="POETRY">✍️ Poetry</option>
+                  <option value="THEATER">🎭 Theater</option>
+                  <option value="COOKING">👨‍🍳 Cooking</option>
+                  <option value="TRAVEL">✈️ Travel</option>
+                  <option value="SPORTS">⚽ Sports</option>
+                  <option value="MUSIC">🎵 Music</option>
+                  <option value="CINEMA">🎬 Cinema</option>
+                  <option value="ART">🎨 Art</option>
+                  <option value="PHILOSOPHY">🤔 Philosophy</option>
+                  <option value="PSYCHOLOGY">🧠 Psychology</option>
+                  <option value="ECONOMICS">📈 Economics</option>
+                  <option value="COMPUTER_SCIENCE">💻 Computer Science</option>
+                  <option value="LANGUAGE">🗣️ Language</option>
+                </select>
+              </div>
+
+              <!-- NOUVEAU CHAMP: Description -->
+              <div class="mb-4">
+                <label class="form-label">
+                  <i class="bi bi-text-paragraph"></i>
+                  Description
+                </label>
+                <textarea
+                  class="form-control form-textarea"
+                  th:field="*{description}"
+                  placeholder="Entrez une description détaillée de la ressource..."
+                  rows="4"
+                ></textarea>
+                <small class="text-muted"
+                  >Describe the content, themes, and main features. Main
+                  features</small
+                >
+              </div>
+            </div>
+
+            <!-- Section: Couverture -->
+            <div class="form-section">
+              <h3 class="section-title">
+                <i class="bi bi-image-fill"></i>
+                Cover image
+              </h3>
+
+              <div
+                th:if="*{id} != null and *{coverPath} != null"
+                class="current-file-display"
+              >
+                <p class="fw-bold mb-2">
+                  <i class="bi bi-check-circle-fill text-success"></i>
+                  Current Cover :
+                </p>
+                <img
+                  th:src="@{/ressources/cover/{id}(id=*{id})}"
+                  alt="Couverture"
+                  class="img-fluid"
+                />
+              </div>
+
+              <label class="form-label">
+                <i class="bi bi-cloud-upload"></i>
+                <span
+                  th:text="*{id} == null ? 'Télécharger la couverture' : 'Remplacer la couverture'"
+                ></span>
+              </label>
+              <div class="file-upload-wrapper">
+                <input
+                  type="file"
+                  name="coverFile"
+                  accept="image/*"
+                  class="file-upload-input"
+                  id="coverFile"
+                />
+                <label for="coverFile" class="file-upload-label">
+                  <i class="bi bi-cloud-arrow-up"></i>
+                  <div>
+                    <div class="fw-bold">Click to select an image</div>
+                    <small class="text-muted">JPG, PNG, GIF (max 5 MB)</small>
+                  </div>
+                </label>
+                <div id="coverFileName" class="file-name"></div>
+              </div>
+              <div class="alert alert-info mt-2" th:if="*{id} != null">
+                <i class="bi bi-info-circle"></i>
+                Leave blank to keep the current cover
+              </div>
+            </div>
+
+            <!-- Section: Preview (conditionnelle) -->
+            <div class="form-section" id="previewSection">
+              <h3 class="section-title">
+                <i class="bi bi-file-earmark-text-fill"></i>
+                Content overview
+              </h3>
+
+              <div
+                th:if="*{id} != null and *{previewPath} != null"
+                class="current-file-display"
+              >
+                <p class="fw-bold mb-2">
+                  <i class="bi bi-check-circle-fill text-success"></i>
+                  Current overview :
+                </p>
+                <a
+                  th:href="@{/ressources/preview/{id}(id=*{id})}"
+                  target="_blank"
+                >
+                  <i class="bi bi-eye"></i>
+                  View the preview
+                </a>
+              </div>
+
+              <label class="form-label">
+                <i class="bi bi-cloud-upload"></i>
+                <span
+                  th:text="*{id} == null ? 'Download a preview' : 'Replace the preview'"
+                ></span>
+              </label>
+              <div class="file-upload-wrapper">
+                <input
+                  type="file"
+                  name="previewFile"
+                  accept="application/pdf,image/*"
+                  class="file-upload-input"
+                  id="previewFile"
+                />
+                <label for="previewFile" class="file-upload-label">
+                  <i class="bi bi-file-earmark-pdf"></i>
+                  <div>
+                    <div class="fw-bold">Select a PDF file or images</div>
+                    <small class="text-muted"
+                      >First pages of the document</small
+                    >
+                  </div>
+                </label>
+                <div id="previewFileName" class="file-name"></div>
+              </div>
+              <div class="alert alert-info mt-2">
+                <i class="bi bi-lightbulb"></i>
+                The preview allows users to view the first few pages before
+                borrowing.
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="form-actions">
+              <a href="/ressources" class="btn-cancel">
+                <i class="bi bi-x-circle"></i>
+                Cancel
+              </a>
+              <button type="submit" class="btn-submit">
+                <i class="bi bi-check-circle"></i>
+                <span
+                  th:text="${ressource.id == null ? 'Create the resource' : 'Save changes'}"
+                ></span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      // Gestion de l'affichage du champ Preview selon le type
+      function togglePreviewField() {
+        const typeSelect = document.getElementById("typeRessource");
+        const previewSection = document.getElementById("previewSection");
+        const type = typeSelect.value;
+
+        if (type === "LIVRE" || type === "DOCUMENT") {
+          previewSection.style.display = "block";
+        } else {
+          previewSection.style.display = "none";
+        }
+      }
+
+      // Affichage du nom de fichier sélectionné pour la couverture
+      document
+        .getElementById("coverFile")
+        .addEventListener("change", function (e) {
+          const fileName = e.target.files[0]?.name;
+          const fileNameDisplay = document.getElementById("coverFileName");
+          if (fileName) {
+            fileNameDisplay.textContent = "✓ " + fileName;
+          } else {
+            fileNameDisplay.textContent = "";
+          }
+        });
+
+      // Affichage du nom de fichier sélectionné pour la preview
+      document
+        .getElementById("previewFile")
+        .addEventListener("change", function (e) {
+          const fileName = e.target.files[0]?.name;
+          const fileNameDisplay = document.getElementById("previewFileName");
+          if (fileName) {
+            fileNameDisplay.textContent = "✓ " + fileName;
+          } else {
+            fileNameDisplay.textContent = "";
+          }
+        });
+
+      // Initialisation
+      document
+        .getElementById("typeRessource")
+        .addEventListener("change", togglePreviewField);
+      window.addEventListener("load", togglePreviewField);
+    </script>
   </body>
 </html>

@@ -23,23 +23,10 @@ public class UIController {
     public String dashboard() {
         return "dashboard"; // create a simple dashboard.html
     }
-    
-    
-    // Dashboards par rôle
-    @GetMapping("/admin/dashboard")
-    public String adminDashboard() {
-        return "AdminDashboard";
-    }
 
-    @GetMapping("/user/dashboard")
-    public String userDashboard() {
-        return "UserDashboard";
-    }
+    
 
-    @GetMapping("/librarian/dashboard")
-    public String librarianDashboard() {
-        return "LibrarianDashboard";
-    }
 }
+
 
 
