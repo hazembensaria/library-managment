@@ -2,8 +2,11 @@ package com.isamm.libraryManagement.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.util.Date;
+import org.springframework.format.annotation.DateTimeFormat; // <-- à ajouter
+import org.springframework.format.annotation.DateTimeFormat;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 
 @Entity
 @Data
@@ -18,6 +21,9 @@ public class Exemplaire {
     private String codeBarre;
     private Boolean disponible;
     private String etat;
+
+    @Temporal(TemporalType.DATE)
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date dateAcquisition;
 
     @ManyToOne
@@ -39,4 +45,5 @@ public class Exemplaire {
             etat = "bon";
         }
     }
+}
 }

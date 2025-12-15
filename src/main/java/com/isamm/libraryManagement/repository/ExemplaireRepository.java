@@ -10,4 +10,7 @@ public interface ExemplaireRepository extends JpaRepository<Exemplaire, Long> {
     List<Exemplaire> findByRessourceId(Long ressourceId);
 
     List<Exemplaire> findByBibliothequeId(Long biblioId);
+    
+    long countByDisponibleTrue();
+    long countByDisponibleFalse();
 }

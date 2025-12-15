@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Home Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        nav a, nav form button {
+            margin-right: 15px;
+            color: white;
+            text-decoration: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1em;
+        }
+        nav a:hover, nav form button:hover {
+            text-decoration: underline;
+        }
+        .content {
+            padding: 20px;
+        }
+        .section {
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>My Application</h1>
+    <nav>
+        <a th:href="@{/home}">Home</a>
+
+        <!-- Admin menu item -->
+        <a th:href="@{/dashboard}" sec:authorize="hasAuthority('ADMIN')">Dashboard</a>
+
+        <!-- User menu item -->
+        <a th:href="@{/profile}" sec:authorize="hasAuthority('USER')">Profile</a>
+        
+          <!-- Dashboard USER -->
+          <a th:href="@{/dashboard}" sec:authorize="hasAuthority('USER')">Dashboard</a>
+
+        <!-- Logout button -->
+        <form th:action="@{/logout}" method="post" style="display:inline;">
+            <button type="submit">Logout</button>
+        </form>
+    </nav>
+</header>
+
+<div class="content">
+
+    <!-- General content visible to all authenticated users -->
+    <div class="section" sec:authorize="isAuthenticated()">
+        <h2>Welcome!</h2>
+        <p>This content is visible to any logged-in user.</p>
+    </div>
+
+    <!-- Admin-only content -->
+    <div class="section" sec:authorize="hasAuthority('ADMIN')">
+        <h2>Admin Section</h2>
+        <p>You are an admin. Here you can manage users, view reports, and configure the system.</p>
+    </div>
+
+    <!-- User-only content -->
+    <div class="section" sec:authorize="hasAuthority('USER')">
+        <h2>User Section</h2>
+        <p>You are a regular user. Here you can see your dashboard, manage your profile, and access resources.</p>
+    </div>
+
+</div>
+</body>
+</html>
