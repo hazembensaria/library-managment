@@ -4,528 +4,359 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Library Hub - Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard - Statistiques</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"/>
 
   <style>
     :root{
-      --bg: #0b1220;
-      --panel: rgba(255,255,255,.05);
-      --card: rgba(255,255,255,.06);
-      --stroke: rgba(255,255,255,.10);
-      --text: rgba(255,255,255,.92);
-      --muted: rgba(255,255,255,.62);
-      --accent: #28d7c3;
-      --accent2: #6ea8ff;
-      --danger: #ff6b6b;
-
-      --shadow: 0 18px 55px rgba(0,0,0,.38);
-      --shadow2: 0 10px 30px rgba(0,0,0,.22);
-
-      --radius: 18px;
-      --radius2: 14px;
+      --primary-color:#4a90e2;
+      --secondary-color:#6c757d;
+      --success-color:#28a745;
+      --danger-color:#dc3545;
+      --bg:#f5f7fa;
     }
 
-    *{ box-sizing:border-box; }
-    html,body{ height:100%; }
     body{
+      background: var(--bg);
+      min-height: 100vh;
+      padding: 2rem 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .main-container{
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+
+    .header-section{
+      background: white;
+      border-radius: 15px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,.10);
+    }
+
+    .header-section h1{
+      color:#333;
+      font-weight:800;
       margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Helvetica Neue", sans-serif;
-      color:var(--text);
-      background:
-        radial-gradient(1100px 700px at 18% 10%, rgba(110,168,255,.22), transparent 60%),
-        radial-gradient(900px 650px at 85% 5%, rgba(40,215,195,.18), transparent 55%),
-        radial-gradient(900px 700px at 60% 100%, rgba(255,255,255,.06), transparent 55%),
-        var(--bg);
-      overflow-x:hidden;
+      display:flex;
+      align-items:center;
+      gap:1rem;
+    }
+    .header-section h1 i{ color: var(--primary-color); }
+
+    .subtitle{
+      margin-top: .5rem;
+      color:#6c757d;
+      font-weight:500;
     }
 
-    /* subtle grain */
-    body:before{
-      content:"";
-      position:fixed; inset:0;
-      background-image: radial-gradient(rgba(255,255,255,.04) 1px, transparent 1px);
-      background-size: 24px 24px;
-      opacity:.18;
-      pointer-events:none;
-    }
-
-    /* layout */
-    .app{
-      display:grid;
-      grid-template-columns: 300px 1fr;
-      min-height:100vh;
-    }
-
-    /* sidebar */
-    .sidebar{
-      position:sticky; top:0;
-      height:100vh;
-      padding:22px 18px;
-      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
-      border-right: 1px solid var(--stroke);
-      backdrop-filter: blur(12px);
-    }
-
-    .brand{
-      display:flex; align-items:center; gap:12px;
-      padding:12px 12px;
-      border-radius: 16px;
-      background: rgba(255,255,255,.05);
-      border:1px solid rgba(255,255,255,.10);
-      box-shadow: var(--shadow2);
-    }
-    .logo{
-      width:44px; height:44px;
-      border-radius: 16px;
-      background:
-        radial-gradient(circle at 30% 30%, rgba(255,255,255,.40), transparent 45%),
-        linear-gradient(135deg, var(--accent), var(--accent2));
-      display:grid; place-items:center;
-      color:#06101f;
-      font-weight:900;
-      letter-spacing:.5px;
-    }
-    .brand h1{
-      margin:0;
-      font-size:14px;
-      letter-spacing:.6px;
-      text-transform:uppercase;
-    }
-    .brand p{
-      margin:4px 0 0;
-      font-size:12px;
-      color:var(--muted);
-    }
-
-    .nav{
-      margin-top:18px;
-      display:flex; flex-direction:column;
-      gap:10px;
-    }
-    .nav a, .nav button{
-      display:flex; align-items:center; justify-content:space-between;
-      width:100%;
-      padding:12px 12px;
-      border-radius: 14px;
-      color:var(--text);
+    .export-btn{
+      border:none;
+      padding:.75rem 1.25rem;
+      border-radius:10px;
+      color:white;
+      font-weight:700;
+      transition: transform .2s, box-shadow .2s;
       text-decoration:none;
-      background: transparent;
-      border:1px solid transparent;
-      cursor:pointer;
-      font-size:14px;
-      transition: .15s ease;
-    }
-    .nav a:hover, .nav button:hover{
-      background: rgba(255,255,255,.06);
-      border-color: rgba(255,255,255,.12);
-      transform: translateY(-1px);
-    }
-
-    .pill{
-      font-size:12px;
-      color: rgba(255,255,255,.78);
-      padding:4px 10px;
-      border-radius: 999px;
-      background: rgba(255,255,255,.07);
-      border:1px solid rgba(255,255,255,.10);
+      display:inline-flex;
+      align-items:center;
+      gap:.6rem;
       white-space:nowrap;
     }
 
-    .btn-danger{
-      border-color: rgba(255,107,107,.28) !important;
-      background: rgba(255,107,107,.12) !important;
-      color:#ffe1e1 !important;
-      justify-content:center !important;
-      gap:8px;
-    }
-
-    .sidebar-footer{
-      position:absolute;
-      left:18px; right:18px; bottom:18px;
-      padding:14px;
-      border-radius: 16px;
-      background: rgba(255,255,255,.05);
-      border:1px solid rgba(255,255,255,.10);
-      box-shadow: var(--shadow2);
-    }
-    .who{
-      display:flex; align-items:center; justify-content:space-between;
-      gap:12px;
-    }
-    .who small{ color:var(--muted); display:block; margin-top:6px; }
-    .avatar{
-      width:40px; height:40px;
-      border-radius: 14px;
-      background: rgba(255,255,255,.08);
-      border:1px solid rgba(255,255,255,.12);
-      display:grid; place-items:center;
-      font-weight:800;
-    }
-
-    .role-badges{ display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }
-    .badge{
-      display:inline-flex; align-items:center;
-      padding:4px 10px;
-      border-radius: 999px;
-      font-size:12px;
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(255,255,255,.07);
-      color: rgba(255,255,255,.85);
-      white-space:nowrap;
-    }
-    .badge.live{
-      background: rgba(40,215,195,.12);
-      border-color: rgba(40,215,195,.28);
-      color:#c9fffa;
-    }
-    .badge.admin{
-      background: rgba(110,168,255,.12);
-      border-color: rgba(110,168,255,.28);
-      color:#d7e7ff;
-    }
-    .badge.user{
-      background: rgba(255,255,255,.08);
-      border-color: rgba(255,255,255,.14);
-      color: rgba(255,255,255,.86);
-    }
-
-    /* main */
-    .main{ padding:26px 26px 36px; }
-
-    .topbar{
-      display:flex; align-items:center; justify-content:space-between;
-      gap:14px;
-      padding:16px 16px;
-      border-radius: var(--radius);
-      background: rgba(255,255,255,.05);
-      border:1px solid rgba(255,255,255,.10);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(12px);
-      position:relative;
-      overflow:hidden;
-    }
-    .topbar:after{
-      content:"";
-      position:absolute; inset:-60px -60px auto auto;
-      width:220px; height:220px;
-      background: radial-gradient(circle at 30% 30%, rgba(40,215,195,.22), transparent 60%);
-      transform: rotate(12deg);
-      pointer-events:none;
-    }
-
-    .topbar-left h2{
-      margin:0;
-      font-size:20px;
-      letter-spacing:.2px;
-    }
-    .topbar-left p{
-      margin:6px 0 0;
-      color:var(--muted);
-      font-size:13px;
-      line-height:1.4;
-    }
-
-    .actions{ display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end; }
-    .btn{
-      display:inline-flex; align-items:center; gap:10px;
-      padding:10px 12px;
-      border-radius: 14px;
-      border:1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.06);
-      color:var(--text);
-      text-decoration:none;
-      font-size:13px;
-      cursor:pointer;
-      transition: .15s ease;
-    }
-    .btn:hover{
-      background: rgba(255,255,255,.10);
-      transform: translateY(-1px);
-    }
-    .btn-primary{
-      background: linear-gradient(135deg, rgba(40,215,195,.95), rgba(110,168,255,.95));
-      border-color: transparent;
-      color:#06101f;
-      font-weight:800;
-    }
-
-    /* grid */
-    .grid{
-      margin-top:18px;
-      display:grid;
-      grid-template-columns: 1.2fr .8fr;
-      gap:16px;
-    }
-
-    .card{
-      border-radius: var(--radius);
-      background: rgba(255,255,255,.05);
-      border:1px solid rgba(255,255,255,.10);
-      box-shadow: var(--shadow2);
-      overflow:hidden;
-    }
-    .card-header{
-      padding:16px 16px 10px;
-      display:flex; align-items:flex-start; justify-content:space-between;
-      gap:12px;
-    }
-    .card-header h3{
-      margin:0;
-      font-size:15px;
-      letter-spacing:.2px;
-    }
-    .card-header p{
-      margin:6px 0 0;
-      color:var(--muted);
-      font-size:13px;
-      line-height:1.45;
-    }
-    .card-body{ padding: 0 16px 16px; }
-
-    /* stats */
-    .stats{
-      display:grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap:12px;
-      margin-top:12px;
-    }
-    .stat{
-      padding:14px;
-      border-radius: var(--radius2);
-      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
-      border:1px solid rgba(255,255,255,.10);
-      position:relative;
-      overflow:hidden;
-      transition:.15s ease;
-    }
-    .stat:before{
-      content:"";
-      position:absolute;
-      inset:-40px -40px auto auto;
-      width:140px; height:140px;
-      background: radial-gradient(circle at 30% 30%, rgba(110,168,255,.18), transparent 60%);
-      pointer-events:none;
-    }
-    .stat:hover{
+    .export-btn:hover{
       transform: translateY(-2px);
-      border-color: rgba(255,255,255,.16);
+      box-shadow: 0 10px 25px rgba(0,0,0,.18);
+      color:white;
     }
-    .kpi{
-      font-size:22px;
-      font-weight:900;
+
+    .btn-csv{ background: linear-gradient(135deg, #667eea 0%, #3799e9 100%); }
+    .btn-pdf{ background: linear-gradient(135deg, #ef4444 0%, #f97316 100%); }
+
+    .mini-pill{
+      display:inline-flex;
+      align-items:center;
+      gap:.4rem;
+      padding:.35rem .75rem;
+      border-radius: 999px;
+      font-size:.85rem;
+      font-weight:700;
+      background:#eef2ff;
+      color:#1e40af;
+    }
+
+    .kpi-card{
+      background:white;
+      border-radius:15px;
+      padding:1.3rem 1.3rem;
+      box-shadow: 0 8px 20px rgba(0,0,0,.08);
+      border: 1px solid rgba(0,0,0,.04);
+      height:100%;
+      transition: transform .2s, box-shadow .2s;
+    }
+
+    .kpi-card:hover{
+      transform: translateY(-4px);
+      box-shadow: 0 15px 35px rgba(0,0,0,.12);
+    }
+
+    .kpi-top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:1rem;
+    }
+
+    .kpi-label{
+      color:#6c757d;
+      font-weight:700;
+      margin:0;
+      display:flex;
+      align-items:center;
+      gap:.6rem;
+    }
+
+    .kpi-icon{
+      width:42px;
+      height:42px;
+      border-radius:12px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:1.2rem;
+      color:white;
+    }
+    .icon-primary{ background: linear-gradient(135deg, #667eea 0%, #3799e9 100%); }
+    .icon-success{ background: linear-gradient(135deg, #34d399 0%, #16a34a 100%); }
+    .icon-danger{ background: linear-gradient(135deg, #fb7185 0%, #dc2626 100%); }
+    .icon-purple{ background: linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%); }
+    .icon-teal{ background: linear-gradient(135deg, #2dd4bf 0%, #0ea5e9 100%); }
+
+    .kpi-value{
+      font-size: 2rem;
+      font-weight: 900;
+      color:#111827;
+      margin-top:.7rem;
       letter-spacing:.3px;
-      line-height:1.1;
-    }
-    .label{
-      margin-top:8px;
-      color:var(--muted);
-      font-size:12px;
     }
 
-    .stack{ display:flex; flex-direction:column; gap:16px; }
-
-    .hint{
-      margin-top:12px;
-      padding:12px 12px;
-      border-radius: var(--radius2);
-      background: rgba(255,255,255,.04);
-      border:1px solid rgba(255,255,255,.10);
-      color:var(--muted);
-      font-size:13px;
-      line-height:1.55;
+    .kpi-hint{
+      margin: .2rem 0 0;
+      color:#94a3b8;
+      font-size: .9rem;
+      font-weight:600;
     }
 
-    /* mobile */
-    @media (max-width: 980px){
-      .app{ grid-template-columns: 1fr; }
-      .sidebar{ position:relative; height:auto; }
-      .sidebar-footer{ position:relative; left:auto; right:auto; bottom:auto; margin-top:14px; }
-      .grid{ grid-template-columns: 1fr; }
-      .stats{ grid-template-columns: 1fr; }
-      .topbar{ flex-direction:column; align-items:flex-start; }
-      .actions{ width:100%; justify-content:flex-start; }
+    .panel{
+      background:white;
+      border-radius:15px;
+      padding:1.5rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,.10);
+      border: 1px solid rgba(0,0,0,.04);
+    }
+
+    .panel-title{
+      margin:0;
+      font-weight:800;
+      color:#111827;
+      display:flex;
+      align-items:center;
+      gap:.7rem;
+    }
+    .panel-title i{ color: var(--primary-color); }
+
+    .muted{ color:#6c757d; font-weight:600; }
+
+    .role-badge{
+      display:inline-flex;
+      align-items:center;
+      gap:.4rem;
+      padding:.35rem .75rem;
+      border-radius:999px;
+      font-weight:800;
+      font-size:.85rem;
+      background:#f1f5f9;
+      color:#0f172a;
+    }
+
+    .role-admin{ background:#fee2e2; color:#991b1b; }
+    .role-user{ background:#e0e7ff; color:#1e40af; }
+
+    .quick-link{
+      text-decoration:none;
+      font-weight:800;
+      display:flex;
+      align-items:center;
+      gap:.6rem;
+      padding:.9rem 1rem;
+      border-radius:12px;
+      background:#f8fafc;
+      border:1px solid rgba(0,0,0,.06);
+      color:#111827;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .quick-link:hover{
+      transform: translateY(-2px);
+      box-shadow: 0 10px 22px rgba(0,0,0,.10);
+      color:#111827;
+    }
+
+    .quick-link i{ color: var(--primary-color); font-size:1.1rem; }
+
+    @media (max-width: 768px){
+      .header-section{ padding: 1.4rem; }
     }
   </style>
 </head>
 
 <body>
-<div class="app">
+<div class="main-container">
 
-  <!-- SIDEBAR -->
-  <aside class="sidebar">
-    <div class="brand">
-      <div class="logo">LH</div>
+  <!-- HEADER -->
+  <div class="header-section">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
       <div>
-        <h1>Library Hub</h1>
-        <p>Dashboard & Statistiques</p>
-      </div>
-    </div>
-
-    <nav class="nav">
-      <a th:href="@{/home}">Accueil <span class="pill">Home</span></a>
-
-      <a th:href="@{/dashboard}" sec:authorize="hasAnyAuthority('ADMIN','USER')">
-        Dashboard <span class="pill">KPI</span>
-      </a>
-
-      <a th:href="@{/profile}" sec:authorize="isAuthenticated()">
-        Profil <span class="pill">Compte</span>
-      </a>
-
-      <form th:action="@{/logout}" method="post" sec:authorize="isAuthenticated()">
-        <button class="btn btn-danger" type="submit">
-          Se déconnecter
-        </button>
-      </form>
-    </nav>
-
-    <div class="sidebar-footer" sec:authorize="isAuthenticated()">
-      <div class="who">
-        <div>
-          <div style="font-weight:900" th:text="${#authentication.name}">username</div>
-          <div class="role-badges">
-            <span class="badge admin" sec:authorize="hasAuthority('ADMIN')">ADMIN</span>
-            <span class="badge user" sec:authorize="hasAuthority('USER')">USER</span>
-          </div>
+        <h1>
+          <i class="bi bi-speedometer2"></i>
+          Dashboard
+          <span class="mini-pill">
+            <i class="bi bi-database-check"></i> Données DB
+          </span>
+        </h1>
+        <div class="subtitle">
+          Indicateurs clés (Bibliothèques, Ressources, Exemplaires, Disponibilité).
         </div>
-        <div class="avatar" th:text="${#strings.substring(#authentication.name,0,1)}">U</div>
-      </div>
-    </div>
-  </aside>
-
-  <!-- MAIN -->
-  <main class="main">
-
-    <div class="topbar">
-      <div class="topbar-left">
-        <h2>Dashboard 👋</h2>
-        <p>KPI calculées depuis la base (Bibliothèques, Ressources, Exemplaires + Disponibilité).</p>
       </div>
 
-      <!-- Exports ADMIN ONLY -->
-      <div class="actions" sec:authorize="hasAuthority('ADMIN')">
-        <a class="btn" th:href="@{/export/csv}">Export CSV</a>
-        <a class="btn" th:href="@{/export/pdf}">Export PDF</a>
+      <!-- ✅ SEULEMENT 2 BOUTONS, ADMIN ONLY -->
+      <div class="d-flex gap-2" sec:authorize="hasAuthority('ADMIN')">
+        <a class="export-btn btn-csv" th:href="@{/export/csv}">
+          <i class="bi bi-filetype-csv"></i> Export CSV
+        </a>
+        <a class="export-btn btn-pdf" th:href="@{/export/pdf}">
+          <i class="bi bi-filetype-pdf"></i> Export PDF
+        </a>
       </div>
     </div>
 
-    <div class="grid">
+    <!-- rôle discret (pas en haut à droite, pas lourd) -->
+    <div class="mt-3">
+      <span class="role-badge role-admin" sec:authorize="hasAuthority('ADMIN')">
+        <i class="bi bi-shield-lock"></i> ADMIN
+      </span>
+      <span class="role-badge role-user" sec:authorize="hasAuthority('USER')">
+        <i class="bi bi-person"></i> USER
+      </span>
+    </div>
+  </div>
 
-      <!-- LEFT -->
-      <section class="card">
-        <div class="card-header">
-          <div>
-            <h3>Indicateurs (Base de données)</h3>
-            <p>Données réelles récupérées depuis la DB via DashboardService.</p>
-          </div>
-          <span class="badge live">LIVE</span>
+  <!-- KPI CARDS -->
+  <div class="row g-4" th:if="${kpis != null}">
+
+    <div class="col-12 col-md-6 col-xl-4">
+      <div class="kpi-card">
+        <div class="kpi-top">
+          <p class="kpi-label"><i class="bi bi-buildings"></i> Total bibliothèques</p>
+          <div class="kpi-icon icon-primary"><i class="bi bi-buildings"></i></div>
         </div>
-
-        <div class="card-body">
-
-          <div class="stats">
-            <div class="stat">
-              <div class="kpi" th:text="${kpis.totalBibliotheques} ?: 0">0</div>
-              <div class="label">Bibliothèques</div>
-            </div>
-            <div class="stat">
-              <div class="kpi" th:text="${kpis.totalRessources} ?: 0">0</div>
-              <div class="label">Ressources</div>
-            </div>
-            <div class="stat">
-              <div class="kpi" th:text="${kpis.totalExemplaires} ?: 0">0</div>
-              <div class="label">Exemplaires</div>
-            </div>
-          </div>
-
-          <div class="stats" style="margin-top:12px;">
-            <div class="stat">
-              <div class="kpi" th:text="${kpis.exemplairesDisponibles} ?: 0">0</div>
-              <div class="label">Disponibles</div>
-            </div>
-            <div class="stat">
-              <div class="kpi" th:text="${kpis.exemplairesIndisponibles} ?: 0">0</div>
-              <div class="label">Indisponibles</div>
-            </div>
-            <div class="stat">
-              <div class="kpi" th:text="${kpis.totalExemplaires} ?: 0">0</div>
-              <div class="label">Total exemplaires</div>
-            </div>
-          </div>
-
-          <div class="card" style="margin-top:14px;" sec:authorize="hasAuthority('USER')">
-            <div class="card-header">
-              <div>
-                <h3>Espace USER</h3>
-                <p>Prêts / réservations seront ajoutés après intégration Git.</p>
-              </div>
-              <span class="badge user">USER</span>
-            </div>
-            <div class="card-body">
-              <div class="hint">
-                Pour le moment : navigation + consultation DB. Dès que le module “prêts” est push,
-                on affichera la liste réelle ici.
-              </div>
-            </div>
-          </div>
-
-          <div class="card" style="margin-top:14px;" sec:authorize="hasAuthority('ADMIN')">
-            <div class="card-header">
-              <div>
-                <h3>Espace ADMIN</h3>
-                <p>Exports CSV/PDF + futurs graphiques Chart.js.</p>
-              </div>
-              <span class="badge admin">ADMIN</span>
-            </div>
-            <div class="card-body">
-              <div class="hint">
-                Conseil : on peut ajouter des charts (exemplaires par catégorie, disponibilité par bibliothèque).
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </section>
-
-      <!-- RIGHT -->
-      <aside class="stack">
-
-        <section class="card">
-          <div class="card-header">
-            <div>
-              <h3>Actions rapides</h3>
-              <p>Accès direct aux modules disponibles.</p>
-            </div>
-            <span class="badge">Quick</span>
-          </div>
-          <div class="card-body" style="display:flex; gap:10px; flex-wrap:wrap; padding-top:12px;">
-            <a class="btn btn-primary" th:href="@{/catalog}">Catalogue</a>
-            <a class="btn" sec:authorize="hasAuthority('ADMIN')" th:href="@{/admin/users}">Utilisateurs</a>
-          </div>
-        </section>
-
-        <section class="card">
-          <div class="card-header">
-            <div>
-              <h3>Infos</h3>
-              <p>Rappel technique</p>
-            </div>
-            <span class="badge">Info</span>
-          </div>
-          <div class="card-body">
-            <div class="hint">
-              • KPI : DB réelle via repositories<br/>
-              • Export : visible ADMIN uniquement<br/>
-              • Module prêts/réservations : en attente (Git)
-            </div>
-          </div>
-        </section>
-
-      </aside>
-
+        <div class="kpi-value" th:text="${kpis.totalBibliotheques}">0</div>
+        <p class="kpi-hint">Nombre total d’établissements enregistrés</p>
+      </div>
     </div>
-  </main>
+
+    <div class="col-12 col-md-6 col-xl-4">
+      <div class="kpi-card">
+        <div class="kpi-top">
+          <p class="kpi-label"><i class="bi bi-collection"></i> Total ressources</p>
+          <div class="kpi-icon icon-purple"><i class="bi bi-collection"></i></div>
+        </div>
+        <div class="kpi-value" th:text="${kpis.totalRessources}">0</div>
+        <p class="kpi-hint">Livres / documents / médias</p>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-4">
+      <div class="kpi-card">
+        <div class="kpi-top">
+          <p class="kpi-label"><i class="bi bi-stack"></i> Total exemplaires</p>
+          <div class="kpi-icon icon-teal"><i class="bi bi-stack"></i></div>
+        </div>
+        <div class="kpi-value" th:text="${kpis.totalExemplaires}">0</div>
+        <p class="kpi-hint">Copies physiques en inventaire</p>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-6">
+      <div class="kpi-card">
+        <div class="kpi-top">
+          <p class="kpi-label"><i class="bi bi-check-circle"></i> Exemplaires disponibles</p>
+          <div class="kpi-icon icon-success"><i class="bi bi-check-circle"></i></div>
+        </div>
+        <div class="kpi-value" th:text="${kpis.exemplairesDisponibles}">0</div>
+        <p class="kpi-hint">Disponibles immédiatement</p>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-6">
+      <div class="kpi-card">
+        <div class="kpi-top">
+          <p class="kpi-label"><i class="bi bi-x-circle"></i> Exemplaires indisponibles</p>
+          <div class="kpi-icon icon-danger"><i class="bi bi-x-circle"></i></div>
+        </div>
+        <div class="kpi-value" th:text="${kpis.exemplairesIndisponibles}">0</div>
+        <p class="kpi-hint">Empruntés / en maintenance / hors service</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- PANELS BAS (utile, pas du texte inutile) -->
+  <div class="row g-4 mt-1">
+
+    <div class="col-12 col-lg-6">
+      <div class="panel">
+        <h3 class="panel-title"><i class="bi bi-lightning-charge"></i> Accès rapide</h3>
+        <p class="muted mt-2 mb-3">Liens utiles (selon permissions).</p>
+
+        <div class="d-grid gap-2">
+          <a class="quick-link" th:href="@{/ressources}">
+            <i class="bi bi-collection"></i> Gestion des ressources
+          </a>
+          <a class="quick-link" th:href="@{/exemplaires}">
+            <i class="bi bi-stack"></i> Gestion des exemplaires
+          </a>
+
+          <a class="quick-link" sec:authorize="hasAuthority('ADMIN')" th:href="@{/bibliotheques}">
+            <i class="bi bi-buildings"></i> Gestion des bibliothèques
+          </a>
+
+          <a class="quick-link" sec:authorize="hasAuthority('ADMIN')" th:href="@{/admin/users}">
+            <i class="bi bi-people"></i> Gestion des utilisateurs
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-6">
+      <div class="panel">
+        <h3 class="panel-title"><i class="bi bi-graph-up-arrow"></i> Vue synthèse</h3>
+        <p class="muted mt-2 mb-0">
+          Les KPI ci-dessus sont calculés depuis la base (count + countByDisponible).
+          Les exports (CSV/PDF) sont réservés à l’ADMIN.
+        </p>
+      </div>
+    </div>
+
+  </div>
+
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
