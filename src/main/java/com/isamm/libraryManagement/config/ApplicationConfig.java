@@ -1,8 +1,5 @@
 package com.isamm.libraryManagement.config;
 
-
-
-
 import com.isamm.libraryManagement.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -26,30 +23,28 @@ public class ApplicationConfig {
         this.repository = repository;
     }
 
-
     @Bean
     public UserDetailsService userDetailsService() {
         return username -> repository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
-//    @Bean
-//    public AuthenticationProvider authenticationProvider() {
-//        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-//        authProvider.setUserDetailsService(userDetailsService());
-//        authProvider.setPasswordEncoder(passwordEncoder());
-//        return authProvider;
-//    }
+    // @Bean
+    // public AuthenticationProvider authenticationProvider() {
+    // DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+    // authProvider.setUserDetailsService(userDetailsService());
+    // authProvider.setPasswordEncoder(passwordEncoder());
+    // return authProvider;
+    // }
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
         // Spring Security (Boot 4) : constructeur attend le UserDetailsService
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(userDetailsService());
         authProvider.setPasswordEncoder(passwordEncoder());
+
         return authProvider;
     }
-
-
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
