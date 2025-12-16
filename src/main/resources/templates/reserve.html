@@ -1,137 +1,140 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-
 <head>
     <meta charset="UTF-8">
     <title>Réserver un exemplaire</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
-            margin: 0;
-            padding: 0;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3d7ff 100%);
+            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            min-height: 100vh;
+            padding: 30px;
         }
-        .container {
-            background-color: #ffffff;
-            padding: 24px 32px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            max-width: 480px;
-            width: 100%;
-        }
-        h2 {
-            text-align: center;
-            margin-top: 0;
-            margin-bottom: 16px;
-            color: #333;
-        }
-        label {
-            display: block;
-            margin-top: 12px;
-            margin-bottom: 4px;
-            color: #555;
-            font-size: 14px;
-        }
-        input {
-            width: 100%;
-            padding: 8px 10px;
-            border-radius: 6px;
-            border: 1px solid #ccc;
-            font-size: 14px;
-        }
-        button {
-            margin-top: 18px;
-            width: 100%;
-            padding: 10px 0;
+        .card {
             border: none;
-            border-radius: 6px;
-            background-color: #1976d2;
+            border-radius: 16px;
+            box-shadow: 0 14px 40px rgba(0,0,0,0.12);
+            max-width: 540px;
+            width: 100%;
+        }
+        .card-header {
+            background: linear-gradient(135deg, #4a90e2 0%, #6c63ff 100%);
             color: #fff;
-            font-size: 15px;
-            cursor: pointer;
+            border-radius: 16px 16px 0 0;
+            padding: 22px;
         }
-        button:hover {
-            background-color: #145fa6;
+        .card-header h4 {
+            margin: 0;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
-        #message {
-            margin-top: 16px;
-            font-size: 14px;
+        .card-body {
+            padding: 24px;
+            background: #fff;
+            border-radius: 0 0 16px 16px;
         }
-        .success-card {
-            margin-top: 16px;
-            padding: 12px 14px;
-            border-radius: 8px;
-            background-color: #e8f5e9;
-            border: 1px solid #c8e6c9;
-            color: #2e7d32;
-            font-size: 14px;
+        .form-label {
+            font-weight: 600;
         }
-        .error-text {
-            color: #c62828;
+        .btn-primary {
+            background: linear-gradient(135deg, #4a90e2 0%, #6c63ff 100%);
+            border: none;
+            font-weight: 600;
         }
-        .meta {
-            font-size: 13px;
-            color: #555;
+        .btn-primary:hover {
+            opacity: 0.95;
         }
     </style>
 </head>
-
 <body>
-<div class="container">
-    <h2>Réserver un exemplaire</h2>
-    <form id="reserveForm">
-        <label>Exemplaire ID:</label>
-        <input type="number" id="exemplaireId" required /><br />
+<div class="card">
+    <div class="card-header">
+        <h4><span class="bi bi-bookmark-plus"></span> Réserver un exemplaire</h4>
+    </div>
+    <div class="card-body">
+        <div class="alert alert-danger d-none" id="errorBox"></div>
+        <form id="reserveForm" class="row g-3">
+            <div class="col-12">
+                <label class="form-label">Exemplaire ID</label>
+                <input type="number" class="form-control" id="exemplaireId" required>
+            </div>
+            <div class="col-12 d-grid">
+                <button type="submit" class="btn btn-primary btn-lg">
+                    Réserver
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 
-        <label>User ID:</label>
-        <input type="number" id="userId" required /><br />
+<!-- Modal succès -->
+<div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title">Réservation réussie</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="successBody">
+        <!-- contenu injecté en JS -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-success" data-bs-dismiss="modal">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
 
-        <button type="submit">Réserver</button>
-    </form>
-    <div id="message"></div>
-    <script>
-        document.getElementById('reserveForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const exemplaireId = document.getElementById('exemplaireId').value;
-            const userId = document.getElementById('userId').value;
-            const params = new URLSearchParams({ exemplaireId, userId });
-            const res = await fetch('/api/loans/reserve?' + params.toString(), { method: 'POST' });
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Pré-remplir le formulaire si on vient de /loans/reserve?exemplaireId=...&userId=...
+    const params = new URLSearchParams(window.location.search);
+    if (params.has('exemplaireId')) {
+        document.getElementById('exemplaireId').value = params.get('exemplaireId');
+    }
+
+    const errorBox = document.getElementById('errorBox');
+    const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+    const successBody = document.getElementById('successBody');
+
+    document.getElementById('reserveForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        errorBox.classList.add('d-none');
+        const exemplaireId = document.getElementById('exemplaireId').value;
+        const query = new URLSearchParams({ exemplaireId });
+
+        try {
+            const res = await fetch('/api/loans/reserve?' + query.toString(), { method: 'POST' });
             const data = await res.json();
 
-            const messageDiv = document.getElementById('message');
-
-            if (data.error) {
-                messageDiv.className = 'error-text';
-                messageDiv.innerText = data.error;
-            } else {
-                // On récupère quelques infos utiles retournées par l'API
-                const loanId = data.id;
-                const exemplaire = data.exemplaire || {};
-                const ressource = exemplaire.ressource || {};
-
-                const titre = ressource.titre || 'Ressource inconnue';
-                const codeBarre = exemplaire.codeBarre || exemplaire.id || exemplaireId;
-
-                messageDiv.className = '';
-                messageDiv.innerHTML = `
-                    <div class="success-card">
-                        <strong>Réservation réussie !</strong><br/>
-                        <span class="meta">
-                            Le livre <strong>"${titre}"</strong>
-                            (exemplaire <strong>${codeBarre}</strong>)
-                            a été réservé avec succès.<br/>
-                            Numéro de prêt : <strong>${loanId}</strong>.
-                        </span>
-                    </div>
-                `;
+            if (!res.ok || data.error) {
+                errorBox.textContent = data.error || 'Erreur lors de la réservation.';
+                errorBox.classList.remove('d-none');
+                return;
             }
-        });
-    </script>
-</div>
-</body>
 
+            // Succès : préparer le contenu du modal
+            const loanId = data.id;
+            const exemplaire = data.exemplaire || {};
+            const ressource = exemplaire.ressource || {};
+            const titre = ressource.titre || 'Ressource inconnue';
+            const codeBarre = exemplaire.codeBarre || exemplaire.id || exemplaireId;
+
+            successBody.innerHTML = `
+                <p class="mb-1">Le livre <strong>"${titre}"</strong> (exemplaire <strong>${codeBarre}</strong>) a été réservé.</p>
+                <p class="text-muted mb-0">Numéro de prêt : <strong>${loanId}</strong></p>
+            `;
+            successModal.show();
+        } catch (err) {
+            errorBox.textContent = 'Erreur réseau. Veuillez réessayer.';
+            errorBox.classList.remove('d-none');
+        }
+    });
+</script>
+</body>
 </html>

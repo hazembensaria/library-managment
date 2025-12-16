@@ -43,11 +43,8 @@ public class ApplicationConfig {
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
-        // Configuration standard de DaoAuthenticationProvider :
-        // - constructeur sans argument
-        // - injection du UserDetailsService et du PasswordEncoder
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userDetailsService());
+        // Spring Security (Boot 4) : constructeur attend le UserDetailsService
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(userDetailsService());
         authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
     }

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Liste des prêts</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 24px;
+        }
+        h2 {
+            margin-top: 0;
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #fff;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+        th, td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #e0e0e0;
+            text-align: left;
+            font-size: 14px;
+        }
+        th {
+            background-color: #fafafa;
+            font-weight: 600;
+        }
+        .badge {
+            padding: 4px 8px;
+            border-radius: 999px;
+            font-size: 12px;
+        }
+        .badge-reserve {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        .badge-emprunte {
+            background-color: #bbdefb;
+            color: #0d47a1;
+        }
+        .badge-retourne {
+            background-color: #c8e6c9;
+            color: #1b5e20;
+        }
+        form {
+            display: inline;
+        }
+        button {
+            border: none;
+            padding: 6px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .btn-validate {
+            background-color: #1976d2;
+            color: white;
+        }
+        .btn-return {
+            background-color: #388e3c;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+<h2>Liste des prêts</h2>
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Utilisateur</th>
+        <th>Email</th>
+        <th>Exemplaire</th>
+        <th>Ressource</th>
+        <th>Statut</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="loan : ${loans}">
+        <td th:text="${loan.id}">1</td>
+        <td th:text="${loan.user != null ? loan.user.firstname + ' ' + loan.user.lastname : 'N/A'}">Nom Prénom</td>
+        <td th:text="${loan.user != null ? loan.user.email : 'N/A'}">email@example.com</td>
+        <td th:text="${loan.exemplaire != null ? loan.exemplaire.codeBarre : 'N/A'}">CODE123</td>
+        <td th:text="${loan.exemplaire != null && loan.exemplaire.ressource != null ? loan.exemplaire.ressource.titre : 'N/A'}">
+            Titre ressource
+        </td>
+        <td>
+            <span th:switch="${loan.status}">
+                <span th:case="${T(com.isamm.libraryManagement.entity.LoanStatus).RESERVE}"
+                      class="badge badge-reserve">RÉSERVÉ</span>
+                <span th:case="${T(com.isamm.libraryManagement.entity.LoanStatus).EMPRUNTE}"
+                      class="badge badge-emprunte">EMPRUNTÉ</span>
+                <span th:case="${T(com.isamm.libraryManagement.entity.LoanStatus).RETOURNE}"
+                      class="badge badge-retourne">RETOURNÉ</span>
+            </span>
+        </td>
+        <td>
+            <form th:if="${loan.status == T(com.isamm.libraryManagement.entity.LoanStatus).RESERVE}"
+                  th:action="@{'/loans/validate/' + ${loan.id}}" method="post">
+                <button class="btn-validate" type="submit">Valider (emprunt)</button>
+            </form>
+            <form th:if="${loan.status == T(com.isamm.libraryManagement.entity.LoanStatus).EMPRUNTE}"
+                  th:action="@{'/loans/return/' + ${loan.id}}" method="post">
+                <button class="btn-return" type="submit">Marquer comme retourné</button>
+            </form>
+        </td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>
+
+
