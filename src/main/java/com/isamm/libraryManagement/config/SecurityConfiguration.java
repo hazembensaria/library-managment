@@ -1,7 +1,5 @@
 package com.isamm.libraryManagement.config;
 
-import jakarta.servlet.Filter;
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -18,7 +16,8 @@ public class SecurityConfiguration {
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
 
-    public SecurityConfiguration(JwtAuthenticationFilter jwtAuthFilter, AuthenticationProvider authenticationProvider) {
+    public SecurityConfiguration(JwtAuthenticationFilter jwtAuthFilter,
+                                 AuthenticationProvider authenticationProvider) {
         this.jwtAuthFilter = jwtAuthFilter;
         this.authenticationProvider = authenticationProvider;
     }
@@ -26,56 +25,42 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-        return http
-                .csrf(csrf -> csrf.disable())
-                 .authorizeHttpRequests(auth -> auth
-                 .requestMatchers(
-                         "/", "/home", "/home/**",
-                         "/bibliotheques/**", "/ressources/**",
-                         "/exemplaires", "/exemplaires/**",
-                         "/api/v1/auth/**",
-                         "/login", "/register",
-                         "/css/**", "/js/**")
-                 .permitAll()
-                 .requestMatchers("/login", "/register", "/css/**", "/js/**").permitAll()
+        http.csrf(csrf -> csrf.disable());
 
-                 .requestMatchers("/dashboard/**").permitAll()
-                 .requestMatchers("/export/**").hasAuthority("ADMIN")
-                 .requestMatchers("/notifications/**").permitAll()
+        http.authorizeHttpRequests(auth -> auth
+                // PUBLIC
+                .requestMatchers(
+                        "/", "/home", "/home/**",
+                        "/login", "/register",
+                        "/api/v1/auth/**",
+                        "/css/**", "/js/**"
+                ).permitAll()
 
+                // Si tu veux rendre ces modules publics comme tu avais fait :
+                .requestMatchers(
+                        "/bibliotheques/**", "/ressources/**",
+                        "/exemplaires", "/exemplaires/**",
+                        "/loans/**", "/api/loans/**",
+                        "/notifications/**"
+                ).permitAll()
 
-                 .anyRequest().authenticated())
-//                .authorizeHttpRequests(auth -> auth
-//                        .anyRequest().permitAll())
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/", "/home", "/home/**",
-                                "/bibliotheques/**", "/ressources/**",
-                                "/exemplaires", "/exemplaires/**",
-                                "/loans/**", "/api/loans/**",
-                                "/api/v1/auth/**",
-                                "/login", "/register",
-                                "/css/**", "/js/**")
-                        .permitAll()
-                        .requestMatchers("/dashboard/**").permitAll()
-                        .requestMatchers("/export/**").hasAuthority("ADMIN")
-                        .anyRequest().authenticated())
-                // .authorizeHttpRequests(auth -> auth
-                // .anyRequest().permitAll())
+                // Dashboard: accessible aux 3 rôles
+                .requestMatchers("/dashboard", "/dashboard/**")
+                .hasAnyAuthority("ADMIN", "USER", "BIBLIOTHECAIRE")
 
+                // Export: ADMIN uniquement
+                .requestMatchers("/export/**").hasAuthority("ADMIN")
 
+                // FIN: tout le reste doit être authentifié
+                .anyRequest().authenticated()
+        );
 
-                // .authorizeHttpRequests(auth -> auth
+        http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED));
 
+        http.authenticationProvider(authenticationProvider);
 
-                // 3) Ne JAMAIS accéder directement au dossier uploads
-                // .requestMatchers("/uploads/**").denyAll()
-                // .requestMatchers("/ressources/**").authenticated()
-                // .anyRequest().authenticated())
+        http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
-                .authenticationProvider(authenticationProvider)
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                .build();
+        return http.build();
     }
 }
