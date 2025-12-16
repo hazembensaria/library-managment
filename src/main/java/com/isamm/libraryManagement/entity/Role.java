@@ -4,5 +4,5 @@ public enum Role {
 
     USER,
     ADMIN,
-    LIBRARIAN,
+    BIBLIOTHECAIRE,
 }
