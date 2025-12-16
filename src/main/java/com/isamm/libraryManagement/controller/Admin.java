@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/admin")
 public class Admin {
 
-    @GetMapping("/dashboard")
-    public String dashboard() {
-        return "dashboard";
-    }
+    // @GetMapping("/dashboard")
+    // public String dashboard() {
+    // return "dashboard";
+    // }
 }

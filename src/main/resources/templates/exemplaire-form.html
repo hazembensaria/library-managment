@@ -242,8 +242,12 @@
                   class="form-control"
                   th:field="*{codeBarre}"
                   placeholder="Enter the barcode"
-                  required
                 />
+                <div
+                  class="text-danger"
+                  th:if="${#fields.hasErrors('codeBarre')}"
+                  th:errors="*{codeBarre}"
+                ></div>
               </div>
 
               <!-- Acquisition date -->
@@ -258,6 +262,11 @@
                   th:field="*{dateAcquisition}"
                   id="acquisitionDate"
                 />
+                <div
+                  class="text-danger"
+                  th:if="${#fields.hasErrors('dateAcquisition')}"
+                  th:errors="*{dateAcquisition}"
+                ></div>
                 <small class="text-muted">
                   By default, today’s date is used. You can change it if needed.
                 </small>
@@ -274,6 +283,11 @@
                   <option value="Good">Good</option>
                   <option value="Damaged">Damaged</option>
                 </select>
+                <div
+                  class="text-danger"
+                  th:if="${#fields.hasErrors('etat')}"
+                  th:errors="*{etat}"
+                ></div>
               </div>
 
               <!-- Library -->
