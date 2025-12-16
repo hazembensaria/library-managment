@@ -25,42 +25,42 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-        http.csrf(csrf -> csrf.disable());
+        return http
+                .csrf(csrf -> csrf.disable())
 
-        http.authorizeHttpRequests(auth -> auth
-                // PUBLIC
-                .requestMatchers(
-                        "/", "/home", "/home/**",
-                        "/login", "/register",
-                        "/api/v1/auth/**",
-                        "/css/**", "/js/**"
-                ).permitAll()
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                                "/", "/home", "/home/**",
+                                "/bibliotheques/**", "/ressources/**",
+                                "/exemplaires", "/exemplaires/**",
+                                "/api/v1/auth/**",
+                                "/login", "/register",
+                                "/css/**", "/js/**")
+                        .permitAll()
+                        .requestMatchers("/login", "/register", "/css/**", "/js/**").permitAll()
 
-                // Si tu veux rendre ces modules publics comme tu avais fait :
-                .requestMatchers(
-                        "/bibliotheques/**", "/ressources/**",
-                        "/exemplaires", "/exemplaires/**",
-                        "/loans/**", "/api/loans/**",
-                        "/notifications/**"
-                ).permitAll()
+                        .requestMatchers("/dashboard/**").permitAll()
+                        .requestMatchers("/export/**").hasAuthority("ADMIN")
+                        .requestMatchers("/notifications/**").permitAll()
 
-                // Dashboard: accessible aux 3 rôles
-                .requestMatchers("/dashboard", "/dashboard/**")
-                .hasAnyAuthority("ADMIN", "USER", "BIBLIOTHECAIRE")
 
-                // Export: ADMIN uniquement
-                .requestMatchers("/export/**").hasAuthority("ADMIN")
+                        .anyRequest().authenticated())
+//                .authorizeHttpRequests(auth -> auth
+//                        .anyRequest().permitAll())
 
-                // FIN: tout le reste doit être authentifié
-                .anyRequest().authenticated()
-        );
 
-        http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED));
 
-        http.authenticationProvider(authenticationProvider);
+                // .authorizeHttpRequests(auth -> auth
 
-        http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
-        return http.build();
+                // 3) Ne JAMAIS accéder directement au dossier uploads
+                // .requestMatchers("/uploads/**").denyAll()
+                // .requestMatchers("/ressources/**").authenticated()
+                // .anyRequest().authenticated())
+
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authenticationProvider(authenticationProvider)
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .build();
     }
 }
