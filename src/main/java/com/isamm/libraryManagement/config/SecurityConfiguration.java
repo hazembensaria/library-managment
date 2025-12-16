@@ -34,6 +34,7 @@ public class SecurityConfiguration {
                          "/", "/home", "/home/**",
                          "/bibliotheques/**", "/ressources/**",
                          "/exemplaires", "/exemplaires/**",
+                         "/loans/**", "/api/loans/**",
                          "/api/v1/auth/**",
                          "/login", "/register",
                          "/css/**", "/js/**")

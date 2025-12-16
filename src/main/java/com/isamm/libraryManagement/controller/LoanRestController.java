@@ -31,7 +31,7 @@ public class LoanRestController {
     }
 
     @PostMapping("/reserveForUser")
-    @PreAuthorize("hasAnyAuthority('ADMIN','BIBLIO')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','BIBLIOTHECAIRE')")
     public ResponseEntity<?> reserveForUser(
             @RequestParam Long exemplaireId,
             @RequestParam Integer userId) {
@@ -45,5 +45,4 @@ public class LoanRestController {
         }
     }
 }
-
 

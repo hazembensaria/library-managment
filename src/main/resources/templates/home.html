@@ -47,9 +47,9 @@
     <nav>
         <a th:href="@{/home}">Home</a>
 
-        <!-- Admin / Biblio menus -->
-        <a th:href="@{/dashboard}" sec:authorize="hasAnyAuthority('ADMIN','BIBLIO')">Dashboard</a>
-        <a th:href="@{/loans}" sec:authorize="hasAnyAuthority('ADMIN','BIBLIO')">Prêts</a>
+        <!-- Admin / Bibliothécaire menus -->
+        <a th:href="@{/dashboard}" sec:authorize="hasAnyAuthority('ADMIN','BIBLIOTHECAIRE')">Dashboard</a>
+        <a th:href="@{/loans}" sec:authorize="hasAnyAuthority('ADMIN','BIBLIOTHECAIRE')">Prêts</a>
 
         <!-- User menu item -->
         <a th:href="@{/profile}" sec:authorize="hasAuthority('USER')">Profile</a>
