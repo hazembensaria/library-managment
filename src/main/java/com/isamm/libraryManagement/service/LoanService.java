@@ -9,6 +9,8 @@ public interface LoanService {
 
     Loan reserve(Long exemplaireId);
 
+    Loan reserveForUser(Long exemplaireId, Integer userId);
+
     Loan borrow(Long loanId);
 
     Loan returnLoan(Long loanId);

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr"
       xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -65,7 +65,6 @@
     .ic3{background:linear-gradient(135deg,#2dd4bf 0%,#0ea5e9 100%)}
     .ic4{background:linear-gradient(135deg,#34d399 0%,#16a34a 100%)}
     .ic5{background:linear-gradient(135deg,#fb7185 0%,#dc2626 100%)}
-    .ic6{background:linear-gradient(135deg,#f97316 0%,#f59e0b 100%)}
 
     .kpi-value{font-size:2rem;font-weight:950;color:#111827;margin-top:.65rem}
     .kpi-hint{margin:.25rem 0 0;color:#94a3b8;font-weight:700;font-size:.92rem}
@@ -77,37 +76,8 @@
     .panel-title{margin:0;font-weight:950;color:#111827;display:flex;align-items:center;gap:.6rem}
     .panel-title i{color:var(--primary)}
     .muted{color:#6c757d;font-weight:650}
-
     .chart-box{height:320px}
     @media(max-width:768px){.chart-box{height:240px}}
-
-    /* Notifications dropdown */
-    .notif-btn{
-      border:1px solid rgba(0,0,0,.08);
-      background:#fff; border-radius:12px; padding:.55rem .7rem;
-      display:inline-flex;align-items:center;gap:.5rem;
-      transition:transform .2s, box-shadow .2s;
-    }
-    .notif-btn:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
-    .notif-badge{
-      font-weight:900;
-    }
-    .dropdown-menu-notif{
-      width:min(420px, 92vw);
-      border-radius:16px;
-      padding:0;
-      overflow:hidden;
-      box-shadow:var(--shadowHover);
-      border:1px solid rgba(0,0,0,.08);
-    }
-    .notif-head{
-      padding:1rem 1rem;
-      background:linear-gradient(135deg,#667eea 0%,#3799e9 100%);
-      color:#fff;
-      display:flex;justify-content:space-between;align-items:center;
-    }
-    .notif-body{padding:1rem 1rem;background:#fff}
-    .notif-item{border-radius:12px}
   </style>
 </head>
 
@@ -126,69 +96,15 @@
 
         <div class="mt-3 d-flex gap-2 flex-wrap">
           <span class="role role-admin" sec:authorize="hasAuthority('ADMIN')"><i class="bi bi-shield-lock"></i> ADMIN</span>
-          <span class="role role-lib" sec:authorize="hasAuthority('LIBRARIAN')"><i class="bi bi-person-workspace"></i> BIBLIOTHÉCAIRE</span>
+          <span class="role role-lib" sec:authorize="hasAuthority('BIBLIOTHECAIRE')"><i class="bi bi-person-workspace"></i> BIBLIOTHÉCAIRE</span>
           <span class="role role-user" sec:authorize="hasAuthority('USER')"><i class="bi bi-person"></i> USAGER</span>
         </div>
       </div>
 
-      <div class="d-flex align-items-center gap-2">
-
-        <!-- 🔔 Notifications (box à ouvrir) -->
-        <div class="dropdown">
-          <button class="notif-btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" type="button">
-            <i class="bi bi-bell-fill" style="color:var(--primary)"></i>
-            <span class="badge bg-danger notif-badge" th:text="${nonLuesCount != null ? nonLuesCount : 0}">0</span>
-          </button>
-
-          <div class="dropdown-menu dropdown-menu-end dropdown-menu-notif">
-            <div class="notif-head">
-              <div class="fw-bold"><i class="bi bi-bell"></i> Notifications</div>
-              <span class="badge bg-light text-dark" th:text="${nonLuesCount != null ? nonLuesCount : 0} + ' non lue(s)'">0</span>
-            </div>
-
-            <div class="notif-body">
-              <!-- Liste -->
-              <div th:if="${notifications != null and !#lists.isEmpty(notifications)}">
-                <div class="list-group">
-                  <div class="list-group-item notif-item mb-2"
-                       th:each="n : ${notifications}"
-                       th:classappend="${n.lu} ? '' : ' list-group-item-warning'">
-
-                    <div class="d-flex justify-content-between gap-2">
-                      <div>
-                        <div class="fw-semibold">
-                          <span class="badge bg-info text-dark me-2" th:text="${n.type}">TYPE</span>
-                          <span th:text="${n.message}">Message</span>
-                        </div>
-                        <small class="text-muted" th:text="${n.dateEnvoi}">date</small>
-                      </div>
-
-                      <form th:if="${!n.lu}" th:action="@{'/notifications/lue/' + ${n.id}}" method="post">
-                        <button class="btn btn-sm btn-outline-primary" type="submit">Lue</button>
-                      </form>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="alert alert-info mb-2" th:if="${notifications == null or #lists.isEmpty(notifications)}">
-                <i class="bi bi-info-circle"></i> Aucune notification.
-              </div>
-
-              <!-- Test email simple -->
-              <form th:action="@{/notifications/test-email}" method="post" class="d-flex gap-2">
-                <input class="form-control" name="message" placeholder="Message test email..." required/>
-                <button class="btn btn-primary" type="submit"><i class="bi bi-send"></i></button>
-              </form>
-            </div>
-          </div>
-        </div>
-
-        <!-- Export ADMIN only -->
-        <div class="d-flex gap-2" sec:authorize="hasAuthority('ADMIN')">
-          <a class="export-btn btn-csv" th:href="@{/export/csv}"><i class="bi bi-filetype-csv"></i> CSV</a>
-          <a class="export-btn btn-pdf" th:href="@{/export/pdf}"><i class="bi bi-filetype-pdf"></i> PDF</a>
-        </div>
+      <!-- Export ADMIN only -->
+      <div class="d-flex gap-2 align-items-center" sec:authorize="hasAuthority('ADMIN')">
+        <a class="export-btn btn-csv" th:href="@{/export/csv}"><i class="bi bi-filetype-csv"></i> CSV</a>
+        <a class="export-btn btn-pdf" th:href="@{/export/pdf}"><i class="bi bi-filetype-pdf"></i> PDF</a>
       </div>
     </div>
   </div>
@@ -254,12 +170,12 @@
       </div>
     </div>
 
-    <!-- Charts Admin -->
+    <!-- Charts Admin (DB) -->
     <div class="row g-4 mt-1">
       <div class="col-12 col-lg-6">
         <div class="panel">
           <h5 class="panel-title"><i class="bi bi-bar-chart"></i> Prêts par catégorie</h5>
-          <p class="muted mt-2 mb-3">Nombre de prêts par type de ressource.</p>
+          <p class="muted mt-2 mb-3">Données depuis la base.</p>
           <div class="chart-box"><canvas id="chartCategorie"></canvas></div>
         </div>
       </div>
@@ -267,57 +183,47 @@
       <div class="col-12 col-lg-6">
         <div class="panel">
           <h5 class="panel-title"><i class="bi bi-pie-chart"></i> Prêts par bibliothèque</h5>
-          <p class="muted mt-2 mb-3">Répartition des prêts par établissement.</p>
+          <p class="muted mt-2 mb-3">Données depuis la base.</p>
           <div class="chart-box"><canvas id="chartBiblio"></canvas></div>
-        </div>
-      </div>
-
-      <div class="col-12">
-        <div class="panel">
-          <h5 class="panel-title"><i class="bi bi-graph-up"></i> Taux de rotation des stocks</h5>
-          <p class="muted mt-2 mb-3">Évolution sur les 6 derniers mois.</p>
-          <div class="chart-box"><canvas id="chartRotation"></canvas></div>
         </div>
       </div>
     </div>
 
-    <!-- Chart.js init (statique, mais tu peux remplacer par model plus tard) -->
+    <!-- JS dynamique (DB) -->
     <script th:inline="javascript">
       /*<![CDATA[*/
       document.addEventListener('DOMContentLoaded', function () {
         const c1 = document.getElementById('chartCategorie');
         const c2 = document.getElementById('chartBiblio');
-        const c3 = document.getElementById('chartRotation');
-        if (!c1 || !c2 || !c3) return;
+        if (!c1 || !c2) return;
 
-        // ✅ Statique (comme demandé) -> OK pour la tâche
+        const catMap = /*[[${chartCategorie}]]*/ {};
+        const biblioMap = /*[[${chartBibliotheque}]]*/ {};
+
+        const catLabels = Object.keys(catMap);
+        const catValues = Object.values(catMap);
+
+        const bLabels = Object.keys(biblioMap);
+        const bValues = Object.values(biblioMap);
+
         new Chart(c1, {
           type: 'bar',
-          data: { labels: ['Livres','Revues','DVD','CD','Numérique'],
-            datasets: [{ label: 'Prêts', data: [120,45,30,25,15] }] },
+          data: { labels: catLabels, datasets: [{ label: 'Prêts', data: catValues }] },
           options: { responsive:true, maintainAspectRatio:false, scales:{ y:{ beginAtZero:true } } }
         });
 
         new Chart(c2, {
           type: 'pie',
-          data: { labels: ['Centrale','Est','Ouest','Nord'],
-            datasets: [{ data: [40,25,20,15] }] },
+          data: { labels: bLabels, datasets: [{ data: bValues }] },
           options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'bottom' } } }
-        });
-
-        new Chart(c3, {
-          type: 'line',
-          data: { labels: ['Jan','Fév','Mar','Avr','Mai','Juin'],
-            datasets: [{ label:'Rotation (%)', data:[65,70,72,75,78,80], fill:true, tension:.3 }] },
-          options: { responsive:true, maintainAspectRatio:false }
         });
       });
       /*]]>*/
     </script>
   </div>
 
-  <!-- ====================== LIBRARIAN ====================== -->
-  <div sec:authorize="hasAuthority('LIBRARIAN')">
+  <!-- ====================== BIBLIOTHECAIRE ====================== -->
+  <div sec:authorize="hasAuthority('BIBLIOTHECAIRE')">
 
     <div class="row g-4" th:if="${statsLibrarian != null}">
       <div class="col-6 col-md-3"><div class="cardx text-center"><h2 class="text-danger" th:text="${statsLibrarian.retards}">0</h2><div class="muted">Retards</div></div></div>
@@ -328,6 +234,7 @@
 
     <div class="panel mt-3">
       <h5 class="panel-title"><i class="bi bi-clock-history"></i> Prêts en cours - Priorités</h5>
+
       <div class="table-responsive mt-3">
         <table class="table table-hover">
           <thead class="table-light">
@@ -335,22 +242,33 @@
           </thead>
           <tbody>
           <tr th:each="pret : ${pretsEnCours}"
-              th:class="${pret.priorite == 'HAUTE'} ? 'table-danger' : (${pret.priorite == 'MOYENNE'} ? 'table-warning' : 'table-success')">
+              th:class="${prioriteMap[pret.id] == 'HAUTE'} ? 'table-danger' : (${prioriteMap[pret.id] == 'MOYENNE'} ? 'table-warning' : 'table-success')">
+
             <td>
-              <span th:if="${pret.priorite == 'HAUTE'}" class="badge bg-danger">Haute</span>
-              <span th:if="${pret.priorite == 'MOYENNE'}" class="badge bg-warning">Moyenne</span>
-              <span th:if="${pret.priorite == 'BASSE'}" class="badge bg-success">Basse</span>
+              <span th:if="${prioriteMap[pret.id] == 'HAUTE'}" class="badge bg-danger">Haute</span>
+              <span th:if="${prioriteMap[pret.id] == 'MOYENNE'}" class="badge bg-warning">Moyenne</span>
+              <span th:if="${prioriteMap[pret.id] == 'BASSE'}" class="badge bg-success">Basse</span>
             </td>
-            <td th:text="${pret.usagerNom}"></td>
-            <td th:text="${pret.titre}"></td>
-            <td th:text="${pret.dateRetourPrevue}"></td>
+
+            <td th:text="${pret.user.email}">user@mail</td>
+            <td th:text="${pret.exemplaire.ressource.titre}">Titre</td>
+            <td th:text="${pret.dueAt}">date</td>
+
             <td>
-              <span th:if="${pret.joursRestants < 0}" class="text-danger"><i class="bi bi-exclamation-triangle"></i> +[[${-pret.joursRestants}]]j</span>
-              <span th:if="${pret.joursRestants >= 0}" class="text-success">[[${pret.joursRestants}]]j</span>
+              <span th:if="${joursRestantsMap[pret.id] < 0}" class="text-danger">
+                <i class="bi bi-exclamation-triangle"></i> +[[${-joursRestantsMap[pret.id]}]]j
+              </span>
+              <span th:if="${joursRestantsMap[pret.id] >= 0}" class="text-success">
+                [[${joursRestantsMap[pret.id]}]]j
+              </span>
             </td>
           </tr>
           </tbody>
         </table>
+      </div>
+
+      <div class="alert alert-info mt-2" th:if="${pretsEnCours == null or #lists.isEmpty(pretsEnCours)}">
+        <i class="bi bi-info-circle"></i> Aucun prêt en cours.
       </div>
     </div>
   </div>
@@ -366,6 +284,7 @@
 
     <div class="panel mt-3">
       <h5 class="panel-title"><i class="bi bi-book"></i> Mes prêts en cours</h5>
+
       <div class="table-responsive mt-3">
         <table class="table table-hover">
           <thead class="table-light">
@@ -373,21 +292,27 @@
           </thead>
           <tbody>
           <tr th:each="pret : ${mesPrets}">
-            <td th:text="${pret.titre}"></td>
-            <td th:text="${pret.auteur}"></td>
-            <td th:text="${pret.dateEmprunt}"></td>
-            <td th:text="${pret.dateRetourPrevue}"></td>
+            <td th:text="${pret.exemplaire.ressource.titre}">Titre</td>
+            <td th:text="${pret.exemplaire.ressource.auteur}">Auteur</td>
+            <td th:text="${pret.borrowedAt}">date</td>
+            <td th:text="${pret.dueAt}">date</td>
             <td>
-              <span th:if="${pret.joursRestants < 0}" class="badge bg-danger">En retard ([[${-pret.joursRestants}]]j)</span>
-              <span th:if="${pret.joursRestants >= 0 and pret.joursRestants < 3}" class="badge bg-warning">À rendre ([[${pret.joursRestants}]]j)</span>
-              <span th:if="${pret.joursRestants >= 3}" class="badge bg-success">En cours ([[${pret.joursRestants}]]j)</span>
+              <span th:if="${joursRestantsMap[pret.id] < 0}" class="badge bg-danger">
+                En retard ([[${-joursRestantsMap[pret.id]}]]j)
+              </span>
+              <span th:if="${joursRestantsMap[pret.id] >= 0 and joursRestantsMap[pret.id] < 3}" class="badge bg-warning">
+                À rendre ([[${joursRestantsMap[pret.id]}]]j)
+              </span>
+              <span th:if="${joursRestantsMap[pret.id] >= 3}" class="badge bg-success">
+                En cours ([[${joursRestantsMap[pret.id]}]]j)
+              </span>
             </td>
           </tr>
           </tbody>
         </table>
       </div>
 
-      <div class="alert alert-info mt-3" th:if="${#lists.isEmpty(mesPrets)}">
+      <div class="alert alert-info mt-3" th:if="${mesPrets == null or #lists.isEmpty(mesPrets)}">
         <i class="bi bi-info-circle"></i> Vous n'avez aucun prêt en cours.
       </div>
     </div>
