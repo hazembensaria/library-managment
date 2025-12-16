@@ -48,4 +48,9 @@ public class Bibliotheque {
     // Sous-bibliothèques
     @OneToMany(mappedBy = "parent")
     private List<Bibliotheque> sousBibliotheques;
+
+    @OneToMany(mappedBy = "bibliotheque")
+    @JsonIgnore
+    private List<Exemplaire> exemplaires;
+
 }

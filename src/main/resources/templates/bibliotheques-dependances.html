@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title th:text="'Dependencies for: ' + ${bibliotheque.nom}">
+      Dependencies
+    </title>
+
+    <!-- Bootstrap & Icons -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+
+    <style>
+      :root {
+        --primary-color: #667eea;
+        --secondary-color: #764ba2;
+      }
+
+      body {
+        background: #f5f7fa;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        min-height: 100vh;
+        padding: 2rem 0;
+      }
+
+      .page-container {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 0 1rem;
+      }
+
+      .page-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        overflow: hidden;
+      }
+
+      .page-header {
+        background: var(--primary-color);
+        color: white;
+        padding: 2rem;
+      }
+
+      .page-header h2 {
+        margin: 0;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .page-header h2 i {
+        font-size: 2rem;
+      }
+
+      .page-header .subtitle {
+        margin-top: 0.5rem;
+        font-size: 0.95rem;
+        opacity: 0.9;
+      }
+
+      .page-body {
+        padding: 2rem 2.5rem 2.5rem 2.5rem;
+      }
+
+      .top-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        gap: 1rem;
+      }
+
+      .btn-primary-custom {
+        background: var(--primary-color);
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        padding: 0.6rem 1.4rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: white;
+        text-decoration: none;
+      }
+
+      .btn-primary-custom:hover {
+        background: #5769c3;
+      }
+
+      .btn-secondary-custom {
+        background: #6c757d;
+        border: none;
+        border-radius: 10px;
+        font-weight: 500;
+        padding: 0.5rem 1.2rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        color: white;
+        text-decoration: none;
+      }
+
+      .btn-secondary-custom:hover {
+        background: #5a6268;
+      }
+
+      .list-card {
+        border: 1px solid #dee2e6;
+        border-radius: 10px;
+        margin-bottom: 1rem;
+        padding: 1rem 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #f8f9fa;
+      }
+
+      .badge-count {
+        background: #dc3545;
+        color: white;
+        border-radius: 50%;
+        padding: 0.35rem 0.7rem;
+        font-size: 0.9rem;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 2rem 1rem;
+        color: #6c757d;
+      }
+
+      .empty-state i {
+        font-size: 2.5rem;
+        color: #ced4da;
+        margin-bottom: 0.5rem;
+      }
+
+      @media (max-width: 768px) {
+        .top-actions {
+          flex-direction: column;
+          align-items: stretch;
+        }
+        .top-actions a {
+          width: 100%;
+          justify-content: center;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="page-container">
+      <div class="page-card">
+        <!-- Header -->
+        <div class="page-header">
+          <h2>
+            <i class="bi bi-diagram-3"></i>
+            <span th:text="'Dependencies for: ' + ${bibliotheque.nom}"
+              >Dependencies</span
+            >
+          </h2>
+          <div class="subtitle">
+            Library ID: <span th:text="${bibliotheque.id}">1</span>
+          </div>
+        </div>
+
+        <!-- Body -->
+        <div class="page-body">
+          <div class="top-actions">
+            <a href="/bibliotheques" class="btn-secondary-custom">
+              <i class="bi bi-arrow-left"></i>
+              Back to libraries list
+            </a>
+            <a
+              th:href="@{'/bibliotheques/edit/' + ${bibliotheque.id}}"
+              class="btn-primary-custom"
+            >
+              <i class="bi bi-pencil"></i>
+              Edit library
+            </a>
+          </div>
+
+          <!-- Copies -->
+          <h5>📦 Copies</h5>
+          <div th:if="${#lists.isEmpty(exemplaires)}" class="empty-state">
+            <i class="bi bi-inbox"></i>
+            <p>No copies exist for this library.</p>
+          </div>
+          <div th:each="ex : ${exemplaires}" class="list-card">
+            <span
+              th:text="${ex.codeBarre} + ' - ' + ${ex.ressource.code} + ' : ' + ${ex.ressource.titre} + ' (' + ex.etat + ')'"
+            >
+              123456 - R001 : Resource Title (Good)
+            </span>
+
+            <span
+              th:text="${ex.disponible} ? 'Available' : 'Unavailable'"
+              class="badge-count"
+              >1</span
+            >
+          </div>
+
+          <!-- Sub-libraries -->
+          <h5 class="mt-4">🏢 Sub-libraries</h5>
+          <div th:if="${#lists.isEmpty(sousBibliotheques)}" class="empty-state">
+            <i class="bi bi-inbox"></i>
+            <p>No sub-libraries exist for this library.</p>
+          </div>
+          <div th:each="sub : ${sousBibliotheques}" class="list-card">
+            <span th:text="${sub.nom} + ' - ' + ${sub.adresse}"
+              >Library Name - Address</span
+            >
+            <a
+              th:href="@{'/bibliotheques/' + ${sub.id} + '/dependances'}"
+              class="btn btn-sm btn-primary"
+            >
+              <i class="bi bi-eye"></i> View dependencies
+            </a>
+          </div>
+
+          <div
+            class="alert alert-warning mt-3"
+            th:if="${#lists.size(exemplaires) > 0 || #lists.size(sousBibliotheques) > 0}"
+          >
+            This library cannot be deleted while these dependencies exist.
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

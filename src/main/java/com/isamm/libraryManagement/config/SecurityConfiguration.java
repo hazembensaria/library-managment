@@ -31,27 +31,22 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/", "/home", "/home/**",
-                                "/bibliotheques/**", "/ressources/**",
+                                "/bibliotheques/**",
+                                "/bibliotheques/save", "/ressources/**",
                                 "/exemplaires", "/exemplaires/**",
                                 "/api/v1/auth/**",
                                 "/login", "/register",
                                 "/css/**", "/js/**")
                         .permitAll()
                         .requestMatchers("/login", "/register", "/css/**", "/js/**").permitAll()
-
+                        .requestMatchers("/bibliotheques/*/dependances").permitAll()
                         .requestMatchers("/dashboard/**").permitAll()
                         .requestMatchers("/export/**").hasAuthority("ADMIN")
-                        .requestMatchers("/notifications/**").permitAll()
+                        .requestMatchers("/notifications/**").permitAll())
 
-
-                        .anyRequest().authenticated())
-//                .authorizeHttpRequests(auth -> auth
-//                        .anyRequest().permitAll())
-
-
-
+                // .anyRequest().authenticated())
                 // .authorizeHttpRequests(auth -> auth
-
+                // .anyRequest().permitAll())
 
                 // 3) Ne JAMAIS accéder directement au dossier uploads
                 // .requestMatchers("/uploads/**").denyAll()
