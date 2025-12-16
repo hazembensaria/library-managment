@@ -3,356 +3,394 @@
       xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard - Statistiques</title>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard</title>
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js" sec:authorize="hasAuthority('ADMIN')"></script>
 
   <style>
     :root{
-      --primary-color:#4a90e2;
-      --secondary-color:#6c757d;
-      --success-color:#28a745;
-      --danger-color:#dc3545;
-      --bg:#f5f7fa;
+      --primary:#4a90e2; --bg:#f5f7fa; --card:#ffffff;
+      --shadow:0 10px 30px rgba(0,0,0,.10);
+      --shadowHover:0 16px 40px rgba(0,0,0,.14);
+      --radius:16px;
     }
-
-    body{
-      background: var(--bg);
-      min-height: 100vh;
-      padding: 2rem 0;
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    body{background:var(--bg);min-height:100vh;padding:2rem 0;font-family:"Segoe UI",sans-serif}
+    .container-xl{max-width:1400px}
+    .header{
+      background:var(--card); border-radius:var(--radius); padding:1.6rem 1.6rem;
+      box-shadow:var(--shadow); border:1px solid rgba(0,0,0,.04); margin-bottom:1.2rem;
     }
-
-    .main-container{
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 0 1rem;
+    .title{font-weight:900;margin:0;display:flex;align-items:center;gap:.7rem}
+    .title i{color:var(--primary)}
+    .subtitle{color:#6c757d;font-weight:600;margin-top:.2rem}
+    .pill{
+      display:inline-flex;align-items:center;gap:.45rem;padding:.35rem .75rem;border-radius:999px;
+      font-weight:800;font-size:.85rem;background:#eef2ff;color:#1e40af;
     }
-
-    .header-section{
-      background: white;
-      border-radius: 15px;
-      padding: 2rem;
-      margin-bottom: 2rem;
-      box-shadow: 0 10px 30px rgba(0,0,0,.10);
+    .role{
+      display:inline-flex;align-items:center;gap:.45rem;padding:.35rem .75rem;border-radius:999px;
+      font-weight:900;font-size:.85rem;
     }
-
-    .header-section h1{
-      color:#333;
-      font-weight:800;
-      margin:0;
-      display:flex;
-      align-items:center;
-      gap:1rem;
-    }
-    .header-section h1 i{ color: var(--primary-color); }
-
-    .subtitle{
-      margin-top: .5rem;
-      color:#6c757d;
-      font-weight:500;
-    }
+    .role-admin{background:#fee2e2;color:#991b1b}
+    .role-lib{background:#dcfce7;color:#166534}
+    .role-user{background:#e0e7ff;color:#1e40af}
 
     .export-btn{
-      border:none;
-      padding:.75rem 1.25rem;
-      border-radius:10px;
-      color:white;
-      font-weight:700;
-      transition: transform .2s, box-shadow .2s;
-      text-decoration:none;
-      display:inline-flex;
-      align-items:center;
-      gap:.6rem;
-      white-space:nowrap;
+      border:none; padding:.7rem 1rem; border-radius:12px; color:white; font-weight:900;
+      text-decoration:none; display:inline-flex; align-items:center; gap:.5rem;
+      transition:transform .2s, box-shadow .2s;
     }
+    .export-btn:hover{transform:translateY(-2px);box-shadow:var(--shadowHover);color:#fff}
+    .btn-csv{background:linear-gradient(135deg,#667eea 0%,#3799e9 100%)}
+    .btn-pdf{background:linear-gradient(135deg,#ef4444 0%,#f97316 100%)}
 
-    .export-btn:hover{
-      transform: translateY(-2px);
-      box-shadow: 0 10px 25px rgba(0,0,0,.18);
-      color:white;
+    .cardx{
+      background:var(--card); border-radius:var(--radius); padding:1.2rem 1.2rem;
+      box-shadow:var(--shadow); border:1px solid rgba(0,0,0,.04); height:100%;
+      transition:transform .2s, box-shadow .2s;
     }
-
-    .btn-csv{ background: linear-gradient(135deg, #667eea 0%, #3799e9 100%); }
-    .btn-pdf{ background: linear-gradient(135deg, #ef4444 0%, #f97316 100%); }
-
-    .mini-pill{
-      display:inline-flex;
-      align-items:center;
-      gap:.4rem;
-      padding:.35rem .75rem;
-      border-radius: 999px;
-      font-size:.85rem;
-      font-weight:700;
-      background:#eef2ff;
-      color:#1e40af;
-    }
-
-    .kpi-card{
-      background:white;
-      border-radius:15px;
-      padding:1.3rem 1.3rem;
-      box-shadow: 0 8px 20px rgba(0,0,0,.08);
-      border: 1px solid rgba(0,0,0,.04);
-      height:100%;
-      transition: transform .2s, box-shadow .2s;
-    }
-
-    .kpi-card:hover{
-      transform: translateY(-4px);
-      box-shadow: 0 15px 35px rgba(0,0,0,.12);
-    }
-
-    .kpi-top{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:1rem;
-    }
-
-    .kpi-label{
-      color:#6c757d;
-      font-weight:700;
-      margin:0;
-      display:flex;
-      align-items:center;
-      gap:.6rem;
-    }
-
+    .cardx:hover{transform:translateY(-4px);box-shadow:var(--shadowHover)}
+    .kpi-top{display:flex;align-items:center;justify-content:space-between;gap:1rem}
+    .kpi-label{color:#6c757d;font-weight:800;margin:0;display:flex;align-items:center;gap:.5rem}
     .kpi-icon{
-      width:42px;
-      height:42px;
-      border-radius:12px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:1.2rem;
-      color:white;
+      width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;
+      color:#fff;font-size:1.2rem;
     }
-    .icon-primary{ background: linear-gradient(135deg, #667eea 0%, #3799e9 100%); }
-    .icon-success{ background: linear-gradient(135deg, #34d399 0%, #16a34a 100%); }
-    .icon-danger{ background: linear-gradient(135deg, #fb7185 0%, #dc2626 100%); }
-    .icon-purple{ background: linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%); }
-    .icon-teal{ background: linear-gradient(135deg, #2dd4bf 0%, #0ea5e9 100%); }
+    .ic1{background:linear-gradient(135deg,#667eea 0%,#3799e9 100%)}
+    .ic2{background:linear-gradient(135deg,#a78bfa 0%,#7c3aed 100%)}
+    .ic3{background:linear-gradient(135deg,#2dd4bf 0%,#0ea5e9 100%)}
+    .ic4{background:linear-gradient(135deg,#34d399 0%,#16a34a 100%)}
+    .ic5{background:linear-gradient(135deg,#fb7185 0%,#dc2626 100%)}
+    .ic6{background:linear-gradient(135deg,#f97316 0%,#f59e0b 100%)}
 
-    .kpi-value{
-      font-size: 2rem;
-      font-weight: 900;
-      color:#111827;
-      margin-top:.7rem;
-      letter-spacing:.3px;
-    }
-
-    .kpi-hint{
-      margin: .2rem 0 0;
-      color:#94a3b8;
-      font-size: .9rem;
-      font-weight:600;
-    }
+    .kpi-value{font-size:2rem;font-weight:950;color:#111827;margin-top:.65rem}
+    .kpi-hint{margin:.25rem 0 0;color:#94a3b8;font-weight:700;font-size:.92rem}
 
     .panel{
-      background:white;
-      border-radius:15px;
-      padding:1.5rem;
-      box-shadow: 0 10px 30px rgba(0,0,0,.10);
-      border: 1px solid rgba(0,0,0,.04);
+      background:var(--card); border-radius:var(--radius); padding:1.3rem 1.3rem;
+      box-shadow:var(--shadow); border:1px solid rgba(0,0,0,.04);
     }
+    .panel-title{margin:0;font-weight:950;color:#111827;display:flex;align-items:center;gap:.6rem}
+    .panel-title i{color:var(--primary)}
+    .muted{color:#6c757d;font-weight:650}
 
-    .panel-title{
-      margin:0;
-      font-weight:800;
-      color:#111827;
-      display:flex;
-      align-items:center;
-      gap:.7rem;
+    .chart-box{height:320px}
+    @media(max-width:768px){.chart-box{height:240px}}
+
+    /* Notifications dropdown */
+    .notif-btn{
+      border:1px solid rgba(0,0,0,.08);
+      background:#fff; border-radius:12px; padding:.55rem .7rem;
+      display:inline-flex;align-items:center;gap:.5rem;
+      transition:transform .2s, box-shadow .2s;
     }
-    .panel-title i{ color: var(--primary-color); }
-
-    .muted{ color:#6c757d; font-weight:600; }
-
-    .role-badge{
-      display:inline-flex;
-      align-items:center;
-      gap:.4rem;
-      padding:.35rem .75rem;
-      border-radius:999px;
-      font-weight:800;
-      font-size:.85rem;
-      background:#f1f5f9;
-      color:#0f172a;
+    .notif-btn:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+    .notif-badge{
+      font-weight:900;
     }
-
-    .role-admin{ background:#fee2e2; color:#991b1b; }
-    .role-user{ background:#e0e7ff; color:#1e40af; }
-
-    .quick-link{
-      text-decoration:none;
-      font-weight:800;
-      display:flex;
-      align-items:center;
-      gap:.6rem;
-      padding:.9rem 1rem;
-      border-radius:12px;
-      background:#f8fafc;
-      border:1px solid rgba(0,0,0,.06);
-      color:#111827;
-      transition: transform .2s, box-shadow .2s;
+    .dropdown-menu-notif{
+      width:min(420px, 92vw);
+      border-radius:16px;
+      padding:0;
+      overflow:hidden;
+      box-shadow:var(--shadowHover);
+      border:1px solid rgba(0,0,0,.08);
     }
-    .quick-link:hover{
-      transform: translateY(-2px);
-      box-shadow: 0 10px 22px rgba(0,0,0,.10);
-      color:#111827;
+    .notif-head{
+      padding:1rem 1rem;
+      background:linear-gradient(135deg,#667eea 0%,#3799e9 100%);
+      color:#fff;
+      display:flex;justify-content:space-between;align-items:center;
     }
-
-    .quick-link i{ color: var(--primary-color); font-size:1.1rem; }
-
-    @media (max-width: 768px){
-      .header-section{ padding: 1.4rem; }
-    }
+    .notif-body{padding:1rem 1rem;background:#fff}
+    .notif-item{border-radius:12px}
   </style>
 </head>
 
 <body>
-<div class="main-container">
+<div class="container-xl">
 
   <!-- HEADER -->
-  <div class="header-section">
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+  <div class="header">
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
       <div>
-        <h1>
-          <i class="bi bi-speedometer2"></i>
-          Dashboard
-          <span class="mini-pill">
-            <i class="bi bi-database-check"></i> Données DB
-          </span>
+        <h1 class="title">
+          <i class="bi bi-speedometer2"></i> Dashboard
+          <span class="pill"><i class="bi bi-database-check"></i> Données DB</span>
         </h1>
-        <div class="subtitle">
-          Indicateurs clés (Bibliothèques, Ressources, Exemplaires, Disponibilité).
+        <div class="subtitle">Tableaux de bord personnalisés par rôle + statistiques & export.</div>
+
+        <div class="mt-3 d-flex gap-2 flex-wrap">
+          <span class="role role-admin" sec:authorize="hasAuthority('ADMIN')"><i class="bi bi-shield-lock"></i> ADMIN</span>
+          <span class="role role-lib" sec:authorize="hasAuthority('LIBRARIAN')"><i class="bi bi-person-workspace"></i> BIBLIOTHÉCAIRE</span>
+          <span class="role role-user" sec:authorize="hasAuthority('USER')"><i class="bi bi-person"></i> USAGER</span>
         </div>
       </div>
 
-      <!-- ✅ SEULEMENT 2 BOUTONS, ADMIN ONLY -->
-      <div class="d-flex gap-2" sec:authorize="hasAuthority('ADMIN')">
-        <a class="export-btn btn-csv" th:href="@{/export/csv}">
-          <i class="bi bi-filetype-csv"></i> Export CSV
-        </a>
-        <a class="export-btn btn-pdf" th:href="@{/export/pdf}">
-          <i class="bi bi-filetype-pdf"></i> Export PDF
-        </a>
-      </div>
-    </div>
+      <div class="d-flex align-items-center gap-2">
 
-    <!-- rôle discret (pas en haut à droite, pas lourd) -->
-    <div class="mt-3">
-      <span class="role-badge role-admin" sec:authorize="hasAuthority('ADMIN')">
-        <i class="bi bi-shield-lock"></i> ADMIN
-      </span>
-      <span class="role-badge role-user" sec:authorize="hasAuthority('USER')">
-        <i class="bi bi-person"></i> USER
-      </span>
+        <!-- 🔔 Notifications (box à ouvrir) -->
+        <div class="dropdown">
+          <button class="notif-btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" type="button">
+            <i class="bi bi-bell-fill" style="color:var(--primary)"></i>
+            <span class="badge bg-danger notif-badge" th:text="${nonLuesCount != null ? nonLuesCount : 0}">0</span>
+          </button>
+
+          <div class="dropdown-menu dropdown-menu-end dropdown-menu-notif">
+            <div class="notif-head">
+              <div class="fw-bold"><i class="bi bi-bell"></i> Notifications</div>
+              <span class="badge bg-light text-dark" th:text="${nonLuesCount != null ? nonLuesCount : 0} + ' non lue(s)'">0</span>
+            </div>
+
+            <div class="notif-body">
+              <!-- Liste -->
+              <div th:if="${notifications != null and !#lists.isEmpty(notifications)}">
+                <div class="list-group">
+                  <div class="list-group-item notif-item mb-2"
+                       th:each="n : ${notifications}"
+                       th:classappend="${n.lu} ? '' : ' list-group-item-warning'">
+
+                    <div class="d-flex justify-content-between gap-2">
+                      <div>
+                        <div class="fw-semibold">
+                          <span class="badge bg-info text-dark me-2" th:text="${n.type}">TYPE</span>
+                          <span th:text="${n.message}">Message</span>
+                        </div>
+                        <small class="text-muted" th:text="${n.dateEnvoi}">date</small>
+                      </div>
+
+                      <form th:if="${!n.lu}" th:action="@{'/notifications/lue/' + ${n.id}}" method="post">
+                        <button class="btn btn-sm btn-outline-primary" type="submit">Lue</button>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="alert alert-info mb-2" th:if="${notifications == null or #lists.isEmpty(notifications)}">
+                <i class="bi bi-info-circle"></i> Aucune notification.
+              </div>
+
+              <!-- Test email simple -->
+              <form th:action="@{/notifications/test-email}" method="post" class="d-flex gap-2">
+                <input class="form-control" name="message" placeholder="Message test email..." required/>
+                <button class="btn btn-primary" type="submit"><i class="bi bi-send"></i></button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Export ADMIN only -->
+        <div class="d-flex gap-2" sec:authorize="hasAuthority('ADMIN')">
+          <a class="export-btn btn-csv" th:href="@{/export/csv}"><i class="bi bi-filetype-csv"></i> CSV</a>
+          <a class="export-btn btn-pdf" th:href="@{/export/pdf}"><i class="bi bi-filetype-pdf"></i> PDF</a>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- KPI CARDS -->
-  <div class="row g-4" th:if="${kpis != null}">
+  <!-- ========================= ADMIN ========================= -->
+  <div sec:authorize="hasAuthority('ADMIN')">
 
-    <div class="col-12 col-md-6 col-xl-4">
-      <div class="kpi-card">
-        <div class="kpi-top">
-          <p class="kpi-label"><i class="bi bi-buildings"></i> Total bibliothèques</p>
-          <div class="kpi-icon icon-primary"><i class="bi bi-buildings"></i></div>
+    <!-- KPIs Admin -->
+    <div class="row g-4" th:if="${kpis != null}">
+      <div class="col-12 col-md-6 col-xl-4">
+        <div class="cardx">
+          <div class="kpi-top">
+            <p class="kpi-label"><i class="bi bi-buildings"></i> Bibliothèques</p>
+            <div class="kpi-icon ic1"><i class="bi bi-buildings"></i></div>
+          </div>
+          <div class="kpi-value" th:text="${kpis.totalBibliotheques}">0</div>
+          <p class="kpi-hint">Total d’établissements</p>
         </div>
-        <div class="kpi-value" th:text="${kpis.totalBibliotheques}">0</div>
-        <p class="kpi-hint">Nombre total d’établissements enregistrés</p>
+      </div>
+
+      <div class="col-12 col-md-6 col-xl-4">
+        <div class="cardx">
+          <div class="kpi-top">
+            <p class="kpi-label"><i class="bi bi-collection"></i> Ressources</p>
+            <div class="kpi-icon ic2"><i class="bi bi-collection"></i></div>
+          </div>
+          <div class="kpi-value" th:text="${kpis.totalRessources}">0</div>
+          <p class="kpi-hint">Livres / médias</p>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-6 col-xl-4">
+        <div class="cardx">
+          <div class="kpi-top">
+            <p class="kpi-label"><i class="bi bi-stack"></i> Exemplaires</p>
+            <div class="kpi-icon ic3"><i class="bi bi-stack"></i></div>
+          </div>
+          <div class="kpi-value" th:text="${kpis.totalExemplaires}">0</div>
+          <p class="kpi-hint">Inventaire total</p>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-6">
+        <div class="cardx">
+          <div class="kpi-top">
+            <p class="kpi-label"><i class="bi bi-check-circle"></i> Disponibles</p>
+            <div class="kpi-icon ic4"><i class="bi bi-check-circle"></i></div>
+          </div>
+          <div class="kpi-value" th:text="${kpis.exemplairesDisponibles}">0</div>
+          <p class="kpi-hint">Disponibles immédiatement</p>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-6">
+        <div class="cardx">
+          <div class="kpi-top">
+            <p class="kpi-label"><i class="bi bi-x-circle"></i> Indisponibles</p>
+            <div class="kpi-icon ic5"><i class="bi bi-x-circle"></i></div>
+          </div>
+          <div class="kpi-value" th:text="${kpis.exemplairesIndisponibles}">0</div>
+          <p class="kpi-hint">Empruntés / maintenance</p>
+        </div>
       </div>
     </div>
 
-    <div class="col-12 col-md-6 col-xl-4">
-      <div class="kpi-card">
-        <div class="kpi-top">
-          <p class="kpi-label"><i class="bi bi-collection"></i> Total ressources</p>
-          <div class="kpi-icon icon-purple"><i class="bi bi-collection"></i></div>
+    <!-- Charts Admin -->
+    <div class="row g-4 mt-1">
+      <div class="col-12 col-lg-6">
+        <div class="panel">
+          <h5 class="panel-title"><i class="bi bi-bar-chart"></i> Prêts par catégorie</h5>
+          <p class="muted mt-2 mb-3">Nombre de prêts par type de ressource.</p>
+          <div class="chart-box"><canvas id="chartCategorie"></canvas></div>
         </div>
-        <div class="kpi-value" th:text="${kpis.totalRessources}">0</div>
-        <p class="kpi-hint">Livres / documents / médias</p>
+      </div>
+
+      <div class="col-12 col-lg-6">
+        <div class="panel">
+          <h5 class="panel-title"><i class="bi bi-pie-chart"></i> Prêts par bibliothèque</h5>
+          <p class="muted mt-2 mb-3">Répartition des prêts par établissement.</p>
+          <div class="chart-box"><canvas id="chartBiblio"></canvas></div>
+        </div>
+      </div>
+
+      <div class="col-12">
+        <div class="panel">
+          <h5 class="panel-title"><i class="bi bi-graph-up"></i> Taux de rotation des stocks</h5>
+          <p class="muted mt-2 mb-3">Évolution sur les 6 derniers mois.</p>
+          <div class="chart-box"><canvas id="chartRotation"></canvas></div>
+        </div>
       </div>
     </div>
 
-    <div class="col-12 col-md-6 col-xl-4">
-      <div class="kpi-card">
-        <div class="kpi-top">
-          <p class="kpi-label"><i class="bi bi-stack"></i> Total exemplaires</p>
-          <div class="kpi-icon icon-teal"><i class="bi bi-stack"></i></div>
-        </div>
-        <div class="kpi-value" th:text="${kpis.totalExemplaires}">0</div>
-        <p class="kpi-hint">Copies physiques en inventaire</p>
-      </div>
-    </div>
+    <!-- Chart.js init (statique, mais tu peux remplacer par model plus tard) -->
+    <script th:inline="javascript">
+      /*<![CDATA[*/
+      document.addEventListener('DOMContentLoaded', function () {
+        const c1 = document.getElementById('chartCategorie');
+        const c2 = document.getElementById('chartBiblio');
+        const c3 = document.getElementById('chartRotation');
+        if (!c1 || !c2 || !c3) return;
 
-    <div class="col-12 col-md-6">
-      <div class="kpi-card">
-        <div class="kpi-top">
-          <p class="kpi-label"><i class="bi bi-check-circle"></i> Exemplaires disponibles</p>
-          <div class="kpi-icon icon-success"><i class="bi bi-check-circle"></i></div>
-        </div>
-        <div class="kpi-value" th:text="${kpis.exemplairesDisponibles}">0</div>
-        <p class="kpi-hint">Disponibles immédiatement</p>
-      </div>
-    </div>
+        // ✅ Statique (comme demandé) -> OK pour la tâche
+        new Chart(c1, {
+          type: 'bar',
+          data: { labels: ['Livres','Revues','DVD','CD','Numérique'],
+            datasets: [{ label: 'Prêts', data: [120,45,30,25,15] }] },
+          options: { responsive:true, maintainAspectRatio:false, scales:{ y:{ beginAtZero:true } } }
+        });
 
-    <div class="col-12 col-md-6">
-      <div class="kpi-card">
-        <div class="kpi-top">
-          <p class="kpi-label"><i class="bi bi-x-circle"></i> Exemplaires indisponibles</p>
-          <div class="kpi-icon icon-danger"><i class="bi bi-x-circle"></i></div>
-        </div>
-        <div class="kpi-value" th:text="${kpis.exemplairesIndisponibles}">0</div>
-        <p class="kpi-hint">Empruntés / en maintenance / hors service</p>
-      </div>
-    </div>
+        new Chart(c2, {
+          type: 'pie',
+          data: { labels: ['Centrale','Est','Ouest','Nord'],
+            datasets: [{ data: [40,25,20,15] }] },
+          options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'bottom' } } }
+        });
 
+        new Chart(c3, {
+          type: 'line',
+          data: { labels: ['Jan','Fév','Mar','Avr','Mai','Juin'],
+            datasets: [{ label:'Rotation (%)', data:[65,70,72,75,78,80], fill:true, tension:.3 }] },
+          options: { responsive:true, maintainAspectRatio:false }
+        });
+      });
+      /*]]>*/
+    </script>
   </div>
 
-  <!-- PANELS BAS (utile, pas du texte inutile) -->
-  <div class="row g-4 mt-1">
+  <!-- ====================== LIBRARIAN ====================== -->
+  <div sec:authorize="hasAuthority('LIBRARIAN')">
 
-    <div class="col-12 col-lg-6">
-      <div class="panel">
-        <h3 class="panel-title"><i class="bi bi-lightning-charge"></i> Accès rapide</h3>
-        <p class="muted mt-2 mb-3">Liens utiles (selon permissions).</p>
-
-        <div class="d-grid gap-2">
-          <a class="quick-link" th:href="@{/ressources}">
-            <i class="bi bi-collection"></i> Gestion des ressources
-          </a>
-          <a class="quick-link" th:href="@{/exemplaires}">
-            <i class="bi bi-stack"></i> Gestion des exemplaires
-          </a>
-
-          <a class="quick-link" sec:authorize="hasAuthority('ADMIN')" th:href="@{/bibliotheques}">
-            <i class="bi bi-buildings"></i> Gestion des bibliothèques
-          </a>
-
-          <a class="quick-link" sec:authorize="hasAuthority('ADMIN')" th:href="@{/admin/users}">
-            <i class="bi bi-people"></i> Gestion des utilisateurs
-          </a>
-        </div>
-      </div>
+    <div class="row g-4" th:if="${statsLibrarian != null}">
+      <div class="col-6 col-md-3"><div class="cardx text-center"><h2 class="text-danger" th:text="${statsLibrarian.retards}">0</h2><div class="muted">Retards</div></div></div>
+      <div class="col-6 col-md-3"><div class="cardx text-center"><h2 class="text-warning" th:text="${statsLibrarian.aRendre}">0</h2><div class="muted">≤ 3 jours</div></div></div>
+      <div class="col-6 col-md-3"><div class="cardx text-center"><h2 class="text-primary" th:text="${statsLibrarian.enCours}">0</h2><div class="muted">Actifs</div></div></div>
+      <div class="col-6 col-md-3"><div class="cardx text-center"><h2 th:text="${statsLibrarian.tauxRotation} + '%'">0%</h2><div class="muted">Rotation</div></div></div>
     </div>
 
-    <div class="col-12 col-lg-6">
-      <div class="panel">
-        <h3 class="panel-title"><i class="bi bi-graph-up-arrow"></i> Vue synthèse</h3>
-        <p class="muted mt-2 mb-0">
-          Les KPI ci-dessus sont calculés depuis la base (count + countByDisponible).
-          Les exports (CSV/PDF) sont réservés à l’ADMIN.
-        </p>
+    <div class="panel mt-3">
+      <h5 class="panel-title"><i class="bi bi-clock-history"></i> Prêts en cours - Priorités</h5>
+      <div class="table-responsive mt-3">
+        <table class="table table-hover">
+          <thead class="table-light">
+          <tr><th>Priorité</th><th>Usager</th><th>Titre</th><th>Date retour</th><th>Retard</th></tr>
+          </thead>
+          <tbody>
+          <tr th:each="pret : ${pretsEnCours}"
+              th:class="${pret.priorite == 'HAUTE'} ? 'table-danger' : (${pret.priorite == 'MOYENNE'} ? 'table-warning' : 'table-success')">
+            <td>
+              <span th:if="${pret.priorite == 'HAUTE'}" class="badge bg-danger">Haute</span>
+              <span th:if="${pret.priorite == 'MOYENNE'}" class="badge bg-warning">Moyenne</span>
+              <span th:if="${pret.priorite == 'BASSE'}" class="badge bg-success">Basse</span>
+            </td>
+            <td th:text="${pret.usagerNom}"></td>
+            <td th:text="${pret.titre}"></td>
+            <td th:text="${pret.dateRetourPrevue}"></td>
+            <td>
+              <span th:if="${pret.joursRestants < 0}" class="text-danger"><i class="bi bi-exclamation-triangle"></i> +[[${-pret.joursRestants}]]j</span>
+              <span th:if="${pret.joursRestants >= 0}" class="text-success">[[${pret.joursRestants}]]j</span>
+            </td>
+          </tr>
+          </tbody>
+        </table>
       </div>
     </div>
+  </div>
 
+  <!-- ========================= USER ========================= -->
+  <div sec:authorize="hasAuthority('USER')">
+
+    <div class="row g-4" th:if="${statsUser != null}">
+      <div class="col-4"><div class="cardx text-center"><h3 th:text="${statsUser.pretsEnCours}">0</h3><div class="muted">En cours</div></div></div>
+      <div class="col-4"><div class="cardx text-center"><h3 th:text="${statsUser.pretsEnRetard}">0</h3><div class="muted">En retard</div></div></div>
+      <div class="col-4"><div class="cardx text-center"><h3 th:text="${statsUser.pretsRestitues}">0</h3><div class="muted">Restitués</div></div></div>
+    </div>
+
+    <div class="panel mt-3">
+      <h5 class="panel-title"><i class="bi bi-book"></i> Mes prêts en cours</h5>
+      <div class="table-responsive mt-3">
+        <table class="table table-hover">
+          <thead class="table-light">
+          <tr><th>Titre</th><th>Auteur</th><th>Date emprunt</th><th>Date retour</th><th>Statut</th></tr>
+          </thead>
+          <tbody>
+          <tr th:each="pret : ${mesPrets}">
+            <td th:text="${pret.titre}"></td>
+            <td th:text="${pret.auteur}"></td>
+            <td th:text="${pret.dateEmprunt}"></td>
+            <td th:text="${pret.dateRetourPrevue}"></td>
+            <td>
+              <span th:if="${pret.joursRestants < 0}" class="badge bg-danger">En retard ([[${-pret.joursRestants}]]j)</span>
+              <span th:if="${pret.joursRestants >= 0 and pret.joursRestants < 3}" class="badge bg-warning">À rendre ([[${pret.joursRestants}]]j)</span>
+              <span th:if="${pret.joursRestants >= 3}" class="badge bg-success">En cours ([[${pret.joursRestants}]]j)</span>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="alert alert-info mt-3" th:if="${#lists.isEmpty(mesPrets)}">
+        <i class="bi bi-info-circle"></i> Vous n'avez aucun prêt en cours.
+      </div>
+    </div>
   </div>
 
 </div>
