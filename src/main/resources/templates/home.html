@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
 <head>
     <meta charset="UTF-8">
     <title>Home Page</title>
@@ -47,14 +47,13 @@
     <nav>
         <a th:href="@{/home}">Home</a>
 
-        <!-- Admin menu item -->
-        <a th:href="@{/dashboard}" sec:authorize="hasAuthority('ADMIN')">Dashboard</a>
+        <!-- Admin / Biblio menus -->
+        <a th:href="@{/dashboard}" sec:authorize="hasAnyAuthority('ADMIN','BIBLIO')">Dashboard</a>
+        <a th:href="@{/loans}" sec:authorize="hasAnyAuthority('ADMIN','BIBLIO')">Prêts</a>
 
         <!-- User menu item -->
         <a th:href="@{/profile}" sec:authorize="hasAuthority('USER')">Profile</a>
-        
-          <!-- Dashboard USER -->
-          <a th:href="@{/dashboard}" sec:authorize="hasAuthority('USER')">Dashboard</a>
+        <a th:href="@{/dashboard}" sec:authorize="hasAuthority('USER')">Dashboard</a>
 
         <!-- Logout button -->
         <form th:action="@{/logout}" method="post" style="display:inline;">

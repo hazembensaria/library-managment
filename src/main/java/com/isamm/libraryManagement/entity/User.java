@@ -37,6 +37,10 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    public Role getRole() {
+        return role;
+    }
+
     // Getters supplémentaires pour l'exposition JSON (id, prénom, nom, email)
     public Integer getId() {
         return id;
