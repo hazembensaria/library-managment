@@ -41,6 +41,8 @@ public class SecurityConfiguration {
 
                  .requestMatchers("/dashboard/**").permitAll()
                  .requestMatchers("/export/**").hasAuthority("ADMIN")
+                 .requestMatchers("/notifications/**").permitAll()
+
 
                  .anyRequest().authenticated())
 //                .authorizeHttpRequests(auth -> auth
