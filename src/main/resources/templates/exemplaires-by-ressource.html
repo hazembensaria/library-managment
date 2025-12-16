@@ -260,7 +260,15 @@
                       <i class="bi bi-person-plus"></i>
                       Reserve for user
                     </button>
-                   
+                    <a
+                      th:href="@{'/loans/reserve'(exemplaireId=${ex.id})}"
+                      class="btn btn-sm me-2"
+                      th:classappend="${ex.disponible} ? 'btn-primary' : 'btn-secondary disabled'"
+                      th:attr="aria-disabled=${!ex.disponible}"
+                    >
+                      <i class="bi bi-bookmark-plus"></i>
+                      <span th:text="${ex.disponible} ? 'Reserve' : 'Not available'">Reserve</span>
+                    </a>
                     <a
                       th:href="@{'/exemplaires/delete/' + ${ex.id}}"
                       class="btn btn-sm btn-outline-danger"
