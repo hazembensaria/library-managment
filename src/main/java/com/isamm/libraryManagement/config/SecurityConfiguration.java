@@ -46,35 +46,8 @@ public class SecurityConfiguration {
 
 
                  .anyRequest().authenticated())
-//                .authorizeHttpRequests(auth -> auth
-//                        .anyRequest().permitAll())
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/", "/home", "/home/**",
-                                "/bibliotheques/**", "/ressources/**",
-                                "/exemplaires", "/exemplaires/**",
-                                "/loans/**", "/api/loans/**",
-                                "/api/v1/auth/**",
-                                "/login", "/register",
-                                "/css/**", "/js/**")
-                        .permitAll()
-                        .requestMatchers("/dashboard/**").permitAll()
-                        .requestMatchers("/export/**").hasAuthority("ADMIN")
-                        .anyRequest().authenticated())
-                // .authorizeHttpRequests(auth -> auth
-                // .anyRequest().permitAll())
 
-
-
-                // .authorizeHttpRequests(auth -> auth
-
-
-                // 3) Ne JAMAIS accéder directement au dossier uploads
-                // .requestMatchers("/uploads/**").denyAll()
-                // .requestMatchers("/ressources/**").authenticated()
-                // .anyRequest().authenticated())
-
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

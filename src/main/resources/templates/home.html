@@ -1,88 +1,194 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
 <head>
     <meta charset="UTF-8">
-    <title>Home Page</title>
+    <title>Home</title>
+
     <style>
         body {
+            margin: 0;
             font-family: Arial, sans-serif;
-            margin: 40px;
+            background: #f4f6f8;
         }
-        header {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px;
+
+        nav {
+            background: #4a90e2;
+            padding: 14px 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
-        }
-        nav a, nav form button {
-            margin-right: 15px;
             color: white;
+        }
+
+        .nav-left a {
+            color: white;
+            margin-right: 18px;
             text-decoration: none;
-            background: none;
+            font-weight: 500;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logout-btn {
+            background: white;
+            color: #4a90e2;
             border: none;
+            padding: 6px 14px;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 1em;
+            font-weight: 600;
         }
-        nav a:hover, nav form button:hover {
-            text-decoration: underline;
+
+        main {
+            display: flex;
+            justify-content: center;
+            padding: 50px 20px;
         }
-        .content {
+
+        .card {
+            background: white;
+            max-width: 900px;
+            width: 100%;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+
+        .dashboard {
+            margin-top: 30px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .item {
+            background: #f9fafb;
+            border-radius: 14px;
             padding: 20px;
+            box-shadow: inset 0 0 0 1px #e6e9ee;
         }
-        .section {
-            margin-bottom: 20px;
-            border: 1px solid #ddd;
-            padding: 15px;
-            border-radius: 5px;
+
+        .item h3 {
+            margin-top: 0;
+            color: #4a90e2;
         }
     </style>
 </head>
+
 <body>
-<header>
-    <h1>My Application</h1>
-    <nav>
+
+<!-- NAVBAR -->
+<nav>
+    <div class="nav-left">
         <a th:href="@{/home}">Home</a>
 
-        <!-- Admin / Bibliothécaire menus -->
-        <a th:href="@{/dashboard}" sec:authorize="hasAnyAuthority('ADMIN','BIBLIOTHECAIRE')">Dashboard</a>
-        <a th:href="@{/loans}" sec:authorize="hasAnyAuthority('ADMIN','BIBLIOTHECAIRE')">Prêts</a>
+        <sec:authorize access="hasRole('ADMIN')">
+            <a th:href="@{/admin/dashboard}">Admin Dashboard</a>
+            <a th:href="@{/users}">Users</a>
+        </sec:authorize>
 
-        <!-- User menu item -->
-        <a th:href="@{/profile}" sec:authorize="hasAuthority('USER')">Profile</a>
-        <a th:href="@{/dashboard}" sec:authorize="hasAuthority('USER')">Dashboard</a>
+        <sec:authorize access="hasRole('BIBLIOTHECAIRE')">
+            <a th:href="@{/biblio/ressources}">Ressources</a>
+            <a th:href="@{/biblio/prets}">Prêts</a>
+        </sec:authorize>
 
-
-        <!-- Logout button -->
-        <form th:action="@{/logout}" method="post" style="display:inline;">
-            <button type="submit">Logout</button>
-        </form>
-    </nav>
-</header>
-
-<div class="content">
-
-    <!-- General content visible to all authenticated users -->
-    <div class="section" sec:authorize="isAuthenticated()">
-        <h2>Welcome!</h2>
-        <p>This content is visible to any logged-in user.</p>
+        <sec:authorize access="hasRole('USER')">
+            <a th:href="@{/books}">Books</a>
+            <a th:href="@{/profile}">Profile</a>
+        </sec:authorize>
     </div>
 
-    <!-- Admin-only content -->
-    <div class="section" sec:authorize="hasAuthority('ADMIN')">
-        <h2>Admin Section</h2>
-        <p>You are an admin. Here you can manage users, view reports, and configure the system.</p>
+    <div class="nav-right">
+        <span sec:authentication="name"></span>
+        <button id="logoutBtn" class="logout-btn">Logout</button>
     </div>
+</nav>
 
-    <!-- User-only content -->
-    <div class="section" sec:authorize="hasAuthority('USER')">
-        <h2>User Section</h2>
-        <p>You are a regular user. Here you can see your dashboard, manage your profile, and access resources.</p>
+<!-- CONTENT -->
+<main>
+    <div class="card">
+
+        <!-- ADMIN CONTENT -->
+        <sec:authorize access="hasRole('ADMIN')">
+            <h2>Admin Dashboard</h2>
+            <p>You have full system access.</p>
+
+            <div class="dashboard">
+                <div class="item">
+                    <h3>User Management</h3>
+                    <p>Create, update and remove users.</p>
+                </div>
+                <div class="item">
+                    <h3>System Settings</h3>
+                    <p>Configure application behavior.</p>
+                </div>
+            </div>
+        </sec:authorize>
+
+        <!-- BIBLIOTHECAIRE CONTENT -->
+        <sec:authorize access="hasRole('BIBLIOTHECAIRE')">
+            <h2>Bibliothécaire Panel</h2>
+            <p>Manage library resources and loans.</p>
+
+            <div class="dashboard">
+                <div class="item">
+                    <h3>Ressources</h3>
+                    <p>Add and manage books & media.</p>
+                </div>
+                <div class="item">
+                    <h3>Prêts</h3>
+                    <p>Track active and overdue loans.</p>
+                </div>
+            </div>
+        </sec:authorize>
+
+        <!-- USER CONTENT -->
+        <sec:authorize access="hasRole('USER')">
+            <h2>Welcome</h2>
+            <p>Browse and borrow books.</p>
+
+            <div class="dashboard">
+                <div class="item">
+                    <h3>My Loans</h3>
+                    <p>View your borrowed books.</p>
+                </div>
+                <div class="item">
+                    <h3>Catalogue</h3>
+                    <p>Search available resources.</p>
+                </div>
+            </div>
+        </sec:authorize>
+
     </div>
+</main>
 
-</div>
+<!-- LOGOUT -->
+<script>
+    document.getElementById("logoutBtn").addEventListener("click", async () => {
+        try {
+            const response = await fetch("/api/v1/auth/logout", {
+                method: "POST",
+                credentials: "include"
+            });
+
+            if (response.ok) {
+                localStorage.removeItem("token");
+                window.location.href = "/login";
+            } else {
+                alert("Logout failed");
+            }
+        } catch (error) {
+            console.error("Logout error:", error);
+        }
+    });
+</script>
+
 </body>
 </html>
