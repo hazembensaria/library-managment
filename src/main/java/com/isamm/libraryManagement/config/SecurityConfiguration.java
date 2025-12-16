@@ -28,7 +28,6 @@ public class SecurityConfiguration {
 
         return http
                 .csrf(csrf -> csrf.disable())
-
                  .authorizeHttpRequests(auth -> auth
                  .requestMatchers(
                          "/", "/home", "/home/**",
@@ -48,6 +47,21 @@ public class SecurityConfiguration {
                  .anyRequest().authenticated())
 //                .authorizeHttpRequests(auth -> auth
 //                        .anyRequest().permitAll())
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                                "/", "/home", "/home/**",
+                                "/bibliotheques/**", "/ressources/**",
+                                "/exemplaires", "/exemplaires/**",
+                                "/loans/**", "/api/loans/**",
+                                "/api/v1/auth/**",
+                                "/login", "/register",
+                                "/css/**", "/js/**")
+                        .permitAll()
+                        .requestMatchers("/dashboard/**").permitAll()
+                        .requestMatchers("/export/**").hasAuthority("ADMIN")
+                        .anyRequest().authenticated())
+                // .authorizeHttpRequests(auth -> auth
+                // .anyRequest().permitAll())
 
 
 
