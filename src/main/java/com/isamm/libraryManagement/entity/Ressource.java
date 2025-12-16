@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.List;
 
@@ -37,5 +38,6 @@ public class Ressource {
     private TypeRessource typeRessource;
 
     @OneToMany(mappedBy = "ressource", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Exemplaire> exemplaires;
 }
