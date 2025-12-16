@@ -28,43 +28,25 @@ public class SecurityConfiguration {
 
         return http
                 .csrf(csrf -> csrf.disable())
-<<<<<<< HEAD
-                 .authorizeHttpRequests(auth -> auth
-                 .requestMatchers(
-                         "/", "/home", "/home/**",
-                         "/bibliotheques/**", "/ressources/**",
-                         "/exemplaires", "/exemplaires/**",
-                         "/api/v1/auth/**",
-                         "/login", "/register",
-                         "/css/**", "/js/**")
-                 .permitAll()
-                 .requestMatchers("/login", "/register", "/css/**", "/js/**").permitAll()
-
-                 .requestMatchers("/dashboard/**").permitAll()
-                 .requestMatchers("/export/**").hasAuthority("ADMIN")
-                 .requestMatchers("/notifications/**").permitAll()
-
-
-                 .anyRequest().authenticated())
-//                .authorizeHttpRequests(auth -> auth
-//                        .anyRequest().permitAll())
-=======
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/", "/home", "/home/**",
-                                "/bibliotheques/**", "/ressources/**",
+                                "/bibliotheques/**",
+                                "/bibliotheques/save", "/ressources/**",
                                 "/exemplaires", "/exemplaires/**",
-                                "/loans/**", "/api/loans/**",
                                 "/api/v1/auth/**",
                                 "/login", "/register",
                                 "/css/**", "/js/**")
                         .permitAll()
+                        .requestMatchers("/login", "/register", "/css/**", "/js/**").permitAll()
+                        .requestMatchers("/bibliotheques/*/dependances").permitAll()
                         .requestMatchers("/dashboard/**").permitAll()
                         .requestMatchers("/export/**").hasAuthority("ADMIN")
-                        .anyRequest().authenticated())
+                        .requestMatchers("/notifications/**").permitAll())
+
+                // .anyRequest().authenticated())
                 // .authorizeHttpRequests(auth -> auth
                 // .anyRequest().permitAll())
->>>>>>> 0da40c2b8f9cf25512a06d94cea1c8e4f2b2bb71
 
                 // 3) Ne JAMAIS accéder directement au dossier uploads
                 // .requestMatchers("/uploads/**").denyAll()
