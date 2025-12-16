@@ -1,33 +1,41 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
+  <head>
     <title>Bibliothèques</title>
-</head>
-<body>
+  </head>
+  <body>
+    <h2>Liste des Bibliothèques</h2>
 
-<h2>Liste des Bibliothèques</h2>
+    <a href="/bibliotheques/add">Ajouter une bibliothèque</a>
 
-<a href="/bibliotheques/add">Ajouter une bibliothèque</a>
-
-<table border="1">
-    <tr>
+    <table border="1">
+      <tr>
         <th>ID</th>
         <th>Nom</th>
         <th>Adresse</th>
         <th>Actions</th>
-    </tr>
+      </tr>
 
-    <tr th:each="b : ${bibliotheques}">
+      <tr th:each="b : ${bibliotheques}">
         <td th:text="${b.id}"></td>
         <td th:text="${b.nom}"></td>
         <td th:text="${b.adresse}"></td>
 
         <td>
-            <a th:href="@{'/bibliotheques/edit/' + ${b.id}}">Modifier</a>
-            <a th:href="@{'/bibliotheques/delete/' + ${b.id}}">Supprimer</a>
+          <a th:href="@{'/bibliotheques/edit/' + ${b.id}}">Edit</a>
+          <a th:href="@{'/bibliotheques/delete/' + ${b.id}}">Delete</a>
+          <div
+            th:if="${success}"
+            class="alert alert-success"
+            th:text="${success}"
+          ></div>
+          <div
+            th:if="${error}"
+            class="alert alert-danger"
+            th:text="${error}"
+          ></div>
         </td>
-    </tr>
-</table>
-
-</body>
+      </tr>
+    </table>
+  </body>
 </html>

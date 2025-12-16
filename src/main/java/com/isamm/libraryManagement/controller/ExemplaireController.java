@@ -8,12 +8,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.ui.Model;
-
+import org.springframework.validation.BindingResult;
+import jakarta.validation.Valid;
 import com.isamm.libraryManagement.entity.Exemplaire;
 import com.isamm.libraryManagement.service.BibliothequeService;
 import com.isamm.libraryManagement.service.ExemplaireService;
 import com.isamm.libraryManagement.service.RessourceService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @Controller
@@ -50,16 +52,46 @@ public class ExemplaireController {
         return "exemplaire-form";
     }
 
+    // @PostMapping("/save/{ressourceId}")
+    // public String save(@PathVariable Long ressourceId,
+    // @Valid @ModelAttribute("exemplaire") Exemplaire exemplaire,
+    // BindingResult result,
+    // Model model) {
+
+    // if (result.hasErrors()) {
+    // // renvoyer les infos nécessaires pour réafficher la page
+    // model.addAttribute("ressource", ressourceService.getById(ressourceId));
+    // model.addAttribute("bibliotheques", bibliothequeService.getAll());
+    // return "exemplaire-form";
+    // }
+    // exemplaire.setRessource(ressourceService.getById(ressourceId));
+    // exemplaire.setBibliotheque(bibliothequeService.getById(bibliothequeId));
+
+    // exemplaireService.save(exemplaire);
+
+    // return "redirect:/exemplaires/ressource/" + ressourceId;
+    // }
     @PostMapping("/save/{ressourceId}")
     public String save(@PathVariable Long ressourceId,
-            @ModelAttribute Exemplaire exemplaire,
-            @RequestParam Long bibliothequeId) {
+            @Valid @ModelAttribute("exemplaire") Exemplaire exemplaire,
+            BindingResult result,
+            @RequestParam(name = "bibliothequeId", required = false) Long bibliothequeId,
+            Model model) {
+
+        if (bibliothequeId == null) {
+            result.reject("bibliothequeId.missing", "Veuillez choisir une bibliothèque.");
+        }
+
+        if (result.hasErrors()) {
+            model.addAttribute("ressource", ressourceService.getById(ressourceId));
+            model.addAttribute("bibliotheques", bibliothequeService.getAll());
+            return "exemplaire-form";
+        }
 
         exemplaire.setRessource(ressourceService.getById(ressourceId));
         exemplaire.setBibliotheque(bibliothequeService.getById(bibliothequeId));
 
         exemplaireService.save(exemplaire);
-
         return "redirect:/exemplaires/ressource/" + ressourceId;
     }
 

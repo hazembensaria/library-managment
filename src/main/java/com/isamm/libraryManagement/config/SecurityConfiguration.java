@@ -28,23 +28,24 @@ public class SecurityConfiguration {
 
         return http
                 .csrf(csrf -> csrf.disable())
-                 .authorizeHttpRequests(auth -> auth
-                 .requestMatchers(
-                         "/", "/home", "/home/**",
-                         "/bibliotheques/**", "/ressources/**",
-                         "/exemplaires", "/exemplaires/**",
-                         "/api/v1/auth/**",
-                         "/login", "/register",
-                         "/css/**", "/js/**")
-                 .permitAll()
-                 .requestMatchers("/login", "/register", "/css/**", "/js/**").permitAll()
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                                "/", "/home", "/home/**",
+                                "/bibliotheques/**", "/bibliotheques/add", "/ressources/**",
+                                "/exemplaires", "/exemplaires/**",
+                                "/api/v1/auth/**",
+                                "/login", "/register",
+                                "/css/**", "/js/**")
+                        .permitAll()
+                        .requestMatchers("/login", "/register", "/css/**", "/js/**").permitAll()
 
-                 .requestMatchers("/dashboard/**").permitAll()
-                 .requestMatchers("/export/**").hasAuthority("ADMIN")
+                        .requestMatchers("/dashboard/**").permitAll()
+                        .requestMatchers("/export/**").hasAuthority("ADMIN")
 
-                 .anyRequest().authenticated())
-//                .authorizeHttpRequests(auth -> auth
-//                        .anyRequest().permitAll())
+                        .anyRequest()
+                        .permitAll())
+                // .authorizeHttpRequests(auth -> auth
+                // .anyRequest().permitAll())
 
                 // 3) Ne JAMAIS accéder directement au dossier uploads
                 // .requestMatchers("/uploads/**").denyAll()

@@ -1,26 +1,287 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
+  <head>
     <title>Bibliothèque</title>
-</head>
-<body>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
 
-<h2 th:text="${bibliotheque.id == null ? 'Ajouter Bibliothèque' : 'Modifier Bibliothèque'}"></h2>
+    <style>
+      #map {
+        height: 320px; /* obligatoire sinon la carte n'apparaît pas */
+        width: 100%;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+      }
+    </style>
+  </head>
 
-<form th:action="@{/bibliotheques/save}" th:object="${bibliotheque}" method="post">
+  <body>
+    <h2
+      th:text="${bibliotheque.id == null ? 'Ajouter Bibliothèque' : 'Modifier Bibliothèque'}"
+    ></h2>
 
-    <input type="hidden" th:field="*{id}" />
+    <form
+      th:action="@{/bibliotheques/save}"
+      th:object="${bibliotheque}"
+      method="post"
+    >
+      <input type="hidden" th:field="*{id}" />
 
-    <label>Nom :</label>
-    <input type="text" th:field="*{nom}" required />
-    <br/>
+      <!-- Nom -->
+      <div class="mb-3">
+        <label>Nom</label>
+        <input
+          type="text"
+          th:field="*{nom}"
+          class="form-control"
+          placeholder="Nom de la bibliothèque"
+        />
+        <div
+          class="text-danger"
+          th:if="${#fields.hasErrors('nom')}"
+          th:errors="*{nom}"
+        ></div>
+      </div>
 
-    <label>Adresse :</label>
-    <input type="text" th:field="*{adresse}" required />
-    <br/>
+      <!-- Code -->
+      <div class="mb-3">
+        <label>Code</label>
+        <input
+          type="text"
+          th:field="*{code}"
+          class="form-control"
+          placeholder="Code unique"
+        />
+        <div
+          class="text-danger"
+          th:if="${#fields.hasErrors('code')}"
+          th:errors="*{code}"
+        ></div>
+      </div>
+      <h4>Horaires</h4>
+      <div class="mb-3">
+        <label>Semaine (Lundi à Vendredi)</label>
+        <input
+          type="text"
+          th:field="*{horaireSemaine}"
+          class="form-control"
+          placeholder="08:00-17:00"
+        />
+        <div
+          class="text-danger"
+          th:if="${#fields.hasErrors('horaireSemaine')}"
+          th:errors="*{horaireSemaine}"
+        ></div>
+      </div>
 
-    <button type="submit">Enregistrer</button>
-</form>
+      <div class="mb-3">
+        <label>Weekend (Samedi & Dimanche)</label>
+        <input
+          type="text"
+          th:field="*{horaireWeekend}"
+          class="form-control"
+          placeholder="09:00-12:00"
+        />
+        <div
+          class="text-danger"
+          th:if="${#fields.hasErrors('horaireWeekend')}"
+          th:errors="*{horaireWeekend}"
+        ></div>
+      </div>
 
-</body>
+      <!-- Adresse -->
+      <div class="mb-3">
+        <label>Adresse</label>
+        <input
+          type="text"
+          th:field="*{adresse}"
+          class="form-control"
+          placeholder="Adresse"
+        />
+      </div>
+
+      <!-- Parent -->
+      <div class="mb-3">
+        <label>Parent</label>
+        <select th:field="*{parentId}" class="form-select">
+          <option value="">-- Aucun (bibliothèque centrale) --</option>
+          <option
+            th:each="bib : ${bibliotheques}"
+            th:value="${bib.id}"
+            th:text="${bib.nom}"
+          ></option>
+        </select>
+
+        <div
+          class="text-danger"
+          th:if="${#fields.hasErrors('parentId')}"
+          th:errors="*{parentId}"
+        ></div>
+      </div>
+
+      <!-- Latitude -->
+
+      <div class="alert alert-danger" th:if="${#fields.hasAnyErrors()}">
+        <ul>
+          <li th:each="e : ${#fields.errors('*')}" th:text="${e}"></li>
+        </ul>
+      </div>
+      <!-- Latitude / Longitude (optionnel, via Google Maps) -->
+      <div class="mb-3">
+        <label>Latitude</label>
+        <input
+          type="number"
+          step="any"
+          th:field="*{latitude}"
+          class="form-control"
+          id="latitude"
+        />
+        <div
+          class="text-danger"
+          th:if="${#fields.hasErrors('latitude')}"
+          th:errors="*{latitude}"
+        ></div>
+      </div>
+
+      <div class="mb-3">
+        <label>Longitude</label>
+        <input
+          type="number"
+          step="any"
+          th:field="*{longitude}"
+          class="form-control"
+          id="longitude"
+        />
+        <div
+          class="text-danger"
+          th:if="${#fields.hasErrors('longitude')}"
+          th:errors="*{longitude}"
+        ></div>
+      </div>
+      <div class="mb-3">
+        <label>Localisation</label>
+        <div id="map"></div>
+        <small class="text-muted"
+          >Clique sur la carte pour placer le marqueur (déplaçable).</small
+        >
+      </div>
+
+      <button type="submit" class="btn btn-primary">Enregistrer</button>
+      <a th:href="@{/bibliotheques}" class="btn btn-secondary">Annuler</a>
+    </form>
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      crossorigin=""
+    ></script>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const mapEl = document.getElementById("map");
+        const latInput =
+          document.getElementById("latitude") ||
+          document.querySelector('input[name="latitude"]');
+        const lngInput =
+          document.getElementById("longitude") ||
+          document.querySelector('input[name="longitude"]');
+        const adrInput =
+          document.getElementById("adresse") ||
+          document.querySelector('input[name="adresse"]');
+
+        if (!mapEl || !latInput || !lngInput || !adrInput) {
+          console.error("Elements introuvables:", {
+            mapEl,
+            latInput,
+            lngInput,
+            adrInput,
+          });
+          return;
+        }
+
+        const lat0 = latInput.value ? parseFloat(latInput.value) : 36.8065;
+        const lng0 = lngInput.value ? parseFloat(lngInput.value) : 10.1815;
+
+        const map = L.map(mapEl).setView([lat0, lng0], 12);
+
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          maxZoom: 19,
+          attribution: "&copy; OpenStreetMap contributors",
+        }).addTo(map);
+
+        let marker = L.marker([lat0, lng0], { draggable: true }).addTo(map);
+
+        let lastReverseKey = null;
+
+        async function reverseGeocode(lat, lng) {
+          // Évite de spammer si on reclique au même endroit (arrondi)
+          const key = `${lat.toFixed(5)},${lng.toFixed(5)}`;
+          if (key === lastReverseKey) return;
+          lastReverseKey = key;
+
+          const url =
+            `https://nominatim.openstreetmap.org/reverse?` +
+            `format=jsonv2&lat=${encodeURIComponent(
+              lat
+            )}&lon=${encodeURIComponent(lng)}&addressdetails=1`;
+
+          try {
+            const res = await fetch(url, {
+              headers: { Accept: "application/json" },
+            });
+            if (!res.ok) throw new Error("Reverse geocode HTTP " + res.status);
+
+            const data = await res.json();
+            // Le plus simple : display_name (adresse lisible)
+            if (data && data.display_name) {
+              adrInput.value = data.display_name;
+            }
+          } catch (e) {
+            console.warn("Reverse geocoding failed:", e);
+            // Optionnel: fallback minimal
+            // adrInput.value = `Lat ${lat.toFixed(6)}, Lng ${lng.toFixed(6)}`;
+          }
+        }
+
+        function setLatLng(lat, lng, doReverse = true) {
+          latInput.value = Number(lat).toFixed(6);
+          lngInput.value = Number(lng).toFixed(6);
+          marker.setLatLng([lat, lng]);
+
+          if (doReverse) reverseGeocode(lat, lng);
+        }
+
+        map.on("click", (e) => setLatLng(e.latlng.lat, e.latlng.lng, true));
+
+        marker.on("dragend", () => {
+          const p = marker.getLatLng();
+          setLatLng(p.lat, p.lng, true);
+        });
+
+        // Si tu veux aussi que la saisie manuelle lat/lng mette à jour l'adresse :
+        function onInputChange() {
+          const lat = parseFloat(latInput.value);
+          const lng = parseFloat(lngInput.value);
+          if (Number.isFinite(lat) && Number.isFinite(lng)) {
+            marker.setLatLng([lat, lng]);
+            map.panTo([lat, lng]);
+            reverseGeocode(lat, lng);
+          }
+        }
+        latInput.addEventListener("change", onInputChange);
+        lngInput.addEventListener("change", onInputChange);
+
+        // En mode edit: si lat/lng existent mais adresse vide, on peut auto-remplir
+        if (
+          (!adrInput.value || adrInput.value.trim() === "") &&
+          Number.isFinite(lat0) &&
+          Number.isFinite(lng0)
+        ) {
+          reverseGeocode(lat0, lng0);
+        }
+      });
+    </script>
+  </body>
 </html>
