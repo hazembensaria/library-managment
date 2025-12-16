@@ -41,6 +41,21 @@ public class LoanServiceImpl implements LoanService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Utilisateur introuvable"));
 
+        return doReserve(exemplaire, user);
+    }
+
+    @Override
+    public Loan reserveForUser(Long exemplaireId, Integer userId) {
+        Exemplaire exemplaire = exemplaireRepository.findById(exemplaireId)
+                .orElseThrow(() -> new IllegalArgumentException("Exemplaire introuvable"));
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Utilisateur introuvable"));
+
+        return doReserve(exemplaire, user);
+    }
+
+    private Loan doReserve(Exemplaire exemplaire, User user) {
         // Règle 1 : disponibilité de l'exemplaire
         if (Boolean.FALSE.equals(exemplaire.getDisponible())) {
             throw new IllegalStateException("Cet exemplaire n'est pas disponible");
@@ -53,12 +68,14 @@ public class LoanServiceImpl implements LoanService {
             throw new IllegalStateException("Cet exemplaire est déjà réservé ou emprunté");
         }
 
-        // Règle 2 : limite de prêts par utilisateur
-        long activeLoansForUser = loanRepository.countByUserAndStatusIn(
-                user,
-                Arrays.asList(LoanStatus.RESERVE, LoanStatus.EMPRUNTE));
-        if (activeLoansForUser >= MAX_LOANS_PER_USER) {
-            throw new IllegalStateException("Limite de prêts atteinte pour cet utilisateur");
+        // Règle 2 : limite de prêts uniquement pour les utilisateurs normaux (ROLE_USER)
+        if (user.getRole() == com.isamm.libraryManagement.entity.Role.USER) {
+            long activeLoansForUser = loanRepository.countByUserAndStatusIn(
+                    user,
+                    Arrays.asList(LoanStatus.RESERVE, LoanStatus.EMPRUNTE));
+            if (activeLoansForUser >= MAX_LOANS_PER_USER) {
+                throw new IllegalStateException("Limite de prêts atteinte pour cet utilisateur");
+            }
         }
 
         Loan loan = new Loan();

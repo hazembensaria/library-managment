@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Liste des prêts</title>
+    <title>Loans list</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -13,6 +13,28 @@
         h2 {
             margin-top: 0;
             color: #333;
+        }
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .filter {
+            font-size: 14px;
+        }
+        .filter select {
+            padding: 6px 10px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+        .pill {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 999px;
+            background: #eef;
+            font-size: 11px;
+            color: #555;
         }
         table {
             width: 100%;
@@ -65,19 +87,42 @@
             background-color: #388e3c;
             color: white;
         }
+        .dates {
+            font-size: 12px;
+            color: #555;
+            line-height: 1.5;
+        }
+        .dates strong {
+            color: #333;
+        }
+        .dates i {
+            margin-right: 4px;
+        }
     </style>
 </head>
 <body>
-<h2>Liste des prêts</h2>
+<div class="toolbar">
+    <h2>Loans list</h2>
+    <div class="filter">
+        <span class="pill">Filter</span>
+        <select id="statusFilter">
+            <option value="ALL">All statuses</option>
+            <option value="RESERVE">Reserved</option>
+            <option value="EMPRUNTE">Borrowed</option>
+            <option value="RETOURNE">Returned</option>
+        </select>
+    </div>
+</div>
 <table>
     <thead>
     <tr>
         <th>ID</th>
-        <th>Utilisateur</th>
+        <th>User</th>
         <th>Email</th>
-        <th>Exemplaire</th>
-        <th>Ressource</th>
-        <th>Statut</th>
+        <th>Copy</th>
+        <th>Resource</th>
+        <th>Status</th>
+        <th>Dates (created / borrowed / due / returned)</th>
         <th>Actions</th>
     </tr>
     </thead>
@@ -88,31 +133,66 @@
         <td th:text="${loan.user != null ? loan.user.email : 'N/A'}">email@example.com</td>
         <td th:text="${loan.exemplaire != null ? loan.exemplaire.codeBarre : 'N/A'}">CODE123</td>
         <td th:text="${loan.exemplaire != null && loan.exemplaire.ressource != null ? loan.exemplaire.ressource.titre : 'N/A'}">
-            Titre ressource
+            Resource title
         </td>
         <td>
             <span th:switch="${loan.status}">
                 <span th:case="${T(com.isamm.libraryManagement.entity.LoanStatus).RESERVE}"
-                      class="badge badge-reserve">RÉSERVÉ</span>
+                      class="badge badge-reserve" data-status="RESERVE">RESERVED</span>
                 <span th:case="${T(com.isamm.libraryManagement.entity.LoanStatus).EMPRUNTE}"
-                      class="badge badge-emprunte">EMPRUNTÉ</span>
+                      class="badge badge-emprunte" data-status="EMPRUNTE">BORROWED</span>
                 <span th:case="${T(com.isamm.libraryManagement.entity.LoanStatus).RETOURNE}"
-                      class="badge badge-retourne">RETOURNÉ</span>
+                      class="badge badge-retourne" data-status="RETOURNE">RETURNED</span>
             </span>
+        </td>
+        <td>
+            <div class="dates">
+                <div>
+                    <strong><i>🕒</i>Created:</strong>
+                    <span th:text="${loan.createdAt != null ? #dates.format(loan.createdAt, 'dd/MM/yyyy HH:mm') : '-'}">-</span>
+                </div>
+                <div th:if="${loan.borrowedAt != null}">
+                    <strong><i>📚</i>Borrowed:</strong>
+                    <span th:text="${#dates.format(loan.borrowedAt, 'dd/MM/yyyy HH:mm')}">-</span>
+                </div>
+                <div th:if="${loan.dueAt != null}">
+                    <strong><i>📆</i>Due date:</strong>
+                    <span th:text="${#dates.format(loan.dueAt, 'dd/MM/yyyy')}">-</span>
+                </div>
+                <div th:if="${loan.returnedAt != null}">
+                    <strong><i>✔</i>Returned:</strong>
+                    <span th:text="${#dates.format(loan.returnedAt, 'dd/MM/yyyy HH:mm')}">-</span>
+                </div>
+            </div>
         </td>
         <td>
             <form th:if="${loan.status == T(com.isamm.libraryManagement.entity.LoanStatus).RESERVE}"
                   th:action="@{'/loans/validate/' + ${loan.id}}" method="post">
-                <button class="btn-validate" type="submit">Valider (emprunt)</button>
+                <button class="btn-validate" type="submit">Validate (borrow)</button>
             </form>
             <form th:if="${loan.status == T(com.isamm.libraryManagement.entity.LoanStatus).EMPRUNTE}"
                   th:action="@{'/loans/return/' + ${loan.id}}" method="post">
-                <button class="btn-return" type="submit">Marquer comme retourné</button>
+                <button class="btn-return" type="submit">Mark as returned</button>
             </form>
         </td>
     </tr>
     </tbody>
 </table>
+<script>
+    (function() {
+        const select = document.getElementById('statusFilter');
+        if (!select) return;
+        select.addEventListener('change', function() {
+            const value = this.value;
+            document.querySelectorAll('tbody tr').forEach(tr => {
+                const badge = tr.querySelector('.badge[data-status]');
+                if (!badge) return;
+                const status = badge.getAttribute('data-status') || 'OTHER';
+                tr.style.display = (value === 'ALL' || value === status) ? '' : 'none';
+            });
+        });
+    })();
+</script>
 </body>
 </html>
 
