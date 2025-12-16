@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+ xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -236,15 +237,28 @@
 
                   <!-- Actions -->
                   <td class="text-end">
+                    <!-- Réservation par l'utilisateur connecté (ROLE_USER uniquement) -->
                     <button
                       type="button"
                       class="btn btn-sm me-2 btn-reserve"
+                      sec:authorize="hasAuthority('USER')"
                       th:classappend="${ex.disponible} ? ' btn-primary' : ' btn-secondary disabled'"
                       th:attr="data-ex-id=${ex.id},aria-disabled=${!ex.disponible}"
                       th:disabled="${!ex.disponible}"
                     >
                       <i class="bi bi-bookmark-plus"></i>
                       <span th:text="${ex.disponible} ? 'Reserve' : 'Not available'">Reserve</span>
+                    </button>
+
+                    <!-- Réservation pour un lecteur (ADMIN ou BIBLIO) -->
+                    <button
+                      type="button"
+                      class="btn btn-sm me-2 btn-reserve-admin btn-outline-primary"
+                      sec:authorize="hasAnyAuthority('ADMIN','BIBLIO')"
+                      th:attr="data-ex-id=${ex.id}"
+                    >
+                      <i class="bi bi-person-plus"></i>
+                      Reserve for user
                     </button>
                     <a
                       th:href="@{'/exemplaires/delete/' + ${ex.id}}"
@@ -280,12 +294,43 @@
       </div>
     </div>
 
+    <!-- Modal admin : saisir l'utilisateur cible -->
+    <div class="modal fade" id="adminReserveModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header bg-primary text-white">
+            <h5 class="modal-title">Réserver pour un utilisateur</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label">ID de l'utilisateur</label>
+              <input type="number" class="form-control" id="adminUserIdInput" placeholder="Saisir l'ID utilisateur">
+            </div>
+            <input type="hidden" id="adminExIdInput">
+            <div class="alert alert-danger d-none" id="adminReserveError"></div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+            <button type="button" class="btn btn-primary" id="adminReserveConfirmBtn">Réserver</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
       document.addEventListener("DOMContentLoaded", function () {
         const modalEl = document.getElementById("reserveSuccessModal");
         const modal = new bootstrap.Modal(modalEl);
         const bodyEl = document.getElementById("reserveSuccessBody");
+
+        const adminModalEl = document.getElementById("adminReserveModal");
+        const adminModal = adminModalEl ? new bootstrap.Modal(adminModalEl) : null;
+        const adminUserIdInput = document.getElementById("adminUserIdInput");
+        const adminExIdInput = document.getElementById("adminExIdInput");
+        const adminErrorBox = document.getElementById("adminReserveError");
+        const adminConfirmBtn = document.getElementById("adminReserveConfirmBtn");
 
         document.querySelectorAll(".btn-reserve").forEach((btn) => {
           btn.addEventListener("click", async () => {
@@ -313,6 +358,23 @@
               const userId = user.id || "inconnu";
               const fullName = (user.firstname || "") + " " + (user.lastname || "");
 
+              // Mettre à jour la ligne dans le tableau (badge + bouton)
+              const row = btn.closest("tr");
+              if (row) {
+                const badge = row.querySelector("td:nth-child(4) .badge");
+                if (badge) {
+                  badge.classList.remove("badge-available");
+                  badge.classList.add("badge-unavailable");
+                  badge.textContent = "No";
+                }
+                btn.classList.remove("btn-primary");
+                btn.classList.add("btn-secondary", "disabled");
+                btn.setAttribute("aria-disabled", "true");
+                btn.disabled = true;
+                const span = btn.querySelector("span");
+                if (span) span.textContent = "Not available";
+              }
+
               bodyEl.innerHTML = `
                 <p class="mb-1">
                   Le livre <strong>"${titre}"</strong> (exemplaire <strong>${codeBarre}</strong>) a été réservé.
@@ -330,6 +392,109 @@
             }
           });
         });
+
+        // Flux ADMIN : ouvrir le modal de saisie de l'utilisateur
+        document.querySelectorAll(".btn-reserve-admin").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            if (!adminModal) return;
+            const exId = btn.getAttribute("data-ex-id");
+            adminExIdInput.value = exId || "";
+            adminUserIdInput.value = "";
+            adminErrorBox.classList.add("d-none");
+            adminErrorBox.textContent = "";
+            // on mémorise le bouton cliqué pour retrouver la ligne plus tard
+            adminExIdInput.setAttribute("data-btn-selector", `.btn-reserve-admin[data-ex-id='${exId}']`);
+            adminModal.show();
+          });
+        });
+
+        if (adminConfirmBtn) {
+          adminConfirmBtn.addEventListener("click", async () => {
+            const exId = adminExIdInput.value;
+            const userId = adminUserIdInput.value;
+            if (!exId || !userId) {
+              adminErrorBox.textContent = "Veuillez saisir un ID utilisateur.";
+              adminErrorBox.classList.remove("d-none");
+              return;
+            }
+            try {
+              const params = new URLSearchParams({ exemplaireId: exId, userId: userId });
+              const res = await fetch("/api/loans/reserveForUser?" + params.toString(), { method: "POST" });
+              const data = await res.json();
+
+              if (!res.ok || data.error) {
+                adminErrorBox.textContent = data.error || "Erreur lors de la réservation.";
+                adminErrorBox.classList.remove("d-none");
+                return;
+              }
+
+              adminModal.hide();
+
+              const loanId = data.id;
+              const exemplaire = data.exemplaire || {};
+              const ressource = exemplaire.ressource || {};
+              const user = data.user || {};
+
+              const titre = ressource.titre || "Ressource inconnue";
+              const codeBarre = exemplaire.codeBarre || exemplaire.id || exId;
+              const realUserId = user.id || userId;
+              const fullName = ((user.firstname || "") + " " + (user.lastname || "")).trim();
+              const email = user.email || "";
+              const role = user.role || "USER";
+
+              // Mettre à jour la ligne (badge + boutons) comme pour une réservation normale
+              const btnSelector = adminExIdInput.getAttribute("data-btn-selector") || `.btn-reserve-admin[data-ex-id='${exId}']`;
+              const rowBtn = document.querySelector(btnSelector);
+              if (rowBtn) {
+                const row = rowBtn.closest("tr");
+                if (row) {
+                  const badge = row.querySelector("td:nth-child(4) .badge");
+                  if (badge) {
+                    badge.classList.remove("badge-available");
+                    badge.classList.add("badge-unavailable");
+                    badge.textContent = "No";
+                  }
+                  // désactiver les boutons de réservation pour cette ligne
+                  const userBtn = row.querySelector(".btn-reserve");
+                  if (userBtn) {
+                    userBtn.classList.remove("btn-primary");
+                    userBtn.classList.add("btn-secondary", "disabled");
+                    userBtn.setAttribute("aria-disabled", "true");
+                    userBtn.disabled = true;
+                    const span = userBtn.querySelector("span");
+                    if (span) span.textContent = "Not available";
+                  }
+                  rowBtn.classList.add("disabled");
+                  rowBtn.setAttribute("aria-disabled", "true");
+                  rowBtn.disabled = true;
+                }
+              }
+
+              const intro = `Réservation enregistrée par un <strong>administrateur</strong> pour l'utilisateur :`;
+
+              bodyEl.innerHTML = `
+                <p class="mb-1">
+                  Le livre <strong>"${titre}"</strong> (exemplaire <strong>${codeBarre}</strong>) a été réservé.
+                </p>
+                <p class="mb-1">
+                  Numéro de prêt : <strong>${loanId}</strong>
+                </p>
+                <hr class="my-2" />
+                <p class="mb-1">${intro}</p>
+                <p class="mb-0">
+                  ID : <strong>${realUserId}</strong><br/>
+                  Nom : <strong>${fullName || "(non renseigné)"} </strong><br/>
+                  Email : <strong>${email || "(non renseigné)"} </strong><br/>
+                  Rôle : <span class="badge bg-secondary">${role}</span>
+                </p>
+              `;
+              modal.show();
+            } catch (e) {
+              adminErrorBox.textContent = "Erreur réseau. Veuillez réessayer.";
+              adminErrorBox.classList.remove("d-none");
+            }
+          });
+        }
       });
     </script>
   </body>

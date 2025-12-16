@@ -28,6 +28,10 @@ public class SecurityConfiguration {
 
         return http
                 .csrf(csrf -> csrf.disable())
+<<<<<<< HEAD
+=======
+
+>>>>>>> 419d7caff6ceea4afbb04c6bebf588e53bd57c23
                  .authorizeHttpRequests(auth -> auth
                  .requestMatchers(
                          "/", "/home", "/home/**",
@@ -47,6 +51,7 @@ public class SecurityConfiguration {
                  .anyRequest().authenticated())
 //                .authorizeHttpRequests(auth -> auth
 //                        .anyRequest().permitAll())
+<<<<<<< HEAD
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/", "/home", "/home/**",
@@ -62,6 +67,13 @@ public class SecurityConfiguration {
                         .anyRequest().authenticated())
                 // .authorizeHttpRequests(auth -> auth
                 // .anyRequest().permitAll())
+=======
+
+
+
+                // .authorizeHttpRequests(auth -> auth
+
+>>>>>>> 419d7caff6ceea4afbb04c6bebf588e53bd57c23
 
                 // 3) Ne JAMAIS accéder directement au dossier uploads
                 // .requestMatchers("/uploads/**").denyAll()
