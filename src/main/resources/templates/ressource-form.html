@@ -288,7 +288,7 @@
               th:class="${ressource.id == null ? 'bi bi-plus-circle-fill' : 'bi bi-pencil-square'}"
             ></i>
             <span
-              th:text="${ressource.id == null ? 'Nouvelle Ressource' : 'Modifier la Ressource'}"
+              th:text="${ressource.id == null ? 'New Ressource' : 'Edit Ressource'}"
             ></span>
           </h2>
         </div>
@@ -318,9 +318,13 @@
                   type="text"
                   class="form-control"
                   th:field="*{titre}"
-                  placeholder="Entrez le titre complet"
-                  required
+                  placeholder="Enter the full title"
                 />
+                <div
+                  class="text-danger"
+                  th:if="${#fields.hasErrors('titre')}"
+                  th:errors="*{titre}"
+                ></div>
               </div>
 
               <div class="mb-4">
@@ -332,9 +336,12 @@
                   type="text"
                   class="form-control"
                   th:field="*{auteur}"
-                  placeholder="Nom de l'auteur"
-                  required
+                  placeholder="Author's name"
                 />
+                <div
+                  th:if="${#fields.hasErrors('auteur')}"
+                  th:errors="*{auteur}"
+                ></div>
               </div>
 
               <div class="mb-4">
@@ -388,7 +395,7 @@
                 </select>
               </div>
 
-              <!-- NOUVEAU CHAMP: Description -->
+              <!-- Description -->
               <div class="mb-4">
                 <label class="form-label">
                   <i class="bi bi-text-paragraph"></i>
@@ -400,6 +407,10 @@
                   placeholder="Entrez une description détaillée de la ressource..."
                   rows="4"
                 ></textarea>
+                <div
+                  th:if="${#fields.hasErrors('description')}"
+                  th:errors="*{description}"
+                ></div>
                 <small class="text-muted"
                   >Describe the content, themes, and main features. Main
                   features</small
@@ -452,6 +463,7 @@
                 </label>
                 <div id="coverFileName" class="file-name"></div>
               </div>
+              <div id="coverError" class="text-danger mt-2"></div>
               <div class="alert alert-info mt-2" th:if="*{id} != null">
                 <i class="bi bi-info-circle"></i>
                 Leave blank to keep the current cover
@@ -507,6 +519,7 @@
                 </label>
                 <div id="previewFileName" class="file-name"></div>
               </div>
+              <div id="previewError" class="text-danger mt-2"></div>
               <div class="alert alert-info mt-2">
                 <i class="bi bi-lightbulb"></i>
                 The preview allows users to view the first few pages before
@@ -533,51 +546,128 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
     <script>
-      // Gestion de l'affichage du champ Preview selon le type
+      // Mets des valeurs <= à la limite serveur/proxy, sinon tu auras encore 413.
+      // Test conseillé: 1MB. Puis ajuste.
+      const MAX_COVER = 1 * 1024 * 1024; // 1MB
+      const MAX_PREVIEW = 1 * 1024 * 1024; // 1MB
+      const MAX_TOTAL = 1 * 1024 * 1024; // 1MB total cover+preview (très important)
+
+      function setText(id, msg) {
+        const el = document.getElementById(id);
+        if (el) el.textContent = msg || "";
+      }
+
+      function formatMB(bytes) {
+        return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+      }
+
+      function clearFile(inputId, nameId) {
+        const input = document.getElementById(inputId);
+        if (input) input.value = "";
+        setText(nameId, "");
+      }
+
+      function validateFile(inputId, errorId, maxBytes, label) {
+        setText(errorId, "");
+        const input = document.getElementById(inputId);
+        const f = input?.files?.[0];
+        if (!f) return true;
+
+        if (f.size > maxBytes) {
+          setText(
+            errorId,
+            `${label} trop volumineux (max ${formatMB(maxBytes)}).`
+          );
+          input.value = ""; // empêche l'envoi
+          return false;
+        }
+        return true;
+      }
+
+      function validateTotal() {
+        // on met un message sur previewError (ou crée un message global si tu veux)
+        setText("previewError", "");
+
+        const cover = document.getElementById("coverFile")?.files?.[0];
+        const preview = document.getElementById("previewFile")?.files?.[0];
+        const total = (cover?.size || 0) + (preview?.size || 0);
+
+        if (total > MAX_TOTAL) {
+          setText(
+            "previewError",
+            `Total fichiers trop volumineux (max ${formatMB(MAX_TOTAL)}).`
+          );
+          return false;
+        }
+        return true;
+      }
+
       function togglePreviewField() {
-        const typeSelect = document.getElementById("typeRessource");
+        const type = document.getElementById("typeRessource")?.value;
         const previewSection = document.getElementById("previewSection");
-        const type = typeSelect.value;
 
         if (type === "LIVRE" || type === "DOCUMENT") {
           previewSection.style.display = "block";
         } else {
           previewSection.style.display = "none";
+          // Très important : si on cache, on vide le fichier pour qu'il ne parte pas au submit
+          clearFile("previewFile", "previewFileName");
+          setText("previewError", "");
         }
       }
 
-      // Affichage du nom de fichier sélectionné pour la couverture
-      document
-        .getElementById("coverFile")
-        .addEventListener("change", function (e) {
-          const fileName = e.target.files[0]?.name;
-          const fileNameDisplay = document.getElementById("coverFileName");
-          if (fileName) {
-            fileNameDisplay.textContent = "✓ " + fileName;
-          } else {
-            fileNameDisplay.textContent = "";
-          }
-        });
+      document.addEventListener("DOMContentLoaded", () => {
+        // Init affichage preview
+        document
+          .getElementById("typeRessource")
+          ?.addEventListener("change", togglePreviewField);
+        togglePreviewField();
 
-      // Affichage du nom de fichier sélectionné pour la preview
-      document
-        .getElementById("previewFile")
-        .addEventListener("change", function (e) {
-          const fileName = e.target.files[0]?.name;
-          const fileNameDisplay = document.getElementById("previewFileName");
-          if (fileName) {
-            fileNameDisplay.textContent = "✓ " + fileName;
-          } else {
-            fileNameDisplay.textContent = "";
-          }
-        });
+        // Cover: nom + validation
+        document
+          .getElementById("coverFile")
+          ?.addEventListener("change", (e) => {
+            const f = e.target.files?.[0];
+            setText("coverFileName", f ? "✓ " + f.name : "");
+            validateFile("coverFile", "coverError", MAX_COVER, "Couverture");
+            validateTotal();
+          });
 
-      // Initialisation
-      document
-        .getElementById("typeRessource")
-        .addEventListener("change", togglePreviewField);
-      window.addEventListener("load", togglePreviewField);
+        // Preview: nom + validation
+        document
+          .getElementById("previewFile")
+          ?.addEventListener("change", (e) => {
+            const f = e.target.files?.[0];
+            setText("previewFileName", f ? "✓ " + f.name : "");
+            validateFile("previewFile", "previewError", MAX_PREVIEW, "Preview");
+            validateTotal();
+          });
+
+        // Bloquer l'envoi si invalide (sinon tu peux encore tomber sur 413)
+        document
+          .getElementById("ressourceForm")
+          ?.addEventListener("submit", (e) => {
+            const okCover = validateFile(
+              "coverFile",
+              "coverError",
+              MAX_COVER,
+              "Couverture"
+            );
+            const okPreview = validateFile(
+              "previewFile",
+              "previewError",
+              MAX_PREVIEW,
+              "Preview"
+            );
+            const okTotal = validateTotal();
+
+            if (!(okCover && okPreview && okTotal)) {
+              e.preventDefault();
+            }
+          });
+      });
     </script>
   </body>
 </html>

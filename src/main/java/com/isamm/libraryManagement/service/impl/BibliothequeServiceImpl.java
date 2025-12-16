@@ -4,7 +4,12 @@ import com.isamm.libraryManagement.entity.Bibliotheque;
 import com.isamm.libraryManagement.repository.BibliothequeRepository;
 import com.isamm.libraryManagement.service.BibliothequeService;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -29,8 +34,17 @@ public class BibliothequeServiceImpl implements BibliothequeService {
         return repo.save(b);
     }
 
-    @Override
-    public void delete(Long id) {
+@Override
+public void delete(Long id) {
+    try {
         repo.deleteById(id);
+    } catch (EmptyResultDataAccessException e) {
+        // id inexistant → rien à faire ou lever exception custom
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Bibliothèque introuvable");
+    } catch (DataIntegrityViolationException e) {
+        // enfants ou livres liés
+        throw new ResponseStatusException(HttpStatus.CONFLICT, "Impossible de supprimer : des enfants ou livres existent");
     }
+}
+
 }

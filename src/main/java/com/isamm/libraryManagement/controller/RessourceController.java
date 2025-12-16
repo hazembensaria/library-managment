@@ -13,7 +13,7 @@ import org.springframework.ui.Model;
 import com.isamm.libraryManagement.entity.Ressource;
 import com.isamm.libraryManagement.entity.TypeRessource;
 import com.isamm.libraryManagement.service.RessourceService;
-
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -21,6 +21,7 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.util.StringUtils; // POUR StringUtils
+import org.springframework.validation.BindingResult;
 
 import java.io.IOException;
 import java.nio.file.Files; // POUR Files.exists, createDirectories, etc.
@@ -84,7 +85,6 @@ public class RessourceController {
     /**
      * Méthode utilitaire privée qui sert un fichier à partir du chemin stocké en
      * BDD
-     * (ex: "/uploads/covers/xxxx.jpg" ou "/uploads/previews/xxxx.pdf").
      */
     private ResponseEntity<Resource> serveFile(String storedPath) throws IOException {
         if (storedPath == null || storedPath.isBlank()) {
@@ -138,10 +138,17 @@ public class RessourceController {
     }
 
     @PostMapping("/save")
-    public String save(@ModelAttribute Ressource formRessource,
+    public String save(
+            @Valid @ModelAttribute("ressource") Ressource formRessource,
+            BindingResult result,
             @RequestParam(value = "coverFile", required = false) MultipartFile coverFile,
-            @RequestParam(value = "previewFile", required = false) MultipartFile previewFile) throws IOException {
-
+            @RequestParam(value = "previewFile", required = false) MultipartFile previewFile,
+            Model model) throws IOException {
+        // Vérification de la validation
+        if (result.hasErrors()) {
+            model.addAttribute("ressource", formRessource);
+            return "ressource-form";
+        }
         Ressource r;
 
         // 1) Création ou modification ?
