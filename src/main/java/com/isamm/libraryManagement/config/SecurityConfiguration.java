@@ -31,19 +31,16 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/", "/home", "/home/**",
-                                "/bibliotheques/**", "/bibliotheques/add", "/ressources/**",
+                                "/bibliotheques/**", "/ressources/**",
                                 "/exemplaires", "/exemplaires/**",
+                                "/loans/**", "/api/loans/**",
                                 "/api/v1/auth/**",
                                 "/login", "/register",
                                 "/css/**", "/js/**")
                         .permitAll()
-                        .requestMatchers("/login", "/register", "/css/**", "/js/**").permitAll()
-
                         .requestMatchers("/dashboard/**").permitAll()
                         .requestMatchers("/export/**").hasAuthority("ADMIN")
-
-                        .anyRequest()
-                        .permitAll())
+                        .anyRequest().authenticated())
                 // .authorizeHttpRequests(auth -> auth
                 // .anyRequest().permitAll())
 

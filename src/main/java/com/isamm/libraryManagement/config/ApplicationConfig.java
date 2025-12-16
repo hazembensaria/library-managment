@@ -39,8 +39,8 @@ public class ApplicationConfig {
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
+        // Spring Security (Boot 4) : constructeur attend le UserDetailsService
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(userDetailsService());
-
         authProvider.setPasswordEncoder(passwordEncoder());
 
         return authProvider;
