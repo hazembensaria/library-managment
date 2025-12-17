@@ -343,6 +343,22 @@
                   th:errors="*{auteur}"
                 ></div>
               </div>
+              <div class="mb-4">
+                <label class="form-label">
+                  <i class="bi bi-calendar-event-fill"></i>
+                  Publish date
+                </label>
+                <input
+                  type="date"
+                  class="form-control"
+                  th:field="*{publishDate}"
+                />
+                <div
+                  class="text-danger"
+                  th:if="${#fields.hasErrors('publishDate')}"
+                  th:errors="*{publishDate}"
+                ></div>
+              </div>
 
               <div class="mb-4">
                 <label class="form-label">

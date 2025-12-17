@@ -20,8 +20,7 @@ public class Exemplaire {
     private String codeBarre;
 
     // @NotNull(message = "Availability must be indicated")
-    private Boolean disponible= true;
-
+    private Boolean disponible = true;
     @NotBlank(message = "The condition of the copy is mandatory")
     private String etat;
 
