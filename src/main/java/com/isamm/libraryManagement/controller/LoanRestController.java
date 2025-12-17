@@ -22,11 +22,35 @@ public class LoanRestController {
         try {
             Loan loan = loanService.reserve(exemplaireId);
 
-            // ✅ JSON SIMPLE (pas d'entity)
             Map<String, Object> body = new HashMap<>();
             body.put("id", loan.getId());
             body.put("status", loan.getStatus().name());
             body.put("message", "Réservation enregistrée");
+            
+            // Ajouter les données utilisateur
+            Map<String, Object> userData = new HashMap<>();
+            userData.put("id", loan.getUser().getId());
+            userData.put("firstname", loan.getUser().getFirstname());
+            userData.put("lastname", loan.getUser().getLastname());
+            userData.put("email", loan.getUser().getEmail());
+            userData.put("role", loan.getUser().getRole() != null ? loan.getUser().getRole().name() : "USER");
+            body.put("user", userData);
+            
+            // Ajouter les données exemplaire
+            Map<String, Object> exemplaireData = new HashMap<>();
+            exemplaireData.put("id", loan.getExemplaire().getId());
+            exemplaireData.put("codeBarre", loan.getExemplaire().getCodeBarre());
+            
+            // Ajouter les données ressource
+            if (loan.getExemplaire().getRessource() != null) {
+                Map<String, Object> ressourceData = new HashMap<>();
+                ressourceData.put("id", loan.getExemplaire().getRessource().getId());
+                ressourceData.put("titre", loan.getExemplaire().getRessource().getTitre());
+                exemplaireData.put("ressource", ressourceData);
+            }
+            
+            body.put("exemplaire", exemplaireData);
+            
             return ResponseEntity.ok(body);
 
         } catch (IllegalArgumentException | IllegalStateException ex) {
@@ -47,6 +71,31 @@ public class LoanRestController {
             body.put("id", loan.getId());
             body.put("status", loan.getStatus().name());
             body.put("message", "Réservation enregistrée");
+            
+            // Ajouter les données utilisateur
+            Map<String, Object> userData = new HashMap<>();
+            userData.put("id", loan.getUser().getId());
+            userData.put("firstname", loan.getUser().getFirstname());
+            userData.put("lastname", loan.getUser().getLastname());
+            userData.put("email", loan.getUser().getEmail());
+            userData.put("role", loan.getUser().getRole() != null ? loan.getUser().getRole().name() : "USER");
+            body.put("user", userData);
+            
+            // Ajouter les données exemplaire
+            Map<String, Object> exemplaireData = new HashMap<>();
+            exemplaireData.put("id", loan.getExemplaire().getId());
+            exemplaireData.put("codeBarre", loan.getExemplaire().getCodeBarre());
+            
+            // Ajouter les données ressource
+            if (loan.getExemplaire().getRessource() != null) {
+                Map<String, Object> ressourceData = new HashMap<>();
+                ressourceData.put("id", loan.getExemplaire().getRessource().getId());
+                ressourceData.put("titre", loan.getExemplaire().getRessource().getTitre());
+                exemplaireData.put("ressource", ressourceData);
+            }
+            
+            body.put("exemplaire", exemplaireData);
+            
             return ResponseEntity.ok(body);
 
         } catch (IllegalArgumentException | IllegalStateException ex) {
