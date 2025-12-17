@@ -53,7 +53,7 @@ public class SecurityConfiguration {
                 // .authorizeHttpRequests(auth -> auth
 
 
-                // 3) Ne JAMAIS accéder directement au dossier uploads
+                // 3) Ne JAMAIS accéder directem    ent au dossier uploads
                 // .requestMatchers("/uploads/**").denyAll()
                 // .requestMatchers("/ressources/**").authenticated()
                 // .anyRequest().authenticated())
