@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestion des Utilisateurs</title>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+</head>
+<body>
+
+<div class="container mt-4" sec:authorize="hasAuthority('ADMIN')">
+
+    <h1 class="mb-4">Liste des utilisateurs</h1>
+
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nom</th>
+            <th>Prénom</th>
+            <th>Email</th>
+            <th>Rôle</th>
+            <th>Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="user : ${allUsers}">
+            <td th:text="${user.id}"></td>
+            <td th:text="${user.lastname}"></td>
+            <td th:text="${user.firstname}"></td>
+            <td th:text="${user.email}"></td>
+            <td>
+                <form th:action="@{'/admin/users/' + ${user.id} + '/role'}" method="post">
+                    <select class="form-select" name="role">
+                        <option th:each="r : ${roles}" th:value="${r}" th:text="${r}"
+                                th:selected="${r == user.role}"></option>
+                    </select>
+            </td>
+            <td>
+                <button type="submit" class="btn btn-primary btn-sm">Mettre à jour</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+</div>
+
+<script src="/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

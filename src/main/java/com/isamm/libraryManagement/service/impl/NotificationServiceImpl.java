@@ -60,7 +60,9 @@ public class NotificationServiceImpl implements NotificationService {
         // ⚠️ Ici, il faut envoyer vers l'email.
         // Si getUsername() = email chez toi, ok.
         // Sinon remplace par user.getEmail()
-        emailService.sendEmail(user.getUsername(), subject, message);
+        String html = buildWowEmail(subject, message);
+        emailService.sendHtml(user.getUsername(), subject, html);
+
 
         // Push WebSocket (simulé) via service dédié (plus besoin de NotificationWSMessage)
         try {
@@ -80,6 +82,50 @@ public class NotificationServiceImpl implements NotificationService {
     public List<Notification> getNotificationsUtilisateur(User user) {
         return notificationRepository.findByUserOrderByDateEnvoiDesc(user);
     }
+    
+    private String buildWowEmail(String title, String message) {
+        return """
+    <!doctype html>
+    <html lang="fr">
+    <head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/></head>
+    <body style="margin:0;padding:0;background:#f3f4f6;font-family:Arial,Helvetica,sans-serif;">
+      <div style="max-width:680px;margin:0 auto;padding:24px;">
+        <div style="background:linear-gradient(135deg,#0f172a,#2563eb);border-radius:18px;padding:22px 24px;color:#fff;">
+          <div style="font-size:13px;opacity:.9;letter-spacing:.3px;">Library Management System</div>
+          <div style="font-size:24px;font-weight:800;margin-top:6px;line-height:1.2;">%s</div>
+          <div style="font-size:13px;opacity:.9;margin-top:6px;">Notification automatique</div>
+        </div>
+
+        <div style="background:#ffffff;border-radius:18px;padding:22px 24px;margin-top:14px;box-shadow:0 10px 25px rgba(0,0,0,.06);">
+          <div style="font-size:14px;line-height:1.7;color:#374151;">
+            %s
+          </div>
+
+          <div style="margin-top:18px;">
+            <a href="#" style="display:inline-block;background:#2563eb;color:#fff;text-decoration:none;padding:12px 16px;border-radius:12px;font-weight:800;font-size:14px;">
+              Accéder à la plateforme
+            </a>
+          </div>
+        </div>
+
+        <div style="text-align:center;color:#9ca3af;font-size:12px;margin-top:16px;">
+          Bibliothèque ISAMM • Ceci est un message automatique.
+        </div>
+      </div>
+    </body>
+    </html>
+    """.formatted(escapeHtml(title), escapeHtml(message));
+    }
+
+    private String escapeHtml(String input) {
+        if (input == null) return "—";
+        return input.replace("&","&amp;")
+                .replace("<","&lt;")
+                .replace(">","&gt;")
+                .replace("\"","&quot;")
+                .replace("'","&#39;");
+    }
+
 
     @Override
     public void marquerCommeLue(Long notificationId) {
