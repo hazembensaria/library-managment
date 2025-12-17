@@ -18,11 +18,17 @@ public class LoanRestController {
     private final LoanService loanService;
 
     @PostMapping("/reserve")
-    public ResponseEntity<?> reserve(
-            @RequestParam Long exemplaireId) {
+    public ResponseEntity<?> reserve(@RequestParam Long exemplaireId) {
         try {
             Loan loan = loanService.reserve(exemplaireId);
-            return ResponseEntity.ok(loan);
+
+            // ✅ JSON SIMPLE (pas d'entity)
+            Map<String, Object> body = new HashMap<>();
+            body.put("id", loan.getId());
+            body.put("status", loan.getStatus().name());
+            body.put("message", "Réservation enregistrée");
+            return ResponseEntity.ok(body);
+
         } catch (IllegalArgumentException | IllegalStateException ex) {
             Map<String, String> body = new HashMap<>();
             body.put("error", ex.getMessage());
@@ -32,12 +38,17 @@ public class LoanRestController {
 
     @PostMapping("/reserveForUser")
     @PreAuthorize("hasAnyAuthority('ADMIN','BIBLIOTHECAIRE')")
-    public ResponseEntity<?> reserveForUser(
-            @RequestParam Long exemplaireId,
-            @RequestParam Integer userId) {
+    public ResponseEntity<?> reserveForUser(@RequestParam Long exemplaireId,
+                                            @RequestParam Integer userId) {
         try {
             Loan loan = loanService.reserveForUser(exemplaireId, userId);
-            return ResponseEntity.ok(loan);
+
+            Map<String, Object> body = new HashMap<>();
+            body.put("id", loan.getId());
+            body.put("status", loan.getStatus().name());
+            body.put("message", "Réservation enregistrée");
+            return ResponseEntity.ok(body);
+
         } catch (IllegalArgumentException | IllegalStateException ex) {
             Map<String, String> body = new HashMap<>();
             body.put("error", ex.getMessage());
@@ -45,4 +56,3 @@ public class LoanRestController {
         }
     }
 }
-
