@@ -108,19 +108,23 @@
         <div class="dropdown" sec:authorize="isAuthenticated()">
           <button class="notif-btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" type="button">
             <i class="bi bi-bell-fill" style="color:var(--primary)"></i>
-            <span class="badge bg-danger notif-badge" th:text="${nonLuesCount != null ? nonLuesCount : 0}">0</span>
+            <!-- ✅ compteur bouton -->
+            <span class="badge bg-danger notif-badge" id="notifCountBtn"
+                  th:text="${nonLuesCount != null ? nonLuesCount : 0}">0</span>
           </button>
 
           <div class="dropdown-menu dropdown-menu-end dropdown-menu-notif">
             <div class="notif-head">
               <div class="fw-bold"><i class="bi bi-bell"></i> Notifications</div>
-              <span class="badge bg-light text-dark"
-                    th:text="${nonLuesCount != null ? nonLuesCount : 0} + ' non lue(s)'">0</span>
+              <!-- ✅ compteur header -->
+              <span class="badge bg-light text-dark" id="notifCountHead"
+                    th:text="${nonLuesCount != null ? nonLuesCount : 0} + ' non lue(s)'">0 non lue(s)</span>
             </div>
 
             <div class="notif-body">
+              <!-- ✅ LISTE -->
               <div th:if="${notifications != null and !#lists.isEmpty(notifications)}">
-                <div class="list-group">
+                <div class="list-group" id="notifList">
                   <div class="list-group-item notif-item mb-2"
                        th:each="n : ${notifications}"
                        th:classappend="${n.lu} ? '' : ' list-group-item-warning'">
@@ -142,7 +146,9 @@
                 </div>
               </div>
 
-              <div class="alert alert-info mb-2" th:if="${notifications == null or #lists.isEmpty(notifications)}">
+              <!-- ✅ EMPTY (manipulable en JS) -->
+              <div class="alert alert-info mb-2" id="notifEmpty"
+                   th:if="${notifications == null or #lists.isEmpty(notifications)}">
                 <i class="bi bi-info-circle"></i> Aucune notification.
               </div>
 
@@ -228,5 +234,82 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- ✅ SockJS + STOMP -->
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+
+<!-- ✅ WebSocket Notifications -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  // si l'utilisateur n'est pas connecté, les éléments notif n'existent pas => on sort
+  const countBtn = document.getElementById("notifCountBtn");
+  const countHead = document.getElementById("notifCountHead");
+  if (!countBtn || !countHead) return;
+
+  const socket = new SockJS("/ws");
+  const client = Stomp.over(socket);
+  client.debug = null;
+
+  client.connect({}, function () {
+    client.subscribe("/user/queue/notifications", function (frame) {
+      let payload;
+      try { payload = JSON.parse(frame.body); }
+      catch (e) { payload = { content: frame.body, timestamp: "" }; }
+
+      const content = payload.content || "";
+      const timestamp = payload.timestamp || new Date().toISOString();
+
+      // 1) cacher "Aucune notification"
+      const empty = document.getElementById("notifEmpty");
+      if (empty) empty.style.display = "none";
+
+      // 2) trouver/créer la liste
+      let list = document.getElementById("notifList");
+      if (!list) {
+        // s'il n'y avait aucune notif au rendu, Thymeleaf n'a pas rendu la list-group
+        const body = document.querySelector(".notif-body");
+        const wrapper = document.createElement("div");
+        wrapper.innerHTML = `<div class="list-group" id="notifList"></div>`;
+        body.insertBefore(wrapper.firstElementChild, body.firstElementChild);
+        list = document.getElementById("notifList");
+      }
+
+      // 3) ajouter item (en haut)
+      const item = document.createElement("div");
+      item.className = "list-group-item notif-item mb-2 list-group-item-warning";
+      item.innerHTML = `
+        <div class="d-flex justify-content-between gap-2">
+          <div>
+            <div class="fw-semibold">
+              <span class="badge bg-info text-dark me-2">RAPPEL</span>
+              <span>${escapeHtml(content)}</span>
+            </div>
+            <small class="text-muted">${escapeHtml(timestamp)}</small>
+          </div>
+          <span class="badge bg-success align-self-start">Nouvelle</span>
+        </div>
+      `;
+      list.prepend(item);
+
+      // 4) incrémenter compteurs
+      const current = parseInt((countBtn.textContent || "0").match(/\d+/)?.[0] || "0", 10);
+      const next = current + 1;
+      countBtn.textContent = String(next);
+      countHead.textContent = next + " non lue(s)";
+    });
+  });
+
+  function escapeHtml(s) {
+    return String(s)
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#39;");
+  }
+});
+</script>
+
 </body>
 </html>
