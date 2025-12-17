@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Mon Profil</title>
+</head>
+
+<body>
+
+<h2>Mon Profil</h2>
+
+<form th:action="@{/profile/update}" method="post"
+      th:object="${profileUpdate}">
+
+    <label>Email</label>
+    <input type="email" th:value="${user.email}" readonly/>
+
+    <label>Prénom</label>
+    <input type="text" th:field="*{firstname}"
+           th:value="${user.firstname}"/>
+
+    <label>Nom</label>
+    <input type="text" th:field="*{lastname}"
+           th:value="${user.lastname}"/>
+
+    <button type="submit">Mettre à jour</button>
+</form>
+
+<hr/>
+
+<h3>Historique des prêts</h3>
+
+<table border="1">
+    <tr>
+        <th>Exemplaire</th>
+        <th>Status</th>
+        <th>Emprunté le</th>
+        <th>À rendre le</th>
+        <th>Retourné le</th>
+    </tr>
+
+    <tr th:each="l : ${loans}">
+        <td th:text="${l.exemplaireCode}"></td>
+        <td th:text="${l.status}"></td>
+        <td th:text="${l.borrowedAt}"></td>
+        <td th:text="${l.dueAt}"></td>
+        <td th:text="${l.returnedAt} ?: '-'"></td>
+    </tr>
+</table>
+
+
+
+<div class="container mt-4" sec:authorize="hasAuthority('ADMIN')">
+    <h1 class="mb-4">Liste des utilisateurs</h1>
+
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nom</th>
+            <th>Prénom</th>
+            <th>Email</th>
+            <th>Rôle</th>
+            <th>Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="user : ${users}">
+            <td th:text="${user.id}"></td>
+            <td th:text="${user.lastname}"></td>
+            <td th:text="${user.firstname}"></td>
+            <td th:text="${user.email}"></td>
+            <td>
+                <form th:action="@{'/admin/users/' + ${user.id} + '/role'}" method="post">
+                    <select class="form-select" name="role">
+                        <option th:each="r : ${roles}"
+                                th:value="${r}"
+                                th:text="${r}"
+                                th:selected="${r == user.role}">
+                        </option>
+                    </select>
+            </td>
+            <td>
+                <button type="submit" class="btn btn-primary btn-sm">Mettre à jour</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+</body>
+</html>

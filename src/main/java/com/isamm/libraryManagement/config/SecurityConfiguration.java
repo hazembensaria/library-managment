@@ -35,12 +35,14 @@ public class SecurityConfiguration {
                                 "/bibliotheques/save", "/ressources/**",
                                 "/exemplaires", "/exemplaires/**",
                                 "/api/v1/auth/**",
+                                "/userManagement", "/admin/**",
                                 "/login", "/register",
                                 "/css/**", "/js/**")
                         .permitAll()
                         .requestMatchers("/login", "/register", "/css/**", "/js/**").permitAll()
                         .requestMatchers("/bibliotheques/*/dependances").permitAll()
                         .requestMatchers("/dashboard/**").permitAll()
+                        .requestMatchers("/profile/**").permitAll()
                         .requestMatchers("/export/**").hasAuthority("ADMIN")
                         .requestMatchers("/notifications/**").permitAll())
 
@@ -52,6 +54,16 @@ public class SecurityConfiguration {
                 // .requestMatchers("/uploads/**").denyAll()
                 // .requestMatchers("/ressources/**").authenticated()
                 // .anyRequest().authenticated())
+                .exceptionHandling(exception -> exception
+                        // not authenticated
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.sendRedirect("/login");
+                        })
+                        // authenticated but no role
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            response.sendRedirect("/home");
+                        })
+                )
 
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
