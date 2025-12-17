@@ -2,10 +2,14 @@ package com.isamm.libraryManagement.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.util.List;
+
+import org.springframework.format.annotation.DateTimeFormat;
 
 @Entity
 @Data
@@ -31,6 +35,10 @@ public class Ressource {
     private String categorie;
     private String coverPath;
     private String previewPath;
+    @PastOrPresent(message = "The acquisition date cannot be in the future")
+
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    private LocalDate publishDate;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type_ressource")

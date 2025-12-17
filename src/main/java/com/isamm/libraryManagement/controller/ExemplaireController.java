@@ -11,6 +11,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import jakarta.validation.Valid;
 import com.isamm.libraryManagement.entity.Exemplaire;
+import com.isamm.libraryManagement.entity.Ressource;
 import com.isamm.libraryManagement.service.BibliothequeService;
 import com.isamm.libraryManagement.service.ExemplaireService;
 import com.isamm.libraryManagement.service.RessourceService;
@@ -27,11 +28,39 @@ public class ExemplaireController {
     private final RessourceService ressourceService;
     private final BibliothequeService bibliothequeService;
 
+    // @GetMapping("/ressource/{id}")
+    // public String listByRessource(@PathVariable Long id, Model model) {
+    // model.addAttribute("ressource", ressourceService.getById(id));
+    // model.addAttribute("exemplaires", exemplaireService.getByRessource(id));
+    // return "exemplaires-by-ressource";
+    // }
+    // @GetMapping("/ressource/{id}")
+    // public String listByRessource(@PathVariable Long id, Model model) {
+    // Ressource ressource = ressourceService.getById(id);
+    // if (ressource == null) {
+    // // Ressource introuvable → redirige vers la liste des ressources
+    // return "redirect:/ressources";
+    // }
+
+    // model.addAttribute("ressource", ressource);
+    // model.addAttribute("exemplaires", exemplaireService.getByRessource(id));
+
+    // return "exemplaires-by-ressource";
+    // }
     @GetMapping("/ressource/{id}")
     public String listByRessource(@PathVariable Long id, Model model) {
-        model.addAttribute("ressource", ressourceService.getById(id));
-        model.addAttribute("exemplaires", exemplaireService.getByRessource(id));
-        return "exemplaires-by-ressource";
+        try {
+            Ressource ressource = ressourceService.getById(id);
+            if (ressource == null) {
+                return "redirect:/ressources";
+            }
+            model.addAttribute("ressource", ressource);
+            model.addAttribute("exemplaires", exemplaireService.getByRessource(id));
+            return "exemplaires-by-ressource";
+        } catch (Exception e) {
+            e.printStackTrace(); // <-- voir l'erreur exacte
+            return "error"; // page error.html custom
+        }
     }
 
     @GetMapping("/bibliotheque/{id}")
