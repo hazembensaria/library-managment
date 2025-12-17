@@ -16,6 +16,7 @@ public class Exemplaire {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true)
     @NotBlank(message = "The barcode is mandatory")
     private String codeBarre;
 

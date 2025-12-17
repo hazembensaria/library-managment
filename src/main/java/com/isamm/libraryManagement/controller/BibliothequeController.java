@@ -116,18 +116,41 @@ public class BibliothequeController {
 
     // return "bibliotheques-dependances";
     // }
+    // @GetMapping("/{id}/dependances")
+    // public String afficherDependances(@PathVariable Long id, Model model) {
+    // Bibliotheque b = service.getWithDependances(id);
+
+    // var exemplaires = (b.getExemplaires() != null) ? b.getExemplaires() :
+    // java.util.Collections.emptyList();
+    // var sousBibliotheques = (b.getSousBibliotheques() != null) ?
+    // b.getSousBibliotheques()
+    // : java.util.Collections.emptyList();
+
+    // model.addAttribute("bibliotheque", b);
+
+    // model.addAttribute("exemplaires", exemplaires);
+    // model.addAttribute("sousBibliotheques", sousBibliotheques);
+
+    // model.addAttribute("nbExemplaires", exemplaires.size());
+    // model.addAttribute("nbSousBibliotheques", sousBibliotheques.size());
+
+    // return "bibliotheques-dependances";
+    // }
     @GetMapping("/{id}/dependances")
     public String afficherDependances(@PathVariable Long id, Model model) {
         Bibliotheque b = service.getWithDependances(id);
 
-        // Nombre pour badges
-        model.addAttribute("nbExemplaires", b.getExemplaires().size());
-        model.addAttribute("nbSousBibliotheques", b.getSousBibliotheques().size());
+        var exemplaires = (b.getExemplaires() != null) ? b.getExemplaires()
+                : java.util.Collections.emptyList();
 
-        // Listes détaillées pour affichage
+        var sousBibliotheques = (b.getSousBibliotheques() != null) ? b.getSousBibliotheques()
+                : java.util.Collections.emptyList();
+
         model.addAttribute("bibliotheque", b);
-        model.addAttribute("exemplaires", b.getExemplaires());
-        model.addAttribute("sousBibliotheques", b.getSousBibliotheques());
+        model.addAttribute("exemplaires", exemplaires);
+        model.addAttribute("sousBibliotheques", sousBibliotheques);
+        model.addAttribute("nbExemplaires", exemplaires.size());
+        model.addAttribute("nbSousBibliotheques", sousBibliotheques.size());
 
         return "bibliotheques-dependances";
     }

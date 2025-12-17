@@ -48,4 +48,11 @@ public class ExemplaireServiceImpl implements ExemplaireService {
         return exemplaires != null ? exemplaires : new ArrayList<>();
     }
 
+    public boolean existsByCodeBarre(String codeBarre) {
+        return repo.existsByCodeBarre(codeBarre);
+    }
+
+    public boolean existsByCodeBarreAndIdNot(String codeBarre, Long id) {
+        return repo.existsByCodeBarreAndIdNot(codeBarre, id);
+    }
 }

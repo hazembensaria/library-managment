@@ -150,55 +150,195 @@
       .table-responsive {
         font-size: 0.9rem;
       }
-    }
-  </style>
-</head>
 
-<body>
-  <div class="page-container">
-    <div class="page-card">
-      <!-- Header -->
-      <div class="page-header">
-        <h2>
-          <i class="bi bi-collection"></i>
-          <span th:text="'Copies for: ' + ${ressource.titre}">
-            Copies for: Title of the resource
-          </span>
-        </h2>
+      .table thead th {
+        border-bottom-width: 2px;
+        color: #495057;
+        font-weight: 600;
+      }
+
+      .badge-available {
+        background-color: #28a745;
+      }
+
+      .badge-unavailable {
+        background-color: #dc3545;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 2rem 1rem;
+        color: #6c757d;
+      }
+
+      .empty-state i {
+        font-size: 2.5rem;
+        color: #ced4da;
+        margin-bottom: 0.5rem;
+      }
+
+      @media (max-width: 768px) {
+        .page-body {
+          padding: 1.5rem;
+        }
+
+        .top-actions {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .top-actions .btn-primary-custom,
+        .top-actions .btn-secondary-custom {
+          width: 100%;
+          justify-content: center;
+        }
+
+        .table-responsive {
+          font-size: 0.9rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+      <div class="container-fluid">
+        <!-- Brand -->
+        <a class="navbar-brand fw-bold" th:href="@{/home}">
+          <i class="bi bi-book"></i> Library
+        </a>
+
+        <!-- Toggle mobile -->
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarContent"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarContent">
+          <!-- LEFT MENU -->
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <!-- Home : tout le monde -->
+            <li class="nav-item">
+              <a class="nav-link" th:href="@{/home}">
+                <i class="bi bi-house"></i> Home
+              </a>
+            </li>
+
+            <!-- Resources : ADMIN + BIBLIOTHECAIRE -->
+            <li
+              class="nav-item"
+              sec:authorize="hasAnyAuthority('ADMIN','BIBLIOTHECAIRE')"
+            >
+              <a class="nav-link" th:href="@{/ressources}">
+                <i class="bi bi-box-seam"></i> Resources
+              </a>
+            </li>
+
+            <!-- Bibliothèques : ADMIN + BIBLIOTHECAIRE -->
+            <li
+              class="nav-item"
+              sec:authorize="hasAnyAuthority('ADMIN','BIBLIOTHECAIRE')"
+            >
+              <a class="nav-link" th:href="@{/bibliotheques}">
+                <i class="bi bi-building"></i> Libraries
+              </a>
+            </li>
+
+            <!-- Loans -->
+            <li class="nav-item" sec:authorize="isAuthenticated()">
+              <a class="nav-link" th:href="@{/loans}">
+                <i class="bi bi-journal-text"></i> Loans
+              </a>
+            </li>
+          </ul>
+
+          <!-- RIGHT MENU -->
+          <ul class="navbar-nav ms-auto">
+            <!-- Username -->
+            <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                role="button"
+                data-bs-toggle="dropdown"
+              >
+                <i class="bi bi-person-circle"></i>
+                <span sec:authentication="name"></span>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li>
+                  <form th:action="@{/logout}" method="post">
+                    <button class="dropdown-item text-danger">
+                      <i class="bi bi-box-arrow-right"></i> Logout
+                    </button>
+                  </form>
+                </li>
+              </ul>
+            </li>
+
+            <!-- Login -->
+            <li class="nav-item" sec:authorize="!isAuthenticated()">
+              <a class="nav-link" th:href="@{/login}">
+                <i class="bi bi-box-arrow-in-right"></i> Login
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <div class="page-container">
+      <div class="page-card">
+        <!-- Header -->
+        <div class="page-header">
+          <h2>
+            <i class="bi bi-collection"></i>
+            <span th:text="'Copies for: ' + ${ressource.titre}">
+              Copies for: Resource title
+            </span>
+          </h2>
           <div class="subtitle">
           Resource ID:
           <span th:text="${ressource.id}">1</span>
         </div>
       </div>
 
-      <!-- Body -->
-      <div class="page-body">
-        <!-- Top actions: back to resources + add copy -->
-        <div class="top-actions">
-          <a href="/ressources" class="btn-secondary-custom">
-            <i class="bi bi-arrow-left"></i>
-            Back to resources list
-          </a>
+        <!-- Body -->
+        <div class="page-body">
+          <!-- Top actions: back to resources + add copy -->
+          <div class="top-actions">
+            <a href="/ressources" class="btn-secondary-custom">
+              <i class="bi bi-arrow-left"></i>
+              Back to resources list
+            </a>
 
-          <a th:href="@{'/exemplaires/add/' + ${ressource.id}}" class="btn-primary-custom"
-            sec:authorize="hasAnyAuthority('ADMIN','BIBLIOTHECAIRE')">
-            <i class="bi bi-plus-circle"></i>
-            Add a copy
-          </a>
-        </div>
+            <a
+              th:href="@{'/exemplaires/add/' + ${ressource.id}}"
+              sec:authorize="hasAnyAuthority('ADMIN','BIBLIOTHECAIRE')"
+              class="btn-primary-custom"
+            >
+              <i class="bi bi-plus-circle"></i>
+              Add a copy
+            </a>
+          </div>
 
-        <!-- Table or empty state -->
-        <div th:if="${#lists.isEmpty(exemplaires)}" class="empty-state">
-          <i class="bi bi-inbox"></i>
-          <p class="mt-2 mb-1">
-            No copies have been added for this resource yet.
-          </p>
-          <p class="mb-0">
-            Click on
-            <strong>“Add a copy”</strong>
-            to create the first one.
-          </p>
-        </div>
+          <!-- Table or empty state -->
+          <div th:if="${#lists.isEmpty(exemplaires)}" class="empty-state">
+            <i class="bi bi-inbox"></i>
+            <p class="mt-2 mb-1">
+              No copies have been added for this resource yet.
+            </p>
+            <p
+              class="mb-0"
+              sec:authorize="hasAnyAuthority('ADMIN','BIBLIOTHECAIRE')"
+            >
+              Click on
+              <strong>“Add a copy”</strong>
+              to create the first one.
+            </p>
+          </div>
 
         <div th:if="${!#lists.isEmpty(exemplaires)}" class="table-responsive">
           <table class="table table-striped table-hover align-middle">

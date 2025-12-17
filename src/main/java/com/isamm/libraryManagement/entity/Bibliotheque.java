@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Size;
 import lombok.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -47,10 +48,10 @@ public class Bibliotheque {
 
     // Sous-bibliothèques
     @OneToMany(mappedBy = "parent")
-    private List<Bibliotheque> sousBibliotheques;
+    private List<Bibliotheque> sousBibliotheques = new ArrayList<>();
 
     @OneToMany(mappedBy = "bibliotheque")
     @JsonIgnore
-    private List<Exemplaire> exemplaires;
+    private List<Exemplaire> exemplaires = new ArrayList<>();
 
 }
