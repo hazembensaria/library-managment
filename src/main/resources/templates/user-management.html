@@ -1,47 +1,133 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
 <head>
     <meta charset="UTF-8">
     <title>Gestion des Utilisateurs</title>
+
+    <!-- Bootstrap -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    <style>
+        body {
+            background: #f4f6f8;
+            font-family: Arial, sans-serif;
+        }
+
+        .page-container {
+            max-width: 1100px;
+            margin: 50px auto;
+        }
+
+        .card {
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            border: none;
+        }
+
+        .card-header {
+            background: #4a90e2;
+            color: white;
+            border-radius: 20px 20px 0 0;
+            padding: 20px 30px;
+        }
+
+        .card-header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        table {
+            margin-bottom: 0;
+        }
+
+        thead th {
+            background: #f1f3f6;
+            border: none;
+            font-weight: 600;
+        }
+
+        tbody tr {
+            vertical-align: middle;
+        }
+
+        .form-select {
+            border-radius: 10px;
+        }
+
+        .btn-update {
+            background: #4a90e2;
+            color: white;
+            border-radius: 10px;
+            padding: 6px 14px;
+            border: none;
+        }
+
+        .btn-update:hover {
+            background: #357abd;
+        }
+    </style>
 </head>
+
 <body>
 
-<div class="container mt-4" sec:authorize="hasAuthority('ADMIN')">
+<div class="page-container" sec:authorize="hasAuthority('ADMIN')">
 
-    <h1 class="mb-4">Liste des utilisateurs</h1>
+    <div class="card">
 
-    <table class="table table-striped">
-        <thead>
-        <tr>
-            <th>ID</th>
-            <th>Nom</th>
-            <th>Prénom</th>
-            <th>Email</th>
-            <th>Rôle</th>
-            <th>Action</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="user : ${allUsers}">
-            <td th:text="${user.id}"></td>
-            <td th:text="${user.lastname}"></td>
-            <td th:text="${user.firstname}"></td>
-            <td th:text="${user.email}"></td>
-            <td>
-                <form th:action="@{'/admin/users/' + ${user.id} + '/role'}" method="post">
-                    <select class="form-select" name="role">
-                        <option th:each="r : ${roles}" th:value="${r}" th:text="${r}"
-                                th:selected="${r == user.role}"></option>
-                    </select>
-            </td>
-            <td>
-                <button type="submit" class="btn btn-primary btn-sm">Mettre à jour</button>
-                </form>
-            </td>
-        </tr>
-        </tbody>
-    </table>
+        <!-- HEADER -->
+        <div class="card-header">
+            <h1>Gestion des utilisateurs</h1>
+            <p class="mb-0">Modifier les rôles des utilisateurs</p>
+        </div>
+
+        <!-- TABLE -->
+        <div class="card-body p-4">
+
+            <table class="table align-middle">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nom</th>
+                    <th>Prénom</th>
+                    <th>Email</th>
+                    <th>Rôle</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr th:each="user : ${allUsers}">
+                    <td th:text="${user.id}"></td>
+                    <td th:text="${user.lastname}"></td>
+                    <td th:text="${user.firstname}"></td>
+                    <td th:text="${user.email}"></td>
+
+                    <td>
+                        <form th:action="@{'/admin/users/' + ${user.id} + '/role'}" method="post"
+                              class="d-flex gap-2">
+                            <select class="form-select" name="role">
+                                <option th:each="r : ${roles}"
+                                        th:value="${r}"
+                                        th:text="${r}"
+                                        th:selected="${r == user.role}">
+                                </option>
+                            </select>
+                    </td>
+
+                    <td>
+                        <button type="submit" class="btn-update">
+                            Mettre à jour
+                        </button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+        </div>
+    </div>
 
 </div>
 

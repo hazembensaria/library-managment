@@ -5,91 +5,204 @@
 <head>
     <meta charset="UTF-8">
     <title>Mon Profil</title>
+
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    <style>
+        body {
+            background: #f4f6f8;
+            font-family: Arial, sans-serif;
+        }
+
+        .page-container {
+            max-width: 1100px;
+            margin: 40px auto;
+        }
+
+        .card {
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            border: none;
+            margin-bottom: 30px;
+        }
+
+        .card-header {
+            background: #4a90e2;
+            color: white;
+            padding: 20px 30px;
+            border-radius: 20px 20px 0 0;
+        }
+
+        .card-header h2,
+        .card-header h3 {
+            margin: 0;
+        }
+
+        label {
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .form-control {
+            border-radius: 10px;
+        }
+
+        .btn-primary {
+            background: #4a90e2;
+            border: none;
+            border-radius: 10px;
+            padding: 8px 18px;
+        }
+
+        .btn-primary:hover {
+            background: #357abd;
+        }
+
+        table thead th {
+            background: #f1f3f6;
+            border: none;
+        }
+
+        table tbody tr {
+            vertical-align: middle;
+        }
+    </style>
 </head>
 
 <body>
 
-<h2>Mon Profil</h2>
+<div class="page-container">
 
-<form th:action="@{/profile/update}" method="post"
-      th:object="${profileUpdate}">
+    <!-- PROFILE CARD -->
+    <div class="card">
+        <div class="card-header">
+            <h2>Mon profil</h2>
+            <p class="mb-0">Informations personnelles</p>
+        </div>
 
-    <label>Email</label>
-    <input type="email" th:value="${user.email}" readonly/>
+        <div class="card-body p-4">
+            <form th:action="@{/profile/update}"
+                  method="post"
+                  th:object="${profileUpdate}"
+                  class="row g-3">
 
-    <label>Prénom</label>
-    <input type="text" th:field="*{firstname}"
-           th:value="${user.firstname}"/>
+                <div class="col-md-6">
+                    <label>Email</label>
+                    <input type="email"
+                           class="form-control"
+                           th:value="${user.email}"
+                           readonly/>
+                </div>
 
-    <label>Nom</label>
-    <input type="text" th:field="*{lastname}"
-           th:value="${user.lastname}"/>
+                <div class="col-md-6">
+                    <label>Prénom</label>
+                    <input type="text"
+                           class="form-control"
+                           th:field="*{firstname}"
+                           th:value="${user.firstname}"/>
+                </div>
 
-    <button type="submit">Mettre à jour</button>
-</form>
+                <div class="col-md-6">
+                    <label>Nom</label>
+                    <input type="text"
+                           class="form-control"
+                           th:field="*{lastname}"
+                           th:value="${user.lastname}"/>
+                </div>
 
-<hr/>
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary">
+                        Mettre à jour
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-<h3>Historique des prêts</h3>
+    <!-- LOANS HISTORY -->
+    <div class="card">
+        <div class="card-header">
+            <h3>Historique des prêts</h3>
+        </div>
 
-<table border="1">
-    <tr>
-        <th>Exemplaire</th>
-        <th>Status</th>
-        <th>Emprunté le</th>
-        <th>À rendre le</th>
-        <th>Retourné le</th>
-    </tr>
+        <div class="card-body p-4">
+            <table class="table align-middle">
+                <thead>
+                <tr>
+                    <th>Exemplaire</th>
+                    <th>Status</th>
+                    <th>Emprunté le</th>
+                    <th>À rendre le</th>
+                    <th>Retourné le</th>
+                </tr>
+                </thead>
 
-    <tr th:each="l : ${loans}">
-        <td th:text="${l.exemplaireCode}"></td>
-        <td th:text="${l.status}"></td>
-        <td th:text="${l.borrowedAt}"></td>
-        <td th:text="${l.dueAt}"></td>
-        <td th:text="${l.returnedAt} ?: '-'"></td>
-    </tr>
-</table>
+                <tbody>
+                <tr th:each="l : ${loans}">
+                    <td th:text="${l.exemplaireCode}"></td>
+                    <td th:text="${l.status}"></td>
+                    <td th:text="${l.borrowedAt}"></td>
+                    <td th:text="${l.dueAt}"></td>
+                    <td th:text="${l.returnedAt} ?: '-'"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 
+    <!-- ADMIN SECTION -->
+    <div class="card" sec:authorize="hasAuthority('ADMIN')">
+        <div class="card-header">
+            <h3>Gestion des utilisateurs</h3>
+        </div>
 
+        <div class="card-body p-4">
+            <table class="table align-middle">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nom</th>
+                    <th>Prénom</th>
+                    <th>Email</th>
+                    <th>Rôle</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
 
-<div class="container mt-4" sec:authorize="hasAuthority('ADMIN')">
-    <h1 class="mb-4">Liste des utilisateurs</h1>
+                <tbody>
+                <tr th:each="user : ${users}">
+                    <td th:text="${user.id}"></td>
+                    <td th:text="${user.lastname}"></td>
+                    <td th:text="${user.firstname}"></td>
+                    <td th:text="${user.email}"></td>
 
-    <table class="table table-striped">
-        <thead>
-        <tr>
-            <th>ID</th>
-            <th>Nom</th>
-            <th>Prénom</th>
-            <th>Email</th>
-            <th>Rôle</th>
-            <th>Action</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="user : ${users}">
-            <td th:text="${user.id}"></td>
-            <td th:text="${user.lastname}"></td>
-            <td th:text="${user.firstname}"></td>
-            <td th:text="${user.email}"></td>
-            <td>
-                <form th:action="@{'/admin/users/' + ${user.id} + '/role'}" method="post">
-                    <select class="form-select" name="role">
-                        <option th:each="r : ${roles}"
-                                th:value="${r}"
-                                th:text="${r}"
-                                th:selected="${r == user.role}">
-                        </option>
-                    </select>
-            </td>
-            <td>
-                <button type="submit" class="btn btn-primary btn-sm">Mettre à jour</button>
-                </form>
-            </td>
-        </tr>
-        </tbody>
-    </table>
+                    <td>
+                        <form th:action="@{'/admin/users/' + ${user.id} + '/role'}"
+                              method="post"
+                              class="d-flex gap-2">
+                            <select class="form-select" name="role">
+                                <option th:each="r : ${roles}"
+                                        th:value="${r}"
+                                        th:text="${r}"
+                                        th:selected="${r == user.role}">
+                                </option>
+                            </select>
+                    </td>
+
+                    <td>
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            Mettre à jour
+                        </button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
 </div>
 
+<script src="/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
