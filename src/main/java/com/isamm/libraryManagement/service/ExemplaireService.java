@@ -16,4 +16,9 @@ public interface ExemplaireService {
     List<Exemplaire> getByRessource(Long ressourceId);
 
     List<Exemplaire> getByBibliotheque(Long biblioId);
+
+    boolean existsByCodeBarre(String code);
+
+    boolean existsByCodeBarreAndIdNot(String code, Long id);
+
 }

@@ -3,6 +3,8 @@ package com.isamm.libraryManagement.service.impl;
 import com.isamm.libraryManagement.entity.Bibliotheque;
 import com.isamm.libraryManagement.repository.BibliothequeRepository;
 import com.isamm.libraryManagement.service.BibliothequeService;
+
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.dao.DataIntegrityViolationException;
@@ -67,5 +69,10 @@ public class BibliothequeServiceImpl implements BibliothequeService {
 
         return b;
     }
-
+    // @Transactional(readOnly = true)
+    // public Bibliotheque getWithDependances(Long id) {
+    // return repo.findWithDependancesById(id)
+    // .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Library
+    // not found"));
+    // }
 }

@@ -161,6 +161,7 @@
   </head>
 
   <body>
+    
     <div class="page-container">
       <div class="page-card">
         <!-- Header -->
@@ -233,6 +234,7 @@
 
           <div
             class="alert alert-warning mt-3"
+            sec:authorize="hasAnyAuthority('ADMIN','BIBLIOTHECAIRE')"
             th:if="${#lists.size(exemplaires) > 0 || #lists.size(sousBibliotheques) > 0}"
           >
             This library cannot be deleted while these dependencies exist.
