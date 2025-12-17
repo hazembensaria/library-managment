@@ -12,4 +12,10 @@ public interface BibliothequeService {
     Bibliotheque save(Bibliotheque b);
 
     void delete(Long id);
+
+    boolean existsByCode(String code);
+
+    boolean existsByCodeAndIdNot(String code, Long id);
+    Bibliotheque getWithDependances(Long id);
+
 }

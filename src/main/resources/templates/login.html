@@ -1,63 +1,162 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
-    <title>Login</title>
     <meta charset="UTF-8">
+    <title>Login</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Tahoma, sans-serif;
+            background: #f5f7fb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        .card {
+            background: white;
+            width: 400px;
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+
+        .card h2 {
+            margin: 0 0 10px;
+            font-size: 26px;
+        }
+
+        .subtitle {
+            color: #6b7280;
+            margin-bottom: 25px;
+        }
+
+        label {
+            font-size: 14px;
+            color: #374151;
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+            margin-bottom: 18px;
+            outline: none;
+            font-size: 14px;
+        }
+
+        input:focus {
+            border-color: #4f7cff;
+            box-shadow: 0 0 0 3px rgba(79,124,255,0.15);
+        }
+
+        button {
+            width: 100%;
+            background: linear-gradient(135deg, #4f7cff, #6a5cff);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 15px;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+        }
+
+        .message {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .footer a {
+            color: #4f7cff;
+            text-decoration: none;
+            font-weight: 500;
+        }
+    </style>
 </head>
+
 <body>
-<h2>Login</h2>
 
-<form id="loginForm">
-    <label>Email:</label>
-    <input type="email" id="email" name="email" required/><br/>
+<div class="card">
 
-    <label>Password:</label>
-    <input type="password" id="password" name="password" required/><br/>
+    <h2>🔐 Login</h2>
+    <p class="subtitle">Sign in to access your dashboard</p>
 
-    <button type="submit">Login</button>
-</form>
+    <form id="loginForm">
 
-<div id="message" style="color: green;"></div>
+        <label>Email</label>
+        <input type="email" id="email" required>
 
-<p>Don't have an account? <a th:href="@{/register}">Register here</a></p>
+        <label>Password</label>
+        <input type="password" id="password" required>
 
+        <button type="submit">Login</button>
+    </form>
+
+    <div id="message" class="message"></div>
+
+    <div class="footer">
+        Don’t have an account?
+        <a th:href="@{/register}">Register</a>
+    </div>
+
+</div>
+
+<!-- SAME JS LOGIC -->
 <script>
     const form = document.getElementById("loginForm");
 
-   form.addEventListener("submit", async (event) => {
-       event.preventDefault(); // prevent default form submission
+    form.addEventListener("submit", async (event) => {
+        event.preventDefault();
 
-       const data = {
-           email: document.getElementById("email").value,
-           password: document.getElementById("password").value
-       };
+        const data = {
+            email: document.getElementById("email").value,
+            password: document.getElementById("password").value
+        };
 
-       try {
-           const response = await fetch("/api/v1/auth/authenticate", {
-               method: "POST",
-               headers: {
-                   "Content-Type": "application/json"
-               },
-               body: JSON.stringify(data)
-           });
+        try {
+            const response = await fetch("/api/v1/auth/authenticate", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            });
 
-           if (response.ok) {
-               document.getElementById("message").style.color = "green";
-               document.getElementById("message").innerText = "Login successful!";
-               setTimeout(() => window.location.href = "/home", 1000);
-           } else {
-               // handle error response
-               const err = await response.json();
-               document.getElementById("message").style.color = "red";
-               document.getElementById("message").innerText = err.message || "Login failed!";
-           }
+            const messageEl = document.getElementById("message");
 
-       } catch (error) {
-           console.error(error);
-           document.getElementById("message").style.color = "red";
-           document.getElementById("message").innerText = "An error occurred!";
-       }
-   });
+            if (response.ok) {
+                messageEl.style.color = "#16a34a";
+                messageEl.innerText = "Login successful!";
+                setTimeout(() => window.location.href = "/home", 1000);
+            } else {
+                const err = await response.json();
+                messageEl.style.color = "#dc2626";
+                messageEl.innerText = err.message || "Login failed!";
+            }
+
+        } catch (error) {
+            document.getElementById("message").style.color = "#dc2626";
+            document.getElementById("message").innerText = "An error occurred!";
+        }
+    });
 </script>
+
 </body>
 </html>
