@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Liste des prêts</title>
+    <title>Loans List</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -102,14 +102,14 @@
 </head>
 <body>
 <div class="toolbar">
-    <h2>Liste des prêts</h2>
+    <h2>Loans List</h2>
     <div class="filter">
-        <span class="pill">Filtre</span>
+        <span class="pill">Filter</span>
         <select id="statusFilter">
-            <option value="ALL">Tous les statuts</option>
-            <option value="RESERVE">Réservés</option>
-            <option value="EMPRUNTE">Empruntés</option>
-            <option value="RETOURNE">Retournés</option>
+            <option value="ALL">All statuses</option>
+            <option value="RESERVE">Reserved</option>
+            <option value="EMPRUNTE">Borrowed</option>
+            <option value="RETOURNE">Returned</option>
         </select>
     </div>
 </div>
@@ -117,12 +117,12 @@
     <thead>
     <tr>
         <th>ID</th>
-        <th>Utilisateur</th>
+        <th>User</th>
         <th>Email</th>
-        <th>Exemplaire</th>
-        <th>Ressource</th>
-        <th>Statut</th>
-        <th>Dates (création / emprunt / échéance / retour)</th>
+        <th>Copy</th>
+        <th>Resource</th>
+        <th>Status</th>
+        <th>Dates (created / borrowed / due / returned)</th>
         <th>Actions</th>
     </tr>
     </thead>
@@ -138,29 +138,29 @@
         <td>
             <span th:switch="${loan.status}">
                 <span th:case="${T(com.isamm.libraryManagement.entity.LoanStatus).RESERVE}"
-                      class="badge badge-reserve" data-status="RESERVE">RÉSERVÉ</span>
+                      class="badge badge-reserve" data-status="RESERVE">RESERVED</span>
                 <span th:case="${T(com.isamm.libraryManagement.entity.LoanStatus).EMPRUNTE}"
-                      class="badge badge-emprunte" data-status="EMPRUNTE">EMPRUNTÉ</span>
+                      class="badge badge-emprunte" data-status="EMPRUNTE">BORROWED</span>
                 <span th:case="${T(com.isamm.libraryManagement.entity.LoanStatus).RETOURNE}"
-                      class="badge badge-retourne" data-status="RETOURNE">RETOURNÉ</span>
+                      class="badge badge-retourne" data-status="RETOURNE">RETURNED</span>
             </span>
         </td>
         <td>
             <div class="dates">
                 <div>
-                    <strong><i>🕒</i>Créé :</strong>
+                    <strong><i>🕒</i>Created:</strong>
                     <span th:text="${loan.createdAt != null ? #dates.format(loan.createdAt, 'dd/MM/yyyy HH:mm') : '-'}">-</span>
                 </div>
                 <div th:if="${loan.borrowedAt != null}">
-                    <strong><i>📚</i>Emprunté :</strong>
+                    <strong><i>📚</i>Borrowed:</strong>
                     <span th:text="${#dates.format(loan.borrowedAt, 'dd/MM/yyyy HH:mm')}">-</span>
                 </div>
                 <div th:if="${loan.dueAt != null}">
-                    <strong><i>📆</i>Échéance :</strong>
+                    <strong><i>📆</i>Due:</strong>
                     <span th:text="${#dates.format(loan.dueAt, 'dd/MM/yyyy')}">-</span>
                 </div>
                 <div th:if="${loan.returnedAt != null}">
-                    <strong><i>✔</i>Retourné :</strong>
+                    <strong><i>✔</i>Returned:</strong>
                     <span th:text="${#dates.format(loan.returnedAt, 'dd/MM/yyyy HH:mm')}">-</span>
                 </div>
             </div>
@@ -168,11 +168,11 @@
         <td>
             <form th:if="${loan.status == T(com.isamm.libraryManagement.entity.LoanStatus).RESERVE}"
                   th:action="@{'/loans/validate/' + ${loan.id}}" method="post">
-                <button class="btn-validate" type="submit">Valider (emprunt)</button>
+                <button class="btn-validate" type="submit">Validate (borrow)</button>
             </form>
             <form th:if="${loan.status == T(com.isamm.libraryManagement.entity.LoanStatus).EMPRUNTE}"
                   th:action="@{'/loans/return/' + ${loan.id}}" method="post">
-                <button class="btn-return" type="submit">Marquer comme retourné</button>
+                <button class="btn-return" type="submit">Mark as returned</button>
             </form>
         </td>
     </tr>

@@ -4,12 +4,12 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Mon Profil</title>
+    <title>My Profile</title>
 </head>
 
 <body>
 
-<h2>Mon Profil</h2>
+<h2>My Profile</h2>
 
 <form th:action="@{/profile/update}" method="post"
       th:object="${profileUpdate}">
@@ -17,28 +17,28 @@
     <label>Email</label>
     <input type="email" th:value="${user.email}" readonly/>
 
-    <label>Prénom</label>
+    <label>First Name</label>
     <input type="text" th:field="*{firstname}"
            th:value="${user.firstname}"/>
 
-    <label>Nom</label>
+    <label>Last Name</label>
     <input type="text" th:field="*{lastname}"
            th:value="${user.lastname}"/>
 
-    <button type="submit">Mettre à jour</button>
+    <button type="submit">Update</button>
 </form>
 
 <hr/>
 
-<h3>Historique des prêts</h3>
+<h3>Loan History</h3>
 
 <table border="1">
     <tr>
-        <th>Exemplaire</th>
+        <th>Copy</th>
         <th>Status</th>
-        <th>Emprunté le</th>
-        <th>À rendre le</th>
-        <th>Retourné le</th>
+        <th>Borrowed on</th>
+        <th>Due on</th>
+        <th>Returned on</th>
     </tr>
 
     <tr th:each="l : ${loans}">
@@ -53,16 +53,16 @@
 
 
 <div class="container mt-4" sec:authorize="hasAuthority('ADMIN')">
-    <h1 class="mb-4">Liste des utilisateurs</h1>
+    <h1 class="mb-4">Users List</h1>
 
     <table class="table table-striped">
         <thead>
         <tr>
             <th>ID</th>
-            <th>Nom</th>
-            <th>Prénom</th>
+            <th>Last Name</th>
+            <th>First Name</th>
             <th>Email</th>
-            <th>Rôle</th>
+            <th>Role</th>
             <th>Action</th>
         </tr>
         </thead>
@@ -83,7 +83,7 @@
                     </select>
             </td>
             <td>
-                <button type="submit" class="btn btn-primary btn-sm">Mettre à jour</button>
+                <button type="submit" class="btn btn-primary btn-sm">Update</button>
                 </form>
             </td>
         </tr>
