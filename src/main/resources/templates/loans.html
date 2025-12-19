@@ -1,8 +1,18 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Loans List</title>
+  <head>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"
+    />
+
+    <meta charset="UTF-8" />
+    <title>Liste des prêts</title>
     <style>
       body {
         font-family: Arial, sans-serif;
@@ -101,6 +111,8 @@
       }
     </style>
   </head>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
   <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
       <div class="container-fluid">
@@ -203,67 +215,111 @@
         </select>
       </div>
     </div>
-</div>
-<table>
-    <thead>
-    <tr>
-        <th>ID</th>
-        <th>User</th>
-        <th>Email</th>
-        <th>Copy</th>
-        <th>Resource</th>
-        <th>Status</th>
-        <th>Dates (created / borrowed / due / returned)</th>
-        <th>Actions</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="loan : ${loans}">
-        <td th:text="${loan.id}">1</td>
-        <td th:text="${loan.user != null ? loan.user.firstname + ' ' + loan.user.lastname : 'N/A'}">Nom Prénom</td>
-        <td th:text="${loan.user != null ? loan.user.email : 'N/A'}">email@example.com</td>
-        <td th:text="${loan.exemplaire != null ? loan.exemplaire.codeBarre : 'N/A'}">CODE123</td>
-        <td th:text="${loan.exemplaire != null && loan.exemplaire.ressource != null ? loan.exemplaire.ressource.titre : 'N/A'}">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Utilisateur</th>
+          <th>Email</th>
+          <th>Exemplaire</th>
+          <th>Ressource</th>
+          <th>Statut</th>
+          <th>Dates (création / emprunt / échéance / retour)</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="loan : ${loans}">
+          <td th:text="${loan.id}">1</td>
+          <td
+            th:text="${loan.user != null ? loan.user.firstname + ' ' + loan.user.lastname : 'N/A'}"
+          >
+            Nom Prénom
+          </td>
+          <td th:text="${loan.user != null ? loan.user.email : 'N/A'}">
+            email@example.com
+          </td>
+          <td
+            th:text="${loan.exemplaire != null ? loan.exemplaire.codeBarre : 'N/A'}"
+          >
+            CODE123
+          </td>
+          <td
+            th:text="${loan.exemplaire != null && loan.exemplaire.ressource != null ? loan.exemplaire.ressource.titre : 'N/A'}"
+          >
             Titre ressource
           </td>
           <td>
             <span th:switch="${loan.status}">
-                <span th:case="${T(com.isamm.libraryManagement.entity.LoanStatus).RESERVE}"
-                      class="badge badge-reserve" data-status="RESERVE">RESERVED</span>
-                <span th:case="${T(com.isamm.libraryManagement.entity.LoanStatus).EMPRUNTE}"
-                      class="badge badge-emprunte" data-status="EMPRUNTE">BORROWED</span>
-                <span th:case="${T(com.isamm.libraryManagement.entity.LoanStatus).RETOURNE}"
-                      class="badge badge-retourne" data-status="RETOURNE">RETURNED</span>
+              <span
+                th:case="${T(com.isamm.libraryManagement.entity.LoanStatus).RESERVE}"
+                class="badge badge-reserve"
+                data-status="RESERVE"
+                >RÉSERVÉ</span
+              >
+              <span
+                th:case="${T(com.isamm.libraryManagement.entity.LoanStatus).EMPRUNTE}"
+                class="badge badge-emprunte"
+                data-status="EMPRUNTE"
+                >EMPRUNTÉ</span
+              >
+              <span
+                th:case="${T(com.isamm.libraryManagement.entity.LoanStatus).RETOURNE}"
+                class="badge badge-retourne"
+                data-status="RETOURNE"
+                >RETOURNÉ</span
+              >
             </span>
           </td>
           <td>
             <div class="dates">
-                <div>
-                    <strong><i>🕒</i>Created:</strong>
-                    <span th:text="${loan.createdAt != null ? #dates.format(loan.createdAt, 'dd/MM/yyyy HH:mm') : '-'}">-</span>
-                </div>
-                <div th:if="${loan.borrowedAt != null}">
-                    <strong><i>📚</i>Borrowed:</strong>
-                    <span th:text="${#dates.format(loan.borrowedAt, 'dd/MM/yyyy HH:mm')}">-</span>
-                </div>
-                <div th:if="${loan.dueAt != null}">
-                    <strong><i>📆</i>Due:</strong>
-                    <span th:text="${#dates.format(loan.dueAt, 'dd/MM/yyyy')}">-</span>
-                </div>
-                <div th:if="${loan.returnedAt != null}">
-                    <strong><i>✔</i>Returned:</strong>
-                    <span th:text="${#dates.format(loan.returnedAt, 'dd/MM/yyyy HH:mm')}">-</span>
-                </div>
+              <div>
+                <strong><i>🕒</i>Créé :</strong>
+                <span
+                  th:text="${loan.createdAt != null ? #dates.format(loan.createdAt, 'dd/MM/yyyy HH:mm') : '-'}"
+                  >-</span
+                >
+              </div>
+              <div th:if="${loan.borrowedAt != null}">
+                <strong><i>📚</i>Emprunté :</strong>
+                <span
+                  th:text="${#dates.format(loan.borrowedAt, 'dd/MM/yyyy HH:mm')}"
+                  >-</span
+                >
+              </div>
+              <div th:if="${loan.dueAt != null}">
+                <strong><i>📆</i>Échéance :</strong>
+                <span th:text="${#dates.format(loan.dueAt, 'dd/MM/yyyy')}"
+                  >-</span
+                >
+              </div>
+              <div th:if="${loan.returnedAt != null}">
+                <strong><i>✔</i>Retourné :</strong>
+                <span
+                  th:text="${#dates.format(loan.returnedAt, 'dd/MM/yyyy HH:mm')}"
+                  >-</span
+                >
+              </div>
             </div>
-        </td>
-        <td>
-            <form th:if="${loan.status == T(com.isamm.libraryManagement.entity.LoanStatus).RESERVE}"
-                  th:action="@{'/loans/validate/' + ${loan.id}}" method="post">
-                <button class="btn-validate" type="submit">Validate (borrow)</button>
+          </td>
+          <td>
+            <form
+              th:if="${loan.status == T(com.isamm.libraryManagement.entity.LoanStatus).RESERVE}"
+              th:action="@{'/loans/validate/' + ${loan.id}}"
+              method="post"
+            >
+              <button class="btn-validate" type="submit">
+                Valider (emprunt)
+              </button>
             </form>
-            <form th:if="${loan.status == T(com.isamm.libraryManagement.entity.LoanStatus).EMPRUNTE}"
-                  th:action="@{'/loans/return/' + ${loan.id}}" method="post">
-                <button class="btn-return" type="submit">Mark as returned</button>
+            <form
+              th:if="${loan.status == T(com.isamm.libraryManagement.entity.LoanStatus).EMPRUNTE}"
+              th:action="@{'/loans/return/' + ${loan.id}}"
+              method="post"
+            >
+              <button class="btn-return" type="submit">
+                Marquer comme retourné
+              </button>
             </form>
           </td>
         </tr>

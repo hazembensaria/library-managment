@@ -1,162 +1,162 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>Login</title>
 
     <style>
-        body {
-            margin: 0;
-            font-family: "Segoe UI", Tahoma, sans-serif;
-            background: #f5f7fb;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-        }
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Tahoma, sans-serif;
+        background: #f5f7fb;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+      }
 
-        .card {
-            background: white;
-            width: 400px;
-            border-radius: 16px;
-            padding: 32px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-        }
+      .card {
+        background: white;
+        width: 400px;
+        border-radius: 16px;
+        padding: 32px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      }
 
-        .card h2 {
-            margin: 0 0 10px;
-            font-size: 26px;
-        }
+      .card h2 {
+        margin: 0 0 10px;
+        font-size: 26px;
+      }
 
-        .subtitle {
-            color: #6b7280;
-            margin-bottom: 25px;
-        }
+      .subtitle {
+        color: #6b7280;
+        margin-bottom: 25px;
+      }
 
-        label {
-            font-size: 14px;
-            color: #374151;
-            display: block;
-            margin-bottom: 6px;
-        }
+      body {
+        background: #f5f7fa;
+        min-height: 100vh;
+        padding: 2rem 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+      label {
+        font-size: 14px;
+        color: #374151;
+        display: block;
+        margin-bottom: 6px;
+      }
 
-        input {
-            width: 100%;
-            padding: 12px;
-            border-radius: 10px;
-            border: 1px solid #e5e7eb;
-            margin-bottom: 18px;
-            outline: none;
-            font-size: 14px;
-        }
+      input {
+        width: 100%;
+        padding: 12px;
+        border-radius: 10px;
+        border: 1px solid #e5e7eb;
+        margin-bottom: 18px;
+        outline: none;
+        font-size: 14px;
+      }
 
-        input:focus {
-            border-color: #4f7cff;
-            box-shadow: 0 0 0 3px rgba(79,124,255,0.15);
-        }
+      input:focus {
+        border-color: #4f7cff;
+        box-shadow: 0 0 0 3px rgba(79, 124, 255, 0.15);
+      }
 
-        button {
-            width: 100%;
-            background: linear-gradient(135deg, #4f7cff, #6a5cff);
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 12px;
-            font-size: 15px;
-            cursor: pointer;
-            transition: transform 0.1s ease;
-        }
+      button {
+        width: 100%;
+        background: linear-gradient(135deg, #4f7cff, #6a5cff);
+        color: white;
+        border: none;
+        padding: 12px;
+        border-radius: 12px;
+        font-size: 15px;
+        cursor: pointer;
+        transition: transform 0.1s ease;
+      }
 
-        button:hover {
-            transform: translateY(-1px);
-        }
+      button:hover {
+        transform: translateY(-1px);
+      }
 
-        .message {
-            margin-top: 15px;
-            font-size: 14px;
-            text-align: center;
-        }
+      .message {
+        margin-top: 15px;
+        font-size: 14px;
+        text-align: center;
+      }
 
-        .footer {
-            margin-top: 20px;
-            text-align: center;
-            font-size: 14px;
-        }
+      .footer {
+        margin-top: 20px;
+        text-align: center;
+        font-size: 14px;
+      }
 
-        .footer a {
-            color: #4f7cff;
-            text-decoration: none;
-            font-weight: 500;
-        }
+      .footer a {
+        color: #4f7cff;
+        text-decoration: none;
+        font-weight: 500;
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
+    <div class="card">
+      <h2>🔐 Login</h2>
+      <p class="subtitle">Sign in to access your dashboard</p>
 
-<div class="card">
-
-    <h2>🔐 Login</h2>
-    <p class="subtitle">Sign in to access your dashboard</p>
-
-    <form id="loginForm">
-
+      <form id="loginForm">
         <label>Email</label>
-        <input type="email" id="email" required>
+        <input type="email" id="email" required />
 
         <label>Password</label>
-        <input type="password" id="password" required>
+        <input type="password" id="password" required />
 
         <button type="submit">Login</button>
-    </form>
+      </form>
 
-    <div id="message" class="message"></div>
+      <div id="message" class="message"></div>
 
-    <div class="footer">
+      <div class="footer">
         Don’t have an account?
         <a th:href="@{/register}">Register</a>
+      </div>
     </div>
 
-</div>
+    <!-- SAME JS LOGIC -->
+    <script>
+      const form = document.getElementById("loginForm");
 
-<!-- SAME JS LOGIC -->
-<script>
-    const form = document.getElementById("loginForm");
-
-    form.addEventListener("submit", async (event) => {
+      form.addEventListener("submit", async (event) => {
         event.preventDefault();
 
         const data = {
-            email: document.getElementById("email").value,
-            password: document.getElementById("password").value
+          email: document.getElementById("email").value,
+          password: document.getElementById("password").value,
         };
 
         try {
-            const response = await fetch("/api/v1/auth/authenticate", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(data)
-            });
+          const response = await fetch("/api/v1/auth/authenticate", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+          });
 
-            const messageEl = document.getElementById("message");
+          const messageEl = document.getElementById("message");
 
-            if (response.ok) {
-                messageEl.style.color = "#16a34a";
-                messageEl.innerText = "Login successful!";
-                setTimeout(() => window.location.href = "/home", 1000);
-            } else {
-                const err = await response.json();
-                messageEl.style.color = "#dc2626";
-                messageEl.innerText = err.message || "Login failed!";
-            }
-
+          if (response.ok) {
+            messageEl.style.color = "#16a34a";
+            messageEl.innerText = "Login successful!";
+            setTimeout(() => (window.location.href = "/home"), 1000);
+          } else {
+            const err = await response.json();
+            messageEl.style.color = "#dc2626";
+            messageEl.innerText = err.message || "Login failed!";
+          }
         } catch (error) {
-            document.getElementById("message").style.color = "#dc2626";
-            document.getElementById("message").innerText = "An error occurred!";
+          document.getElementById("message").style.color = "#dc2626";
+          document.getElementById("message").innerText = "An error occurred!";
         }
-    });
-</script>
-
-</body>
+      });
+    </script>
+  </body>
 </html>
