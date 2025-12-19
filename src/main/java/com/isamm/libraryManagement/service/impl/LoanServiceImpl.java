@@ -37,21 +37,21 @@ public class LoanServiceImpl implements LoanService {
     public Loan reserve(Long exemplaireId) {
 
         Exemplaire exemplaire = exemplaireRepository.findById(exemplaireId)
-                .orElseThrow(() -> new IllegalArgumentException("Exemplaire introuvable"));
+                .orElseThrow(() -> new IllegalArgumentException("Copy not found"));
 
         var auth = org.springframework.security.core.context.SecurityContextHolder
                 .getContext()
                 .getAuthentication();
 
         if (auth == null || auth.getName() == null || auth.getName().isBlank()) {
-            throw new IllegalStateException("Aucun utilisateur authentifié");
+            throw new IllegalStateException("No authenticated user");
         }
 
-        // auth.getName() = username/email (chez toi = email)
+        // auth.getName() = username/email (in your case = email)
         String usernameOrEmail = auth.getName();
 
         User user = userRepository.findByEmail(usernameOrEmail)
-                .orElseThrow(() -> new IllegalArgumentException("Utilisateur introuvable"));
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         return doReserve(exemplaire, user);
     }
@@ -60,38 +60,38 @@ public class LoanServiceImpl implements LoanService {
     public Loan reserveForUser(Long exemplaireId, Integer userId) {
 
         Exemplaire exemplaire = exemplaireRepository.findById(exemplaireId)
-                .orElseThrow(() -> new IllegalArgumentException("Exemplaire introuvable"));
+                .orElseThrow(() -> new IllegalArgumentException("Copy not found"));
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("Utilisateur introuvable"));
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         return doReserve(exemplaire, user);
     }
 
     private Loan doReserve(Exemplaire exemplaire, User user) {
 
-        // 1) disponibilité
+        // 1) availability
         if (Boolean.FALSE.equals(exemplaire.getDisponible())) {
-            throw new IllegalStateException("Cet exemplaire n'est pas disponible");
+            throw new IllegalStateException("This copy is not available");
         }
 
-        // 2) déjà réservé/emprunté ?
+        // 2) already reserved/borrowed?
         if (loanRepository.existsByExemplaireAndStatusIn(
                 exemplaire, Arrays.asList(LoanStatus.RESERVE, LoanStatus.EMPRUNTE))) {
-            throw new IllegalStateException("Cet exemplaire est déjà réservé ou emprunté");
+            throw new IllegalStateException("This copy is already reserved or borrowed");
         }
 
-        // 3) limite prêts (USER seulement)
+        // 3) loan limit (USER only)
         if (user.getRole() == com.isamm.libraryManagement.entity.Role.USER) {
             long activeLoans = loanRepository.countByUserAndStatusIn(
                     user, Arrays.asList(LoanStatus.RESERVE, LoanStatus.EMPRUNTE));
 
             if (activeLoans >= MAX_LOANS_PER_USER) {
-                throw new IllegalStateException("Limite de prêts atteinte pour cet utilisateur");
+                throw new IllegalStateException("Loan limit reached for this user");
             }
         }
 
-        // 4) créer loan
+        // 4) create loan
         Loan loan = new Loan();
         loan.setUser(user);
         loan.setExemplaire(exemplaire);
@@ -103,36 +103,36 @@ public class LoanServiceImpl implements LoanService {
         long fourteenDaysMillis = 14L * 24 * 60 * 60 * 1000;
         loan.setDueAt(new Date(now.getTime() + fourteenDaysMillis));
 
-        // rendre indisponible
+        // make copy unavailable
         exemplaire.setDisponible(false);
         exemplaireRepository.save(exemplaire);
 
         // 5) save loan
         Loan saved = loanRepository.save(loan);
 
-        // 6) infos affichables (sans casser)
-        String titre = "—";
-        String codeBarre = "—";
-        String biblio = "—";
+        // 6) safe display info
+        String title = "—";
+        String barcode = "—";
+        String libraryName = "—";
 
-        try { titre = (exemplaire.getRessource() != null) ? exemplaire.getRessource().getTitre() : "—"; } catch (Exception ignored) {}
-        try { codeBarre = (exemplaire.getCodeBarre() != null) ? exemplaire.getCodeBarre().toString() : "—"; } catch (Exception ignored) {}
-        try { biblio = (exemplaire.getBibliotheque() != null) ? exemplaire.getBibliotheque().getNom() : "—"; } catch (Exception ignored) {}
+        try { title = (exemplaire.getRessource() != null) ? exemplaire.getRessource().getTitre() : "—"; } catch (Exception ignored) {}
+        try { barcode = (exemplaire.getCodeBarre() != null) ? exemplaire.getCodeBarre().toString() : "—"; } catch (Exception ignored) {}
+        try { libraryName = (exemplaire.getBibliotheque() != null) ? exemplaire.getBibliotheque().getNom() : "—"; } catch (Exception ignored) {}
 
-        String msg = "📌 Réservation confirmée : \"" + titre + "\" (code barre: " + codeBarre + ", bibliothèque: " + biblio + ").";
+        String msg = "📌 Reservation confirmed: \"" + title + "\" (barcode: " + barcode + ", library: " + libraryName + ").";
 
-        // 7) ✅ MAIL WOW (réservation seulement)
+        // 7) WOW EMAIL (reservation only)
         try {
-            sendReserveWowMail(saved, titre, codeBarre, biblio);
+            sendReserveWowMail(saved, title, barcode, libraryName);
         } catch (Exception e) {
-            System.out.println("MAIL reserve erreur: " + e.getMessage());
+            System.out.println("Reserve email error: " + e.getMessage());
         }
 
-        // 8) ✅ NOTIF (DB + WS + email via NotificationService)
+        // 8) NOTIFICATION (DB + WS + email via NotificationService)
         try {
             notificationService.envoyerNotification(user, msg, NotificationType.RAPPEL);
         } catch (Exception e) {
-            System.out.println("NOTIF reserve erreur: " + e.getMessage());
+            System.out.println("Reserve notification error: " + e.getMessage());
         }
 
         return saved;
@@ -141,23 +141,23 @@ public class LoanServiceImpl implements LoanService {
     @Override
     public Loan borrow(Long loanId) {
         Loan loan = loanRepository.findById(loanId)
-                .orElseThrow(() -> new IllegalArgumentException("Prêt introuvable"));
+                .orElseThrow(() -> new IllegalArgumentException("Loan not found"));
 
         if (loan.getStatus() != LoanStatus.RESERVE) {
-            throw new IllegalStateException("Seules les réservations peuvent être validées en emprunt");
+            throw new IllegalStateException("Only reservations can be validated as a borrow");
         }
 
         loan.setStatus(LoanStatus.EMPRUNTE);
         loan.setBorrowedAt(new Date());
 
-        // ❌ pas mail/notif ici (comme tu veux)
+        // no email/notification here (as you want)
         return loanRepository.save(loan);
     }
 
     @Override
     public Loan returnLoan(Long loanId) {
         Loan loan = loanRepository.findById(loanId)
-                .orElseThrow(() -> new IllegalArgumentException("Prêt introuvable"));
+                .orElseThrow(() -> new IllegalArgumentException("Loan not found"));
 
         if (loan.getStatus() == LoanStatus.RETOURNE) {
             return loan;
@@ -170,7 +170,7 @@ public class LoanServiceImpl implements LoanService {
         exemplaire.setDisponible(true);
         exemplaireRepository.save(exemplaire);
 
-        // ❌ pas mail/notif ici (comme tu veux)
+        // no email/notification here (as you want)
         return loanRepository.save(loan);
     }
 
@@ -178,12 +178,12 @@ public class LoanServiceImpl implements LoanService {
     // WOW EMAIL : RESERVATION ONLY
     // =========================
 
-    private void sendReserveWowMail(Loan loan, String titre, String codeBarre, String biblio) {
+    private void sendReserveWowMail(Loan loan, String title, String barcode, String libraryName) {
 
         User user = loan.getUser();
         if (user == null) return;
 
-        // ✅ chez toi getUsername() = email
+        // in your system getUsername() = email
         String email = user.getUsername();
         if (email == null || email.isBlank()) return;
 
@@ -192,32 +192,32 @@ public class LoanServiceImpl implements LoanService {
         String due = loan.getDueAt() != null ? DF.format(loan.getDueAt()) : "—";
         String created = loan.getCreatedAt() != null ? DF.format(loan.getCreatedAt()) : "—";
 
-        String subject = "📌 Réservation enregistrée";
+        String subject = "📌 Reservation saved";
         String html = wowEmailHtml(
-                "📌 Réservation enregistrée",
-                "Bonjour " + fullName + ",",
-                "Votre réservation a été enregistrée avec succès.",
+                "📌 Reservation saved",
+                "Hello " + fullName + ",",
+                "Your reservation has been successfully recorded.",
                 new String[][]{
-                        {"ID du prêt", String.valueOf(loan.getId())},
-                        {"Ressource", titre},
-                        {"Code barre", codeBarre},
-                        {"Bibliothèque", biblio},
-                        {"Créée le", created},
-                        {"Échéance", due},
-                        {"Statut", String.valueOf(loan.getStatus())}
+                        {"Loan ID", String.valueOf(loan.getId())},
+                        {"Resource", title},
+                        {"Barcode", barcode},
+                        {"Library", libraryName},
+                        {"Created at", created},
+                        {"Due date", due},
+                        {"Status", String.valueOf(loan.getStatus())}
                 },
-                "Vous recevrez une autre notification si le bibliothécaire valide l’emprunt."
+                "You will receive another notification when the librarian validates the borrow."
         );
 
         emailService.sendHtml(email, subject, html);
-        System.out.println("MAIL RESERVE envoyé à : " + email);
+        System.out.println("RESERVE EMAIL sent to: " + email);
     }
 
     private String buildFullName(User user) {
         String fn = user.getFirstname() != null ? user.getFirstname() : "";
         String ln = user.getLastname() != null ? user.getLastname() : "";
         String name = (fn + " " + ln).trim();
-        return name.isEmpty() ? "cher(e) lecteur/lectrice" : name;
+        return name.isEmpty() ? "dear reader" : name;
     }
 
     private String wowEmailHtml(String headerTitle,
@@ -240,7 +240,7 @@ public class LoanServiceImpl implements LoanService {
 
         return """
 <!doctype html>
-<html lang="fr">
+<html lang="en">
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -250,7 +250,7 @@ public class LoanServiceImpl implements LoanService {
     <div style="background:linear-gradient(135deg,#0f172a,#2563eb);border-radius:18px;padding:22px 24px;color:#fff;">
       <div style="font-size:13px;opacity:.9;letter-spacing:.3px;">Library Management System</div>
       <div style="font-size:24px;font-weight:800;margin-top:6px;line-height:1.2;">%s</div>
-      <div style="font-size:13px;opacity:.9;margin-top:6px;">Notification automatique</div>
+      <div style="font-size:13px;opacity:.9;margin-top:6px;">Automatic notification</div>
     </div>
 
     <div style="background:#ffffff;border-radius:18px;padding:22px 24px;margin-top:14px;box-shadow:0 10px 25px rgba(0,0,0,.06);">
@@ -267,13 +267,13 @@ public class LoanServiceImpl implements LoanService {
 
       <div style="margin-top:18px;">
         <a href="#" style="display:inline-block;background:#2563eb;color:#fff;text-decoration:none;padding:12px 16px;border-radius:12px;font-weight:800;font-size:14px;">
-          Accéder à la plateforme
+          Open the platform
         </a>
       </div>
     </div>
 
     <div style="text-align:center;color:#9ca3af;font-size:12px;margin-top:16px;">
-      Bibliothèque ISAMM • Ceci est un message automatique, merci de ne pas répondre.
+      ISAMM Library • This is an automatic message, please do not reply.
     </div>
   </div>
 </body>
@@ -298,7 +298,7 @@ public class LoanServiceImpl implements LoanService {
     @Override
     public List<Loan> getByUser(Integer userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("Utilisateur introuvable"));
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
         return loanRepository.findByUser(user);
     }
 

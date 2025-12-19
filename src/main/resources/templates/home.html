@@ -1,5 +1,6 @@
+<!DOCTYPE html>
 <html
-  lang="fr"
+  lang="en"
   xmlns:th="http://www.thymeleaf.org"
   xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6"
 >
@@ -39,7 +40,7 @@
       .header {
         background: var(--card);
         border-radius: var(--radius);
-        padding: 1.4rem 1.4rem;
+        padding: 1.4rem;
         box-shadow: var(--shadow);
         border: 1px solid rgba(0, 0, 0, 0.04);
         margin-bottom: 1.2rem;
@@ -104,7 +105,7 @@
       .cardx {
         background: var(--card);
         border-radius: var(--radius);
-        padding: 1.2rem 1.2rem;
+        padding: 1.2rem;
         box-shadow: var(--shadow);
         border: 1px solid rgba(0, 0, 0, 0.04);
         height: 100%;
@@ -130,7 +131,6 @@
         margin: 0;
       }
 
-      /* Notifications dropdown */
       .notif-btn {
         border: 1px solid rgba(0, 0, 0, 0.08);
         background: #fff;
@@ -139,14 +139,6 @@
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
-        transition: transform 0.2s, box-shadow 0.2s;
-      }
-      .notif-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: var(--shadow);
-      }
-      .notif-badge {
-        font-weight: 900;
       }
       .dropdown-menu-notif {
         width: min(420px, 92vw);
@@ -157,19 +149,16 @@
         border: 1px solid rgba(0, 0, 0, 0.08);
       }
       .notif-head {
-        padding: 1rem 1rem;
-        background: linear-gradient(135deg, #667eea 0%, #3799e9 100%);
+        padding: 1rem;
+        background: linear-gradient(135deg, #667eea, #3799e9);
         color: #fff;
         display: flex;
         justify-content: space-between;
         align-items: center;
       }
       .notif-body {
-        padding: 1rem 1rem;
+        padding: 1rem;
         background: #fff;
-      }
-      .notif-item {
-        border-radius: 12px;
       }
     </style>
   </head>
@@ -178,224 +167,134 @@
     <div class="container-xl">
       <!-- HEADER -->
       <div class="header">
-        <div
-          class="d-flex justify-content-between align-items-start flex-wrap gap-3"
-        >
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
           <div>
             <h1 class="title"><i class="bi bi-house-door"></i> Home</h1>
             <div class="subtitle">
-              Page d’accueil simple avec accès rapide + notifications.
+              Simple home page with quick access and notifications.
             </div>
 
-            <div
-              class="mt-3 d-flex gap-2 flex-wrap"
-              sec:authorize="isAuthenticated()"
-            >
-              <span
-                class="role role-admin"
-                sec:authorize="hasAuthority('ADMIN')"
-                ><i class="bi bi-shield-lock"></i> ADMIN</span
-              >
-              <span
-                class="role role-lib"
-                sec:authorize="hasAuthority('BIBLIOTHECAIRE')"
-                ><i class="bi bi-person-workspace"></i> BIBLIOTHÉCAIRE</span
-              >
-              <span class="role role-user" sec:authorize="hasAuthority('USER')"
-                ><i class="bi bi-person"></i> USAGER</span
-              >
+            <div class="mt-3 d-flex gap-2 flex-wrap" sec:authorize="isAuthenticated()">
+              <span class="role role-admin" sec:authorize="hasAuthority('ADMIN')">
+                <i class="bi bi-shield-lock"></i> ADMIN
+              </span>
+              <span class="role role-lib" sec:authorize="hasAuthority('BIBLIOTHECAIRE')">
+                <i class="bi bi-person-workspace"></i> LIBRARIAN
+              </span>
+              <span class="role role-user" sec:authorize="hasAuthority('USER')">
+                <i class="bi bi-person"></i> USER
+              </span>
             </div>
           </div>
 
           <div class="d-flex align-items-center gap-2 flex-wrap">
-            <!-- 🔔 Notifications -->
+            <!-- Notifications -->
             <div class="dropdown" sec:authorize="isAuthenticated()">
-              <button
-                class="notif-btn dropdown-toggle"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-                type="button"
-              >
-                <i class="bi bi-bell-fill" style="color: var(--primary)"></i>
-                <span
-                  class="badge bg-danger notif-badge"
-                  th:text="${nonLuesCount != null ? nonLuesCount : 0}"
-                  >0</span
-                >
+              <button class="notif-btn dropdown-toggle" data-bs-toggle="dropdown">
+                <i class="bi bi-bell-fill text-primary"></i>
+                <span class="badge bg-danger" th:text="${nonLuesCount != null ? nonLuesCount : 0}">0</span>
               </button>
 
               <div class="dropdown-menu dropdown-menu-end dropdown-menu-notif">
                 <div class="notif-head">
-                  <div class="fw-bold">
-                    <i class="bi bi-bell"></i> Notifications
-                  </div>
-                  <span
-                    class="badge bg-light text-dark"
-                    th:text="${nonLuesCount != null ? nonLuesCount : 0} + ' non lue(s)'"
-                    >0</span
-                  >
+                  <strong><i class="bi bi-bell"></i> Notifications</strong>
+                  <span class="badge bg-light text-dark"
+                    th:text="${nonLuesCount != null ? nonLuesCount : 0} + ' unread'">0</span>
                 </div>
 
                 <div class="notif-body">
-                  <div
-                    th:if="${notifications != null and !#lists.isEmpty(notifications)}"
-                  >
+                  <div th:if="${notifications != null and !#lists.isEmpty(notifications)}">
                     <div class="list-group">
                       <div
-                        class="list-group-item notif-item mb-2"
+                        class="list-group-item mb-2"
                         th:each="n : ${notifications}"
                         th:classappend="${n.lu} ? '' : ' list-group-item-warning'"
                       >
-                        <div class="d-flex justify-content-between gap-2">
+                        <div class="d-flex justify-content-between">
                           <div>
-                            <div class="fw-semibold">
-                              <span
-                                class="badge bg-info text-dark me-2"
-                                th:text="${n.type}"
-                                >TYPE</span
-                              >
-                              <span th:text="${n.message}">Message</span>
-                            </div>
-                            <small class="text-muted" th:text="${n.dateEnvoi}"
-                              >date</small
-                            >
+                            <span class="badge bg-info text-dark me-2" th:text="${n.type}">TYPE</span>
+                            <span th:text="${n.message}">Message</span>
+                            <br />
+                            <small class="text-muted" th:text="${n.dateEnvoi}">date</small>
                           </div>
 
-                          <form
-                            th:if="${!n.lu}"
-                            th:action="@{'/notifications/lue/' + ${n.id}}"
-                            method="post"
-                          >
-                            <button
-                              class="btn btn-sm btn-outline-primary"
-                              type="submit"
-                            >
-                              Lue
-                            </button>
+                          <form th:if="${!n.lu}" th:action="@{'/notifications/lue/' + ${n.id}}" method="post">
+                            <button class="btn btn-sm btn-outline-primary">Mark as read</button>
                           </form>
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  <div
-                    class="alert alert-info mb-2"
-                    th:if="${notifications == null or #lists.isEmpty(notifications)}"
-                  >
-                    <i class="bi bi-info-circle"></i> Aucune notification.
+                  <div class="alert alert-info" th:if="${notifications == null or #lists.isEmpty(notifications)}">
+                    <i class="bi bi-info-circle"></i> No notifications.
                   </div>
                 </div>
               </div>
             </div>
 
             <!-- Navigation -->
-            <a
-              class="quick-link"
-              th:href="@{/dashboard}"
-              sec:authorize="isAuthenticated()"
-            >
+            <a class="quick-link" th:href="@{/dashboard}" sec:authorize="isAuthenticated()">
               <i class="bi bi-speedometer2"></i> Dashboard
             </a>
 
-            <a
-              class="quick-link"
-              th:href="@{/loans}"
-              sec:authorize="hasAnyAuthority('ADMIN','BIBLIOTHECAIRE')"
-            >
-              <i class="bi bi-list-check"></i> Prêts
+            <a class="quick-link" th:href="@{/loans}" sec:authorize="hasAnyAuthority('ADMIN','BIBLIOTHECAIRE')">
+              <i class="bi bi-list-check"></i> Loans
             </a>
 
-            <a
-              class="quick-link"
-              th:href="@{/ressources}"
-              sec:authorize="isAuthenticated()"
-            >
-              <i class="bi bi-collection"></i> Ressources
+            <a class="quick-link" th:href="@{/ressources}" sec:authorize="isAuthenticated()">
+              <i class="bi bi-collection"></i> Resources
             </a>
 
-            <form
-              th:action="@{/logout}"
-              method="post"
-              sec:authorize="isAuthenticated()"
-              style="display: inline"
-            >
-              <button class="quick-link" type="submit">
-                <i class="bi bi-box-arrow-right"></i> Logout
-              </button>
+            <form th:action="@{/logout}" method="post" sec:authorize="isAuthenticated()">
+              <button class="quick-link"><i class="bi bi-box-arrow-right"></i> Logout</button>
             </form>
 
-            <a
-              class="quick-link"
-              th:href="@{/login}"
-              sec:authorize="isAnonymous()"
-            >
+            <a class="quick-link" th:href="@{/login}" sec:authorize="isAnonymous()">
               <i class="bi bi-box-arrow-in-right"></i> Login
             </a>
-            <a
-              class="quick-link"
-              th:href="@{/register}"
-              sec:authorize="isAnonymous()"
-            >
+
+            <a class="quick-link" th:href="@{/register}" sec:authorize="isAnonymous()">
               <i class="bi bi-person-plus"></i> Register
             </a>
           </div>
         </div>
       </div>
 
-      <!-- CONTENU SIMPLE -->
+      <!-- CONTENT -->
       <div class="row g-4">
         <div class="col-12 col-lg-6" sec:authorize="isAuthenticated()">
           <div class="cardx">
-            <h5 class="card-titlex">
-              <i class="bi bi-hand-thumbs-up"></i> Bienvenue !
-            </h5>
-            <p class="muted">
-              Vous êtes connecté. Utilisez les boutons en haut pour naviguer.
-            </p>
+            <h5 class="card-titlex"><i class="bi bi-hand-thumbs-up"></i> Welcome!</h5>
+            <p class="muted">You are logged in. Use the buttons above to navigate.</p>
           </div>
         </div>
 
         <div class="col-12 col-lg-6" sec:authorize="hasAuthority('ADMIN')">
           <div class="cardx">
             <h5 class="card-titlex"><i class="bi bi-shield-lock"></i> Admin</h5>
-            <p class="muted">
-              Accès aux rapports, export CSV/PDF, et supervision du système.
-            </p>
+            <p class="muted">Access reports, CSV/PDF exports, and system supervision.</p>
           </div>
         </div>
 
-        <div
-          class="col-12 col-lg-6"
-          sec:authorize="hasAuthority('BIBLIOTHECAIRE')"
-        >
+        <div class="col-12 col-lg-6" sec:authorize="hasAuthority('BIBLIOTHECAIRE')">
           <div class="cardx">
-            <h5 class="card-titlex">
-              <i class="bi bi-person-workspace"></i> Bibliothécaire
-            </h5>
-            <p class="muted">
-              Gérer les prêts, suivre les retards, et traiter les
-              disponibilités.
-            </p>
+            <h5 class="card-titlex"><i class="bi bi-person-workspace"></i> Librarian</h5>
+            <p class="muted">Manage loans, track delays, and handle availability.</p>
           </div>
         </div>
 
         <div class="col-12 col-lg-6" sec:authorize="hasAuthority('USER')">
           <div class="cardx">
-            <h5 class="card-titlex"><i class="bi bi-person"></i> Usager</h5>
-            <p class="muted">
-              Consultez vos prêts et vos notifications. Accès au dashboard
-              usager.
-            </p>
+            <h5 class="card-titlex"><i class="bi bi-person"></i> User</h5>
+            <p class="muted">View your loans and notifications.</p>
           </div>
         </div>
 
         <div class="col-12" sec:authorize="isAnonymous()">
           <div class="cardx">
-            <h5 class="card-titlex"><i class="bi bi-info-circle"></i> Accès</h5>
-            <p class="muted">
-              Connectez-vous ou créez un compte pour accéder aux
-              fonctionnalités.
-            </p>
+            <h5 class="card-titlex"><i class="bi bi-info-circle"></i> Access</h5>
+            <p class="muted">Log in or create an account to access features.</p>
           </div>
         </div>
       </div>
