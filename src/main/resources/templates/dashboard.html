@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html
-  lang="fr"
+  lang="en"
   xmlns:th="http://www.thymeleaf.org"
   xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6"
 >
@@ -240,14 +240,14 @@
         <div class="collapse navbar-collapse" id="navbarContent">
           <!-- LEFT MENU -->
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            <!-- Home : tout le monde -->
+            <!-- Home : everyone -->
             <li class="nav-item">
               <a class="nav-link" th:href="@{/home}">
                 <i class="bi bi-house"></i> Home
               </a>
             </li>
 
-            <!-- Resources : ADMIN + BIBLIOTHECAIRE -->
+            <!-- Resources : ADMIN + LIBRARIAN -->
             <li
               class="nav-item"
               sec:authorize="hasAnyAuthority('ADMIN','BIBLIOTHECAIRE','USER')"
@@ -257,7 +257,7 @@
               </a>
             </li>
 
-            <!-- Bibliothèques : ADMIN + BIBLIOTHECAIRE -->
+            <!-- Libraries : ADMIN + LIBRARIAN -->
             <li
               class="nav-item"
               sec:authorize="hasAnyAuthority('ADMIN','BIBLIOTHECAIRE')"
@@ -320,17 +320,15 @@
             <h1 class="title">
               <i class="bi bi-speedometer2"></i> Dashboard
               <span class="pill"
-                ><i class="bi bi-database-check"></i> Données DB</span
+                ><i class="bi bi-database-check"></i> DB Data</span
               >
             </h1>
             <div class="subtitle">
-              Tableaux de bord personnalisés par rôle + statistiques & export.
+              Role-based dashboards with statistics and export features.
             </div>
 
             <div class="mt-3 d-flex gap-2 flex-wrap">
-              <span
-                class="role role-admin"
-                sec:authorize="hasAuthority('ADMIN')"
+              <span class="role role-admin" sec:authorize="hasAuthority('ADMIN')"
                 ><i class="bi bi-shield-lock"></i> ADMIN</span
               >
               <span
@@ -350,10 +348,10 @@
             sec:authorize="hasAuthority('ADMIN')"
           >
             <a class="export-btn btn-csv" th:href="@{/export/csv}"
-              ><i class="bi bi-filetype-csv"></i> CSV</a
+              ><i class="bi bi-filetype-csv"></i> Export CSV</a
             >
             <a class="export-btn btn-pdf" th:href="@{/export/pdf}"
-              ><i class="bi bi-filetype-pdf"></i> PDF</a
+              ><i class="bi bi-filetype-pdf"></i> Export PDF</a
             >
           </div>
         </div>
@@ -361,20 +359,18 @@
 
       <!-- ========================= ADMIN ========================= -->
       <div sec:authorize="hasAuthority('ADMIN')">
-        <!-- KPIs Admin -->
+        <!-- Admin KPIs -->
         <div class="row g-4" th:if="${kpis != null}">
           <div class="col-12 col-md-6 col-xl-4">
             <div class="cardx">
               <div class="kpi-top">
                 <p class="kpi-label">
-                  <i class="bi bi-buildings"></i> Bibliothèques
+                  <i class="bi bi-buildings"></i> Libraries
                 </p>
                 <div class="kpi-icon ic1"><i class="bi bi-buildings"></i></div>
               </div>
-              <div class="kpi-value" th:text="${kpis.totalBibliotheques}">
-                0
-              </div>
-              <p class="kpi-hint">Total d’établissements</p>
+              <div class="kpi-value" th:text="${kpis.totalBibliotheques}">0</div>
+              <p class="kpi-hint">Total locations</p>
             </div>
           </div>
 
@@ -382,23 +378,23 @@
             <div class="cardx">
               <div class="kpi-top">
                 <p class="kpi-label">
-                  <i class="bi bi-collection"></i> Ressources
+                  <i class="bi bi-collection"></i> Resources
                 </p>
                 <div class="kpi-icon ic2"><i class="bi bi-collection"></i></div>
               </div>
               <div class="kpi-value" th:text="${kpis.totalRessources}">0</div>
-              <p class="kpi-hint">Livres / médias</p>
+              <p class="kpi-hint">Books / media</p>
             </div>
           </div>
 
           <div class="col-12 col-md-6 col-xl-4">
             <div class="cardx">
               <div class="kpi-top">
-                <p class="kpi-label"><i class="bi bi-stack"></i> Exemplaires</p>
+                <p class="kpi-label"><i class="bi bi-stack"></i> Copies</p>
                 <div class="kpi-icon ic3"><i class="bi bi-stack"></i></div>
               </div>
               <div class="kpi-value" th:text="${kpis.totalExemplaires}">0</div>
-              <p class="kpi-hint">Inventaire total</p>
+              <p class="kpi-hint">Total inventory</p>
             </div>
           </div>
 
@@ -406,16 +402,19 @@
             <div class="cardx">
               <div class="kpi-top">
                 <p class="kpi-label">
-                  <i class="bi bi-check-circle"></i> Disponibles
+                  <i class="bi bi-check-circle"></i> Available
                 </p>
                 <div class="kpi-icon ic4">
                   <i class="bi bi-check-circle"></i>
                 </div>
               </div>
-              <div class="kpi-value" th:text="${kpis.exemplairesDisponibles}">
+              <div
+                class="kpi-value"
+                th:text="${kpis.exemplairesDisponibles}"
+              >
                 0
               </div>
-              <p class="kpi-hint">Disponibles immédiatement</p>
+              <p class="kpi-hint">Ready to borrow</p>
             </div>
           </div>
 
@@ -423,26 +422,29 @@
             <div class="cardx">
               <div class="kpi-top">
                 <p class="kpi-label">
-                  <i class="bi bi-x-circle"></i> Indisponibles
+                  <i class="bi bi-x-circle"></i> Unavailable
                 </p>
                 <div class="kpi-icon ic5"><i class="bi bi-x-circle"></i></div>
               </div>
-              <div class="kpi-value" th:text="${kpis.exemplairesIndisponibles}">
+              <div
+                class="kpi-value"
+                th:text="${kpis.exemplairesIndisponibles}"
+              >
                 0
               </div>
-              <p class="kpi-hint">Empruntés / maintenance</p>
+              <p class="kpi-hint">Borrowed / maintenance</p>
             </div>
           </div>
         </div>
 
-        <!-- Charts Admin (DB) -->
+        <!-- Admin Charts (DB) -->
         <div class="row g-4 mt-1">
           <div class="col-12 col-lg-6">
             <div class="panel">
               <h5 class="panel-title">
-                <i class="bi bi-bar-chart"></i> Prêts par catégorie
+                <i class="bi bi-bar-chart"></i> Loans by Category
               </h5>
-              <p class="muted mt-2 mb-3">Données depuis la base.</p>
+              <p class="muted mt-2 mb-3">Data from the database.</p>
               <div class="chart-box"><canvas id="chartCategorie"></canvas></div>
             </div>
           </div>
@@ -450,15 +452,15 @@
           <div class="col-12 col-lg-6">
             <div class="panel">
               <h5 class="panel-title">
-                <i class="bi bi-pie-chart"></i> Prêts par bibliothèque
+                <i class="bi bi-pie-chart"></i> Loans by Library
               </h5>
-              <p class="muted mt-2 mb-3">Données depuis la base.</p>
+              <p class="muted mt-2 mb-3">Data from the database.</p>
               <div class="chart-box"><canvas id="chartBiblio"></canvas></div>
             </div>
           </div>
         </div>
 
-        <!-- JS dynamique (DB) -->
+        <!-- Dynamic JS (DB) -->
         <script th:inline="javascript">
           /*<![CDATA[*/
           document.addEventListener("DOMContentLoaded", function () {
@@ -479,7 +481,7 @@
               type: "bar",
               data: {
                 labels: catLabels,
-                datasets: [{ label: "Prêts", data: catValues }],
+                datasets: [{ label: "Loans", data: catValues }],
               },
               options: {
                 responsive: true,
@@ -502,7 +504,7 @@
         </script>
       </div>
 
-      <!-- ====================== BIBLIOTHECAIRE ====================== -->
+      <!-- ====================== LIBRARIAN ====================== -->
       <div sec:authorize="hasAuthority('BIBLIOTHECAIRE')">
         <div class="row g-4" th:if="${statsLibrarian != null}">
           <div class="col-6 col-md-3">
@@ -516,7 +518,7 @@
               <h2 class="text-warning" th:text="${statsLibrarian.aRendre}">
                 0
               </h2>
-              <div class="muted">≤ 3 days</div>
+              <div class="muted">Due ≤ 3 days</div>
             </div>
           </div>
           <div class="col-6 col-md-3">
@@ -560,22 +562,22 @@
                     <span
                       th:if="${prioriteMap[pret.id] == 'HAUTE'}"
                       class="badge bg-danger"
-                      >Haute</span
+                      >High</span
                     >
                     <span
                       th:if="${prioriteMap[pret.id] == 'MOYENNE'}"
                       class="badge bg-warning"
-                      >Moyenne</span
+                      >Medium</span
                     >
                     <span
                       th:if="${prioriteMap[pret.id] == 'BASSE'}"
                       class="badge bg-success"
-                      >Basse</span
+                      >Low</span
                     >
                   </td>
 
                   <td th:text="${pret.user.email}">user@mail</td>
-                  <td th:text="${pret.exemplaire.ressource.titre}">Titre</td>
+                  <td th:text="${pret.exemplaire.ressource.titre}">Title</td>
                   <td th:text="${pret.dueAt}">date</td>
 
                   <td>
@@ -584,13 +586,13 @@
                       class="text-danger"
                     >
                       <i class="bi bi-exclamation-triangle"></i>
-                      +[[${-joursRestantsMap[pret.id]}]]j
+                      +[[${-joursRestantsMap[pret.id]}]]d
                     </span>
                     <span
                       th:if="${joursRestantsMap[pret.id] >= 0}"
                       class="text-success"
                     >
-                      [[${joursRestantsMap[pret.id]}]]j
+                      [[${joursRestantsMap[pret.id]}]]d
                     </span>
                   </td>
                 </tr>
@@ -648,8 +650,8 @@
               </thead>
               <tbody>
                 <tr th:each="pret : ${mesPrets}">
-                  <td th:text="${pret.exemplaire.ressource.titre}">Titre</td>
-                  <td th:text="${pret.exemplaire.ressource.auteur}">Auteur</td>
+                  <td th:text="${pret.exemplaire.ressource.titre}">Title</td>
+                  <td th:text="${pret.exemplaire.ressource.auteur}">Author</td>
                   <td th:text="${pret.borrowedAt}">date</td>
                   <td th:text="${pret.dueAt}">date</td>
                   <td>
