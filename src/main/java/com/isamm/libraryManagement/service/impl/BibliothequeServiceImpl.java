@@ -69,6 +69,12 @@ public class BibliothequeServiceImpl implements BibliothequeService {
 
         return b;
     }
+
+    // public Bibliotheque getWithDependances(Long id) {
+    // return repo.findWithDependancesById(id)
+    // .orElseThrow(() -> new IllegalStateException("Library not found"));
+    // }
+
     // @Transactional(readOnly = true)
     // public Bibliotheque getWithDependances(Long id) {
     // return repo.findWithDependancesById(id)

@@ -161,7 +161,6 @@
   </head>
 
   <body>
-    
     <div class="page-container">
       <div class="page-card">
         <!-- Header -->
@@ -201,17 +200,24 @@
             <p>No copies exist for this library.</p>
           </div>
           <div th:each="ex : ${exemplaires}" class="list-card">
-            <span
-              th:text="${ex.codeBarre} + ' - ' + ${ex.ressource.code} + ' : ' + ${ex.ressource.titre} + ' (' + ex.etat + ')'"
-            >
-              123456 - R001 : Resource Title (Good)
+            <span th:if="${ex.ressource != null}" th:text="${ex.codeBarre}">
             </span>
 
             <span
-              th:text="${ex.disponible} ? 'Available' : 'Unavailable'"
-              class="badge-count"
-              >1</span
+              th:if="${ex.ressource == null}"
+              th:text="${ex.codeBarre + ' - Ressource inconnue'}"
             >
+            </span>
+
+            <td>
+              <strong th:text="${ex.ressource.titre}"></strong><br />
+
+              <span
+                th:text="${ex.disponible} ? 'Available' : 'Unavailable'"
+                class="badge-count"
+                >1</span
+              >
+            </td>
           </div>
 
           <!-- Sub-libraries -->
@@ -221,9 +227,8 @@
             <p>No sub-libraries exist for this library.</p>
           </div>
           <div th:each="sub : ${sousBibliotheques}" class="list-card">
-            <span th:text="${sub.nom} + ' - ' + ${sub.adresse}"
-              >Library Name - Address</span
-            >
+            <span th:text="${sub.nom} "></span>
+
             <a
               th:href="@{'/bibliotheques/' + ${sub.id} + '/dependances'}"
               class="btn btn-sm btn-primary"
