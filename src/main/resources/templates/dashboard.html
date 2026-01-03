@@ -250,7 +250,7 @@
             <!-- Resources : ADMIN + LIBRARIAN -->
             <li
               class="nav-item"
-              sec:authorize="hasAnyAuthority('ADMIN','BIBLIOTHECAIRE')"
+              sec:authorize="hasAnyAuthority('ADMIN','BIBLIOTHECAIRE','USER')"
             >
               <a class="nav-link" th:href="@{/ressources}">
                 <i class="bi bi-box-seam"></i> Resources

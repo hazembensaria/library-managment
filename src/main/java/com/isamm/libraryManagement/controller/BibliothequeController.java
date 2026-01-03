@@ -1,6 +1,7 @@
 package com.isamm.libraryManagement.controller;
 
 import com.isamm.libraryManagement.entity.Bibliotheque;
+import com.isamm.libraryManagement.entity.Exemplaire;
 import com.isamm.libraryManagement.repository.BibliothequeRepository;
 import com.isamm.libraryManagement.service.BibliothequeService;
 import jakarta.validation.Valid;
@@ -13,6 +14,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
+import java.util.Collections;
 
 import java.util.List;
 
@@ -138,19 +140,20 @@ public class BibliothequeController {
     // }
     @GetMapping("/{id}/dependances")
     public String afficherDependances(@PathVariable Long id, Model model) {
+
         Bibliotheque b = service.getWithDependances(id);
+        if (b == null) {
+            return "redirect:/bibliotheques";
+        }
 
-        var exemplaires = (b.getExemplaires() != null) ? b.getExemplaires()
-                : java.util.Collections.emptyList();
+        List<Exemplaire> exemplaires = b.getExemplaires() != null ? b.getExemplaires() : Collections.emptyList();
 
-        var sousBibliotheques = (b.getSousBibliotheques() != null) ? b.getSousBibliotheques()
-                : java.util.Collections.emptyList();
+        List<Bibliotheque> sousBibliotheques = b.getSousBibliotheques() != null ? b.getSousBibliotheques()
+                : Collections.emptyList();
 
         model.addAttribute("bibliotheque", b);
         model.addAttribute("exemplaires", exemplaires);
         model.addAttribute("sousBibliotheques", sousBibliotheques);
-        model.addAttribute("nbExemplaires", exemplaires.size());
-        model.addAttribute("nbSousBibliotheques", sousBibliotheques.size());
 
         return "bibliotheques-dependances";
     }
