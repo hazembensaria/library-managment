@@ -10,7 +10,7 @@ import java.io.ByteArrayOutputStream;
 
 public class PdfReportBuilder {
 
-  // ---------- Couleurs (cohérentes avec ton design Bootstrap) ----------
+  // ---------- Colors (consistent with your Bootstrap design) ----------
   private static final Color BLUE = new Color(74, 144, 226);
   private static final Color BLUE_DARK = new Color(55, 121, 233);
   private static final Color TEXT = new Color(33, 37, 41);
@@ -35,7 +35,7 @@ public class PdfReportBuilder {
         public void onEndPage(PdfWriter writer, Document document) {
           PdfContentByte cb = writer.getDirectContent();
           Font f = new Font(Font.HELVETICA, 9, Font.NORMAL, new Color(120, 120, 120));
-          Phrase p = new Phrase("Library Hub • Rapport KPI • Page " + writer.getPageNumber(), f);
+          Phrase p = new Phrase("Library Hub • KPI Report • Page " + writer.getPageNumber(), f);
           ColumnText.showTextAligned(cb, Element.ALIGN_CENTER, p,
               (document.left() + document.right()) / 2, document.bottom() - 18, 0);
         }
@@ -43,32 +43,32 @@ public class PdfReportBuilder {
 
       document.open();
 
-      // ------------------ HEADER VISUEL (bandeau) ------------------
+      // ------------------ VISUAL HEADER (banner) ------------------
       addHeaderBanner(writer, document, generatedAt, generatedBy);
 
-      // Espacement après header
+      // Spacing after header
       document.add(Chunk.NEWLINE);
       document.add(Chunk.NEWLINE);
 
-      // ------------------ KPI CARDS (visuel dashboard) ------------------
+      // ------------------ KPI CARDS (dashboard look) ------------------
       PdfPTable cards = new PdfPTable(2);
       cards.setWidthPercentage(100);
       cards.setSpacingBefore(6);
       cards.setSpacingAfter(14);
       cards.setWidths(new float[]{1f, 1f});
 
-      cards.addCell(kpiCard("Bibliothèques", String.valueOf(kpis.getTotalBibliotheques()), BLUE, "\uD83C\uDFE2"));
-      cards.addCell(kpiCard("Ressources", String.valueOf(kpis.getTotalRessources()), PURPLE, "\uD83D\uDCD6"));
-      cards.addCell(kpiCard("Exemplaires", String.valueOf(kpis.getTotalExemplaires()), TEAL, "\uD83D\uDCE6"));
-      cards.addCell(kpiCard("Disponibles", String.valueOf(kpis.getExemplairesDisponibles()), GREEN, "✓"));
-      cards.addCell(kpiCard("Indisponibles", String.valueOf(kpis.getExemplairesIndisponibles()), RED, "✕"));
-      // (petit “filler” pour compléter la grille)
+      cards.addCell(kpiCard("Libraries", String.valueOf(kpis.getTotalBibliotheques()), BLUE, "\uD83C\uDFE2"));
+      cards.addCell(kpiCard("Resources", String.valueOf(kpis.getTotalRessources()), PURPLE, "\uD83D\uDCD6"));
+      cards.addCell(kpiCard("Copies", String.valueOf(kpis.getTotalExemplaires()), TEAL, "\uD83D\uDCE6"));
+      cards.addCell(kpiCard("Available", String.valueOf(kpis.getExemplairesDisponibles()), GREEN, "✓"));
+      cards.addCell(kpiCard("Unavailable", String.valueOf(kpis.getExemplairesIndisponibles()), RED, "✕"));
+      // (small filler to complete the grid)
       cards.addCell(emptyCard());
 
       document.add(cards);
 
-      // ------------------ MINI CHART (barres) ------------------
-      Paragraph chartTitle = new Paragraph("Disponibilité des exemplaires", new Font(Font.HELVETICA, 12, Font.BOLD, TEXT));
+      // ------------------ MINI CHART (bars) ------------------
+      Paragraph chartTitle = new Paragraph("Copies Availability", new Font(Font.HELVETICA, 12, Font.BOLD, TEXT));
       chartTitle.setSpacingAfter(8);
       document.add(chartTitle);
 
@@ -82,31 +82,31 @@ public class PdfReportBuilder {
       PdfContentByte cb = writer.getDirectContent();
       PdfTemplate template = cb.createTemplate(500, 90);
 
-      long dispo = kpis.getExemplairesDisponibles();
-      long indispo = kpis.getExemplairesIndisponibles();
-      long total = Math.max(1, dispo + indispo);
+      long available = kpis.getExemplairesDisponibles();
+      long unavailable = kpis.getExemplairesIndisponibles();
+      long total = Math.max(1, available + unavailable);
 
-      // bar sizes
+      // Bar sizes
       float w = 420f;
-      float dispoW = (float) (w * ((double) dispo / total));
-      float indispoW = (float) (w * ((double) indispo / total));
+      float availableW = (float) (w * ((double) available / total));
+      float unavailableW = (float) (w * ((double) unavailable / total));
 
       // Draw bars
       template.setColorFill(GREEN);
-      template.rectangle(0, 45, dispoW, 16);
+      template.rectangle(0, 45, availableW, 16);
       template.fill();
 
       template.setColorFill(RED);
-      template.rectangle(0, 18, indispoW, 16);
+      template.rectangle(0, 18, unavailableW, 16);
       template.fill();
 
       // Labels
       ColumnText.showTextAligned(template, Element.ALIGN_LEFT,
-          new Phrase("Disponibles : " + dispo, new Font(Font.HELVETICA, 10, Font.BOLD, TEXT)),
+          new Phrase("Available: " + available, new Font(Font.HELVETICA, 10, Font.BOLD, TEXT)),
           0, 65, 0);
 
       ColumnText.showTextAligned(template, Element.ALIGN_LEFT,
-          new Phrase("Indisponibles : " + indispo, new Font(Font.HELVETICA, 10, Font.BOLD, TEXT)),
+          new Phrase("Unavailable: " + unavailable, new Font(Font.HELVETICA, 10, Font.BOLD, TEXT)),
           0, 38, 0);
 
       Image chartImg = Image.getInstance(template);
@@ -118,27 +118,27 @@ public class PdfReportBuilder {
 
       document.add(Chunk.NEWLINE);
 
-      // ------------------ TABLEAU DÉTAILLÉ (pro) ------------------
-      Paragraph tableTitle = new Paragraph("Détail des indicateurs", new Font(Font.HELVETICA, 12, Font.BOLD, TEXT));
+      // ------------------ DETAILED TABLE (professional) ------------------
+      Paragraph tableTitle = new Paragraph("KPI Details", new Font(Font.HELVETICA, 12, Font.BOLD, TEXT));
       tableTitle.setSpacingAfter(8);
       document.add(tableTitle);
 
       PdfPTable table = new PdfPTable(new float[]{3.2f, 1.2f});
       table.setWidthPercentage(100);
 
-      addHeaderCell(table, "Indicateur");
-      addHeaderCell(table, "Valeur");
+      addHeaderCell(table, "Metric");
+      addHeaderCell(table, "Value");
 
-      addRow(table, "Total bibliothèques", String.valueOf(kpis.getTotalBibliotheques()));
-      addRow(table, "Total ressources", String.valueOf(kpis.getTotalRessources()));
-      addRow(table, "Total exemplaires", String.valueOf(kpis.getTotalExemplaires()));
-      addRow(table, "Exemplaires disponibles", String.valueOf(kpis.getExemplairesDisponibles()));
-      addRow(table, "Exemplaires indisponibles", String.valueOf(kpis.getExemplairesIndisponibles()));
+      addRow(table, "Total libraries", String.valueOf(kpis.getTotalBibliotheques()));
+      addRow(table, "Total resources", String.valueOf(kpis.getTotalRessources()));
+      addRow(table, "Total copies", String.valueOf(kpis.getTotalExemplaires()));
+      addRow(table, "Available copies", String.valueOf(kpis.getExemplairesDisponibles()));
+      addRow(table, "Unavailable copies", String.valueOf(kpis.getExemplairesIndisponibles()));
 
       document.add(table);
 
       Paragraph note = new Paragraph(
-          "\nSource : valeurs calculées depuis la base de données (Bibliothèque / Ressource / Exemplaire).",
+          "\nSource: values computed from the database (Library / Resource / Copy).",
           new Font(Font.HELVETICA, 10, Font.ITALIC, new Color(120, 120, 120))
       );
       document.add(note);
@@ -147,19 +147,19 @@ public class PdfReportBuilder {
       return out.toByteArray();
 
     } catch (Exception e) {
-      throw new RuntimeException("Erreur génération PDF", e);
+      throw new RuntimeException("PDF generation error", e);
     }
   }
 
-  // ---------------------- HEADER BANDEAU ----------------------
+  // ---------------------- HEADER BANNER ----------------------
   private static void addHeaderBanner(PdfWriter writer, Document doc, String generatedAt, String generatedBy) {
     PdfContentByte cb = writer.getDirectContent();
     float left = doc.left();
     float right = doc.right();
-    float top = doc.top() + 40;          // zone au-dessus du contenu
+    float top = doc.top() + 40;          // area above content
     float height = 80;
 
-    // “gradient-like” : 2 rectangles
+    // “gradient-like”: 2 rectangles
     cb.setColorFill(BLUE);
     cb.rectangle(left, top - height, (right - left) * 0.62f, height);
     cb.fill();
@@ -168,7 +168,7 @@ public class PdfReportBuilder {
     cb.rectangle(left + (right - left) * 0.62f, top - height, (right - left) * 0.38f, height);
     cb.fill();
 
-    // Logo LH (carré blanc)
+    // LH logo (white rounded square)
     cb.setColorFill(Color.WHITE);
     cb.roundRectangle(left + 14, top - 60, 42, 42, 10);
     cb.fill();
@@ -177,13 +177,13 @@ public class PdfReportBuilder {
         new Phrase("LH", new Font(Font.HELVETICA, 16, Font.BOLD, BLUE_DARK)),
         left + 35, top - 40, 0);
 
-    // Titre
+    // Title
     ColumnText.showTextAligned(cb, Element.ALIGN_LEFT,
-        new Phrase("Dashboard • Rapport KPI", new Font(Font.HELVETICA, 16, Font.BOLD, Color.WHITE)),
+        new Phrase("Dashboard • KPI Report", new Font(Font.HELVETICA, 16, Font.BOLD, Color.WHITE)),
         left + 70, top - 30, 0);
 
     // Meta
-    String meta = "Généré le : " + generatedAt + "   |   Généré par : " + generatedBy;
+    String meta = "Generated at: " + generatedAt + "   |   Generated by: " + generatedBy;
     ColumnText.showTextAligned(cb, Element.ALIGN_LEFT,
         new Phrase(meta, new Font(Font.HELVETICA, 10, Font.NORMAL, new Color(240, 248, 255))),
         left + 70, top - 48, 0);

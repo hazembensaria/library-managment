@@ -1,5 +1,6 @@
 package com.isamm.libraryManagement.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -37,11 +38,21 @@ public class ExemplaireServiceImpl implements ExemplaireService {
 
     @Override
     public List<Exemplaire> getByRessource(Long ressourceId) {
-        return repo.findByRessourceId(ressourceId);
+        List<Exemplaire> exemplaires = repo.findByRessourceId(ressourceId);
+        return exemplaires != null ? exemplaires : new ArrayList<>();
     }
 
     @Override
     public List<Exemplaire> getByBibliotheque(Long biblioId) {
-        return repo.findByBibliothequeId(biblioId);
+        List<Exemplaire> exemplaires = repo.findByBibliothequeId(biblioId);
+        return exemplaires != null ? exemplaires : new ArrayList<>();
+    }
+
+    public boolean existsByCodeBarre(String codeBarre) {
+        return repo.existsByCodeBarre(codeBarre);
+    }
+
+    public boolean existsByCodeBarreAndIdNot(String codeBarre, Long id) {
+        return repo.existsByCodeBarreAndIdNot(codeBarre, id);
     }
 }

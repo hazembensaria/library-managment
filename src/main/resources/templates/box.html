@@ -2,7 +2,6 @@
 <html lang="fr" xmlns:th="http://www.thymeleaf.org">
 <body>
 
-<!-- Fragment : boîte notifications -->
 <div th:fragment="box(notifications, nonLuesCount)">
 
   <div class="panel">
@@ -11,21 +10,22 @@
         <i class="bi bi-bell"></i> Notifications
       </h5>
 
-      <span class="badge bg-danger"
+      <span class="badge bg-danger" id="notifCount"
             th:if="${nonLuesCount != null and nonLuesCount > 0}"
             th:text="${nonLuesCount} + ' non lue(s)'">
         0
       </span>
 
-      <span class="badge bg-secondary"
+      <span class="badge bg-secondary" id="notifCount"
             th:if="${nonLuesCount == null or nonLuesCount == 0}">
         Aucune
       </span>
     </div>
 
     <!-- Liste notifications -->
-    <div class="mt-3" th:if="${notifications != null and !#lists.isEmpty(notifications)}">
-      <ul class="list-group">
+    <div class="mt-3" id="notifListWrap"
+         th:if="${notifications != null and !#lists.isEmpty(notifications)}">
+      <ul class="list-group" id="notifList">
         <li class="list-group-item d-flex justify-content-between align-items-start"
             th:each="n : ${notifications}"
             th:classappend="${n.lu} ? '' : ' list-group-item-warning'">
@@ -53,12 +53,12 @@
     </div>
 
     <!-- Aucun message -->
-    <div class="alert alert-info mt-3 mb-0"
+    <div class="alert alert-info mt-3 mb-0" id="notifEmpty"
          th:if="${notifications == null or #lists.isEmpty(notifications)}">
       <i class="bi bi-info-circle"></i> Aucune notification pour le moment.
     </div>
 
-    <!-- Test email simple -->
+    <!-- Test email simple (optionnel : garde ou supprime) -->
     <hr class="my-3"/>
     <form th:action="@{/notifications/test-email}" method="post" class="d-flex gap-2">
       <input class="form-control"

@@ -26,6 +26,7 @@
         background: #f5f7fa;
         min-height: 100vh;
         padding: 2rem 0;
+        padding-top: 80px;
         font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
       }
 
@@ -280,6 +281,95 @@
     </style>
   </head>
   <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+      <div class="container-fluid">
+        <!-- Brand -->
+        <a class="navbar-brand fw-bold" th:href="@{/home}">
+          <i class="bi bi-book"></i> Library
+        </a>
+
+        <!-- Toggle mobile -->
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarContent"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarContent">
+          <!-- LEFT MENU -->
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <!-- Home : tout le monde -->
+            <li class="nav-item">
+              <a class="nav-link" th:href="@{/home}">
+                <i class="bi bi-house"></i> Home
+              </a>
+            </li>
+
+            <!-- Resources : ADMIN + BIBLIOTHECAIRE -->
+            <li
+              class="nav-item"
+              sec:authorize="hasAnyAuthority('ADMIN','BIBLIOTHECAIRE','USER')"
+            >
+              <a class="nav-link" th:href="@{/ressources}">
+                <i class="bi bi-box-seam"></i> Resources
+              </a>
+            </li>
+
+            <!-- Bibliothèques : ADMIN + BIBLIOTHECAIRE -->
+            <li
+              class="nav-item"
+              sec:authorize="hasAnyAuthority('ADMIN','BIBLIOTHECAIRE')"
+            >
+              <a class="nav-link" th:href="@{/bibliotheques}">
+                <i class="bi bi-building"></i> Libraries
+              </a>
+            </li>
+
+            <!-- Loans -->
+            <li class="nav-item" sec:authorize="isAuthenticated()">
+              <a class="nav-link" th:href="@{/loans}">
+                <i class="bi bi-journal-text"></i> Loans
+              </a>
+            </li>
+          </ul>
+
+          <!-- RIGHT MENU -->
+          <ul class="navbar-nav ms-auto">
+            <!-- Username -->
+            <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                role="button"
+                data-bs-toggle="dropdown"
+              >
+                <i class="bi bi-person-circle"></i>
+                <span sec:authentication="name"></span>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li>
+                  <form th:action="@{/logout}" method="post">
+                    <button class="dropdown-item text-danger">
+                      <i class="bi bi-box-arrow-right"></i> Logout
+                    </button>
+                  </form>
+                </li>
+              </ul>
+            </li>
+
+            <!-- Login -->
+            <li class="nav-item" sec:authorize="!isAuthenticated()">
+              <a class="nav-link" th:href="@{/login}">
+                <i class="bi bi-box-arrow-in-right"></i> Login
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
     <div class="form-container">
       <div class="form-card">
         <div class="form-header">
@@ -343,6 +433,22 @@
                   th:errors="*{auteur}"
                 ></div>
               </div>
+              <div class="mb-4">
+                <label class="form-label">
+                  <i class="bi bi-calendar-event-fill"></i>
+                  Publish date
+                </label>
+                <input
+                  type="date"
+                  class="form-control"
+                  th:field="*{publishDate}"
+                />
+                <div
+                  class="text-danger"
+                  th:if="${#fields.hasErrors('publishDate')}"
+                  th:errors="*{publishDate}"
+                ></div>
+              </div>
 
               <div class="mb-4">
                 <label class="form-label">
@@ -362,11 +468,11 @@
                 </select>
               </div>
 
-              <!-- NOUVEAU CHAMP: Catégorie -->
+              <!-- NEW FIELD: Category -->
               <div class="mb-4">
                 <label class="form-label">
                   <i class="bi bi-tags-fill"></i>
-                  Catégorie
+                  Category
                 </label>
                 <select
                   class="form-select"
@@ -404,7 +510,7 @@
                 <textarea
                   class="form-control form-textarea"
                   th:field="*{description}"
-                  placeholder="Entrez une description détaillée de la ressource..."
+                  placeholder="Enter a detailed description of the resource..."
                   rows="4"
                 ></textarea>
                 <div
@@ -435,7 +541,7 @@
                 </p>
                 <img
                   th:src="@{/ressources/cover/{id}(id=*{id})}"
-                  alt="Couverture"
+                  alt="Cover"
                   class="img-fluid"
                 />
               </div>
@@ -443,7 +549,7 @@
               <label class="form-label">
                 <i class="bi bi-cloud-upload"></i>
                 <span
-                  th:text="*{id} == null ? 'Télécharger la couverture' : 'Remplacer la couverture'"
+                  th:text="*{id} == null ? 'Upload cover' : 'Replace cover'"
                 ></span>
               </label>
               <div class="file-upload-wrapper">
@@ -548,11 +654,11 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-      // Mets des valeurs <= à la limite serveur/proxy, sinon tu auras encore 413.
-      // Test conseillé: 1MB. Puis ajuste.
+      // Set values <= server/proxy limit, otherwise you'll get 413 again.
+      // Recommended test: 1MB. Then adjust.
       const MAX_COVER = 1 * 1024 * 1024; // 1MB
       const MAX_PREVIEW = 1 * 1024 * 1024; // 1MB
-      const MAX_TOTAL = 1 * 1024 * 1024; // 1MB total cover+preview (très important)
+      const MAX_TOTAL = 1 * 1024 * 1024; // 1MB total cover+preview (very important)
 
       function setText(id, msg) {
         const el = document.getElementById(id);
@@ -578,16 +684,16 @@
         if (f.size > maxBytes) {
           setText(
             errorId,
-            `${label} trop volumineux (max ${formatMB(maxBytes)}).`
+            `${label} too large (max ${formatMB(maxBytes)}).`
           );
-          input.value = ""; // empêche l'envoi
+          input.value = ""; // prevent submission
           return false;
         }
         return true;
       }
 
       function validateTotal() {
-        // on met un message sur previewError (ou crée un message global si tu veux)
+        // set a message on previewError (or create a global message if you want)
         setText("previewError", "");
 
         const cover = document.getElementById("coverFile")?.files?.[0];
@@ -597,7 +703,7 @@
         if (total > MAX_TOTAL) {
           setText(
             "previewError",
-            `Total fichiers trop volumineux (max ${formatMB(MAX_TOTAL)}).`
+            `Total files too large (max ${formatMB(MAX_TOTAL)}).`
           );
           return false;
         }
@@ -612,7 +718,7 @@
           previewSection.style.display = "block";
         } else {
           previewSection.style.display = "none";
-          // Très important : si on cache, on vide le fichier pour qu'il ne parte pas au submit
+          // Very important: if we hide, clear the file so it doesn't get submitted
           clearFile("previewFile", "previewFileName");
           setText("previewError", "");
         }
@@ -631,7 +737,7 @@
           ?.addEventListener("change", (e) => {
             const f = e.target.files?.[0];
             setText("coverFileName", f ? "✓ " + f.name : "");
-            validateFile("coverFile", "coverError", MAX_COVER, "Couverture");
+            validateFile("coverFile", "coverError", MAX_COVER, "Cover");
             validateTotal();
           });
 
@@ -645,7 +751,7 @@
             validateTotal();
           });
 
-        // Bloquer l'envoi si invalide (sinon tu peux encore tomber sur 413)
+        // Block submission if invalid (otherwise you can still get 413)
         document
           .getElementById("ressourceForm")
           ?.addEventListener("submit", (e) => {

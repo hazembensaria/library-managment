@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Réserver un exemplaire</title>
+    <title>Reserve a Copy</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -54,18 +54,18 @@
 <body>
 <div class="card">
     <div class="card-header">
-        <h4><span class="bi bi-bookmark-plus"></span> Réserver un exemplaire</h4>
+        <h4><span class="bi bi-bookmark-plus"></span> Reserve a Copy</h4>
     </div>
     <div class="card-body">
         <div class="alert alert-danger d-none" id="errorBox"></div>
         <form id="reserveForm" class="row g-3">
             <div class="col-12">
-                <label class="form-label">Exemplaire ID</label>
+                <label class="form-label">Copy ID</label>
                 <input type="number" class="form-control" id="exemplaireId" required>
             </div>
             <div class="col-12 d-grid">
                 <button type="submit" class="btn btn-primary btn-lg">
-                    Réserver
+                    Reserve
                 </button>
             </div>
         </form>
@@ -78,7 +78,7 @@
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header bg-success text-white">
-        <h5 class="modal-title">Réservation réussie</h5>
+        <h5 class="modal-title">Reservation Successful</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body" id="successBody">
@@ -114,7 +114,7 @@
             const data = await res.json();
 
             if (!res.ok || data.error) {
-                errorBox.textContent = data.error || 'Erreur lors de la réservation.';
+                errorBox.textContent = data.error || 'Error during reservation.';
                 errorBox.classList.remove('d-none');
                 return;
             }
@@ -123,16 +123,16 @@
             const loanId = data.id;
             const exemplaire = data.exemplaire || {};
             const ressource = exemplaire.ressource || {};
-            const titre = ressource.titre || 'Ressource inconnue';
+            const titre = ressource.titre || 'Unknown resource';
             const codeBarre = exemplaire.codeBarre || exemplaire.id || exemplaireId;
 
             successBody.innerHTML = `
-                <p class="mb-1">Le livre <strong>"${titre}"</strong> (exemplaire <strong>${codeBarre}</strong>) a été réservé.</p>
-                <p class="text-muted mb-0">Numéro de prêt : <strong>${loanId}</strong></p>
+                <p class="mb-1">The book <strong>"${titre}"</strong> (copy <strong>${codeBarre}</strong>) has been reserved.</p>
+                <p class="text-muted mb-0">Loan number: <strong>${loanId}</strong></p>
             `;
             successModal.show();
         } catch (err) {
-            errorBox.textContent = 'Erreur réseau. Veuillez réessayer.';
+            errorBox.textContent = 'Network error. Please try again.';
             errorBox.classList.remove('d-none');
         }
     });

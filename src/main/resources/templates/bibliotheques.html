@@ -1,41 +1,374 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6"
+>
   <head>
-    <title>Bibliothèques</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Library Management</title>
+
+    <!-- Bootstrap & Icons -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"
+    />
+
+    <style>
+      body {
+        background: #f5f7fa;
+        min-height: 100vh;
+        padding: 2rem 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      .main-container {
+        max-width: 1400px;
+        margin: auto;
+        padding: 0 1rem;
+      }
+
+      .header-section {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      }
+
+      .header-section h1 {
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .add-btn {
+        background: linear-gradient(135deg, #667eea 0%, #3799e9 100%);
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 10px;
+        color: white;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .add-btn:hover {
+        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        transform: translateY(-2px);
+        color: white;
+      }
+
+      /* ===== CARD ===== */
+      .library-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        height: 100%;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        transition: transform 0.3s, box-shadow 0.3s;
+      }
+
+      .library-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+      }
+
+      .library-icon {
+        font-size: 4rem;
+        color: #4a90e2;
+        margin-bottom: 1rem;
+        text-align: center;
+      }
+
+      .library-name {
+        font-size: 1.25rem;
+        font-weight: 700;
+        text-align: center;
+        margin-bottom: 0.5rem;
+      }
+
+      .library-address {
+        color: #6c757d;
+        text-align: center;
+        margin-bottom: 1.5rem;
+      }
+
+      .library-actions {
+        display: flex;
+        gap: 0.5rem;
+      }
+
+      .action-btn {
+        flex: 1;
+        border-radius: 8px;
+        padding: 0.5rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-decoration: none;
+        text-align: center;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.3rem;
+        color: white;
+      }
+
+      .btn-edit {
+        background: #4a90e2;
+      }
+
+      .btn-edit:hover {
+        background: #357abd;
+        transform: scale(1.05);
+      }
+
+      .btn-delete {
+        background: #dc3545;
+      }
+
+      .btn-delete:hover {
+        background: #c82333;
+        transform: scale(1.05);
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      }
+      .btn-dependances {
+        background: linear-gradient(135deg, #ffb347 0%, #ff9800 100%);
+        color: white;
+        border-radius: 10px;
+        padding: 0.5rem 0.9rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        text-decoration: none;
+        transition: transform 0.25s, box-shadow 0.25s;
+      }
+
+      .btn-dependances:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(255, 152, 0, 0.45);
+        color: white;
+      }
+
+      .empty-state i {
+        font-size: 5rem;
+        color: #ccc;
+        margin-bottom: 1rem;
+      }
+    </style>
   </head>
+
   <body>
-    <h2>Liste des Bibliothèques</h2>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+      <div class="container-fluid">
+        <!-- Brand -->
+        <a class="navbar-brand fw-bold" th:href="@{/home}">
+          <i class="bi bi-book"></i> Library
+        </a>
 
-    <a href="/bibliotheques/add">Ajouter une bibliothèque</a>
+        <!-- Toggle mobile -->
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarContent"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
 
-    <table border="1">
-      <tr>
-        <th>ID</th>
-        <th>Nom</th>
-        <th>Adresse</th>
-        <th>Actions</th>
-      </tr>
+        <div class="collapse navbar-collapse" id="navbarContent">
+          <!-- LEFT MENU -->
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <!-- Home : tout le monde -->
+            <li class="nav-item">
+              <a class="nav-link" th:href="@{/home}">
+                <i class="bi bi-house"></i> Home
+              </a>
+            </li>
 
-      <tr th:each="b : ${bibliotheques}">
-        <td th:text="${b.id}"></td>
-        <td th:text="${b.nom}"></td>
-        <td th:text="${b.adresse}"></td>
+            <!-- Resources : ADMIN + BIBLIOTHECAIRE -->
+            <li
+              class="nav-item"
+              sec:authorize="hasAnyAuthority('ADMIN','BIBLIOTHECAIRE','USER')"
+            >
+              <a class="nav-link" th:href="@{/ressources}">
+                <i class="bi bi-box-seam"></i> Resources
+              </a>
+            </li>
 
-        <td>
-          <a th:href="@{'/bibliotheques/edit/' + ${b.id}}">Edit</a>
-          <a th:href="@{'/bibliotheques/delete/' + ${b.id}}">Delete</a>
-          <div
-            th:if="${success}"
-            class="alert alert-success"
-            th:text="${success}"
-          ></div>
-          <div
-            th:if="${error}"
-            class="alert alert-danger"
-            th:text="${error}"
-          ></div>
-        </td>
-      </tr>
-    </table>
+            <!-- Bibliothèques : ADMIN + BIBLIOTHECAIRE -->
+            <li
+              class="nav-item"
+              sec:authorize="hasAnyAuthority('ADMIN','BIBLIOTHECAIRE')"
+            >
+              <a class="nav-link" th:href="@{/bibliotheques}">
+                <i class="bi bi-building"></i> Libraries
+              </a>
+            </li>
+
+            <!-- Loans -->
+            <li class="nav-item" sec:authorize="isAuthenticated()">
+              <a class="nav-link" th:href="@{/loans}">
+                <i class="bi bi-journal-text"></i> Loans
+              </a>
+            </li>
+          </ul>
+
+          <!-- RIGHT MENU -->
+          <ul class="navbar-nav ms-auto">
+            <!-- Username -->
+            <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                role="button"
+                data-bs-toggle="dropdown"
+              >
+                <i class="bi bi-person-circle"></i>
+                <span sec:authentication="name"></span>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li>
+                  <form th:action="@{/logout}" method="post">
+                    <button class="dropdown-item text-danger">
+                      <i class="bi bi-box-arrow-right"></i> Logout
+                    </button>
+                  </form>
+                </li>
+              </ul>
+            </li>
+
+            <!-- Login -->
+            <li class="nav-item" sec:authorize="!isAuthenticated()">
+              <a class="nav-link" th:href="@{/login}">
+                <i class="bi bi-box-arrow-in-right"></i> Login
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="main-container">
+      <!-- HEADER -->
+      <div class="header-section">
+        <div
+          class="d-flex justify-content-between align-items-center flex-wrap gap-3"
+        >
+          <h1>
+            <i class="bi bi-building"></i>
+            Library Network
+          </h1>
+          <a
+            href="/bibliotheques/add"
+            class="add-btn"
+            sec:authorize="hasAnyAuthority('ADMIN','BIBLIOTHECAIRE')"
+          >
+            <i class="bi bi-plus-circle"></i>
+            Add Library
+          </a>
+        </div>
+      </div>
+      <div
+        th:if="${success}"
+        class="alert alert-success alert-dismissible fade show"
+      >
+        <i class="bi bi-check-circle"></i>
+        <span th:text="${success}"></span>
+      </div>
+
+      <div
+        th:if="${error}"
+        class="alert alert-danger alert-dismissible fade show"
+      >
+        <i class="bi bi-exclamation-triangle"></i>
+        <span th:text="${error}"></span>
+      </div>
+
+      <!-- LIST -->
+      <div
+        class="row g-4"
+        th:if="${bibliotheques != null and !bibliotheques.empty}"
+      >
+        <div
+          class="col-12 col-sm-6 col-md-4 col-lg-3"
+          th:each="b : ${bibliotheques}"
+        >
+          <div class="library-card">
+            <div class="library-icon">
+              <i class="bi bi-building"></i>
+            </div>
+
+            <div class="library-name" th:text="${b.nom}">Library Name</div>
+
+            <div class="library-address">
+              <i class="bi bi-geo-alt"></i>
+              <span th:text="${b.adresse}">Address</span>
+            </div>
+
+            <div class="library-actions">
+              <a
+                th:href="@{'/bibliotheques/edit/' + ${b.id}}"
+                sec:authorize="hasAnyAuthority('ADMIN','BIBLIOTHECAIRE')"
+                class="action-btn btn-edit"
+              >
+                <i class="bi bi-pencil"></i>
+                Edit
+              </a>
+              <a
+                th:if="${#lists.size(b.exemplaires) > 0 || #lists.size(b.sousBibliotheques) > 0}"
+                th:href="@{'/bibliotheques/' + ${b.id} + '/dependances'}"
+                class="btn-dependances"
+              >
+                <i class="bi bi-eye"></i>
+                See dependencies
+              </a>
+
+              <a
+                th:href="@{'/bibliotheques/delete/' + ${b.id}}"
+                sec:authorize="hasAnyAuthority('ADMIN','BIBLIOTHECAIRE')"
+                class="action-btn btn-delete"
+                onclick="return confirm('Are you sure you want to delete this library?');"
+              >
+                <i class="bi bi-trash"></i>
+                Delete
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- EMPTY -->
+      <div
+        class="empty-state"
+        th:if="${bibliotheques == null or bibliotheques.empty}"
+      >
+        <i class="bi bi-building"></i>
+        <h3>No libraries available</h3>
+        <p class="text-muted">Start by adding your first library</p>
+        <a href="/bibliotheques/add" class="add-btn mt-3">
+          <i class="bi bi-plus-circle"></i>
+          Add Library
+        </a>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   </body>
 </html>

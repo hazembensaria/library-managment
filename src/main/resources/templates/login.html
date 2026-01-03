@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>Login</title>
 
     <style>
@@ -89,74 +89,68 @@
             font-weight: 500;
         }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
+    <div class="card">
+      <h2>🔐 Login</h2>
+      <p class="subtitle">Sign in to access your dashboard</p>
 
-<div class="card">
-
-    <h2>🔐 Login</h2>
-    <p class="subtitle">Sign in to access your dashboard</p>
-
-    <form id="loginForm">
-
+      <form id="loginForm">
         <label>Email</label>
-        <input type="email" id="email" required>
+        <input type="email" id="email" required />
 
         <label>Password</label>
-        <input type="password" id="password" required>
+        <input type="password" id="password" required />
 
         <button type="submit">Login</button>
-    </form>
+      </form>
 
-    <div id="message" class="message"></div>
+      <div id="message" class="message"></div>
 
-    <div class="footer">
+      <div class="footer">
         Don’t have an account?
         <a th:href="@{/register}">Register</a>
+      </div>
     </div>
 
-</div>
+    <!-- SAME JS LOGIC -->
+    <script>
+      const form = document.getElementById("loginForm");
 
-<!-- SAME JS LOGIC -->
-<script>
-    const form = document.getElementById("loginForm");
-
-    form.addEventListener("submit", async (event) => {
+      form.addEventListener("submit", async (event) => {
         event.preventDefault();
 
         const data = {
-            email: document.getElementById("email").value,
-            password: document.getElementById("password").value
+          email: document.getElementById("email").value,
+          password: document.getElementById("password").value,
         };
 
         try {
-            const response = await fetch("/api/v1/auth/authenticate", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(data)
-            });
+          const response = await fetch("/api/v1/auth/authenticate", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+          });
 
-            const messageEl = document.getElementById("message");
+          const messageEl = document.getElementById("message");
 
-            if (response.ok) {
-                messageEl.style.color = "#16a34a";
-                messageEl.innerText = "Login successful!";
-                setTimeout(() => window.location.href = "/home", 1000);
-            } else {
-                const err = await response.json();
-                messageEl.style.color = "#dc2626";
-                messageEl.innerText = err.message || "Login failed!";
-            }
-
+          if (response.ok) {
+            messageEl.style.color = "#16a34a";
+            messageEl.innerText = "Login successful!";
+            setTimeout(() => (window.location.href = "/home"), 1000);
+          } else {
+            const err = await response.json();
+            messageEl.style.color = "#dc2626";
+            messageEl.innerText = err.message || "Login failed!";
+          }
         } catch (error) {
-            document.getElementById("message").style.color = "#dc2626";
-            document.getElementById("message").innerText = "An error occurred!";
+          document.getElementById("message").style.color = "#dc2626";
+          document.getElementById("message").innerText = "An error occurred!";
         }
-    });
-</script>
-
-</body>
+      });
+    </script>
+  </body>
 </html>

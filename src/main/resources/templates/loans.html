@@ -1,199 +1,345 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"
+    />
+
+    <meta charset="UTF-8" />
     <title>Liste des prêts</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
-            margin: 0;
-            padding: 24px;
-        }
-        h2 {
-            margin-top: 0;
-            color: #333;
-        }
-        .toolbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-        .filter {
-            font-size: 14px;
-        }
-        .filter select {
-            padding: 6px 10px;
-            border-radius: 6px;
-            border: 1px solid #ccc;
-        }
-        .pill {
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 999px;
-            background: #eef;
-            font-size: 11px;
-            color: #555;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background-color: #fff;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-        }
-        th, td {
-            padding: 10px 12px;
-            border-bottom: 1px solid #e0e0e0;
-            text-align: left;
-            font-size: 14px;
-        }
-        th {
-            background-color: #fafafa;
-            font-weight: 600;
-        }
-        .badge {
-            padding: 4px 8px;
-            border-radius: 999px;
-            font-size: 12px;
-        }
-        .badge-reserve {
-            background-color: #fff3cd;
-            color: #856404;
-        }
-        .badge-emprunte {
-            background-color: #bbdefb;
-            color: #0d47a1;
-        }
-        .badge-retourne {
-            background-color: #c8e6c9;
-            color: #1b5e20;
-        }
-        form {
-            display: inline;
-        }
-        button {
-            border: none;
-            padding: 6px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 12px;
-        }
-        .btn-validate {
-            background-color: #1976d2;
-            color: white;
-        }
-        .btn-return {
-            background-color: #388e3c;
-            color: white;
-        }
-        .dates {
-            font-size: 12px;
-            color: #555;
-            line-height: 1.5;
-        }
-        .dates strong {
-            color: #333;
-        }
-        .dates i {
-            margin-right: 4px;
-        }
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f5f5f5;
+        margin: 0;
+        padding: 24px;
+      }
+      h2 {
+        margin-top: 0;
+        color: #333;
+      }
+      .toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+      .filter {
+        font-size: 14px;
+      }
+      .filter select {
+        padding: 6px 10px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+      }
+      .pill {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 999px;
+        background: #eef;
+        font-size: 11px;
+        color: #555;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: #fff;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      }
+      th,
+      td {
+        padding: 10px 12px;
+        border-bottom: 1px solid #e0e0e0;
+        text-align: left;
+        font-size: 14px;
+      }
+      th {
+        background-color: #fafafa;
+        font-weight: 600;
+      }
+      .badge {
+        padding: 4px 8px;
+        border-radius: 999px;
+        font-size: 12px;
+      }
+      .badge-reserve {
+        background-color: #fff3cd;
+        color: #856404;
+      }
+      .badge-emprunte {
+        background-color: #bbdefb;
+        color: #0d47a1;
+      }
+      .badge-retourne {
+        background-color: #c8e6c9;
+        color: #1b5e20;
+      }
+      form {
+        display: inline;
+      }
+      button {
+        border: none;
+        padding: 6px 10px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+      }
+      .btn-validate {
+        background-color: #1976d2;
+        color: white;
+      }
+      .btn-return {
+        background-color: #388e3c;
+        color: white;
+      }
+      .dates {
+        font-size: 12px;
+        color: #555;
+        line-height: 1.5;
+      }
+      .dates strong {
+        color: #333;
+      }
+      .dates i {
+        margin-right: 4px;
+      }
     </style>
-</head>
-<body>
-<div class="toolbar">
-    <h2>Liste des prêts</h2>
-    <div class="filter">
+  </head>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+      <div class="container-fluid">
+        <!-- Brand -->
+        <a class="navbar-brand fw-bold" th:href="@{/home}">
+          <i class="bi bi-book"></i> Library
+        </a>
+
+        <!-- Toggle mobile -->
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarContent"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarContent">
+          <!-- LEFT MENU -->
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <!-- Home : tout le monde -->
+            <li class="nav-item">
+              <a class="nav-link" th:href="@{/home}">
+                <i class="bi bi-house"></i> Home
+              </a>
+            </li>
+
+            <!-- Resources : ADMIN + BIBLIOTHECAIRE -->
+            <li
+              class="nav-item"
+              sec:authorize="hasAnyAuthority('ADMIN','BIBLIOTHECAIRE','USER')"
+            >
+              <a class="nav-link" th:href="@{/ressources}">
+                <i class="bi bi-box-seam"></i> Resources
+              </a>
+            </li>
+
+            <!-- Bibliothèques : ADMIN + BIBLIOTHECAIRE -->
+            <li
+              class="nav-item"
+              sec:authorize="hasAnyAuthority('ADMIN','BIBLIOTHECAIRE')"
+            >
+              <a class="nav-link" th:href="@{/bibliotheques}">
+                <i class="bi bi-building"></i> Libraries
+              </a>
+            </li>
+
+            <!-- Loans -->
+            <li class="nav-item" sec:authorize="isAuthenticated()">
+              <a class="nav-link" th:href="@{/loans}">
+                <i class="bi bi-journal-text"></i> Loans
+              </a>
+            </li>
+          </ul>
+
+          <!-- RIGHT MENU -->
+          <ul class="navbar-nav ms-auto">
+            <!-- Username -->
+            <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                role="button"
+                data-bs-toggle="dropdown"
+              >
+                <i class="bi bi-person-circle"></i>
+                <span sec:authentication="name"></span>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li>
+                  <form th:action="@{/logout}" method="post">
+                    <button class="dropdown-item text-danger">
+                      <i class="bi bi-box-arrow-right"></i> Logout
+                    </button>
+                  </form>
+                </li>
+              </ul>
+            </li>
+
+            <!-- Login -->
+            <li class="nav-item" sec:authorize="!isAuthenticated()">
+              <a class="nav-link" th:href="@{/login}">
+                <i class="bi bi-box-arrow-in-right"></i> Login
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <div class="toolbar">
+      <h2>Liste des prêts</h2>
+      <div class="filter">
         <span class="pill">Filtre</span>
         <select id="statusFilter">
-            <option value="ALL">Tous les statuts</option>
-            <option value="RESERVE">Réservés</option>
-            <option value="EMPRUNTE">Empruntés</option>
-            <option value="RETOURNE">Retournés</option>
+          <option value="ALL">Tous les statuts</option>
+          <option value="RESERVE">Réservés</option>
+          <option value="EMPRUNTE">Empruntés</option>
+          <option value="RETOURNE">Retournés</option>
         </select>
+      </div>
     </div>
-</div>
-<table>
-    <thead>
-    <tr>
-        <th>ID</th>
-        <th>Utilisateur</th>
-        <th>Email</th>
-        <th>Exemplaire</th>
-        <th>Ressource</th>
-        <th>Statut</th>
-        <th>Dates (création / emprunt / échéance / retour)</th>
-        <th>Actions</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="loan : ${loans}">
-        <td th:text="${loan.id}">1</td>
-        <td th:text="${loan.user != null ? loan.user.firstname + ' ' + loan.user.lastname : 'N/A'}">Nom Prénom</td>
-        <td th:text="${loan.user != null ? loan.user.email : 'N/A'}">email@example.com</td>
-        <td th:text="${loan.exemplaire != null ? loan.exemplaire.codeBarre : 'N/A'}">CODE123</td>
-        <td th:text="${loan.exemplaire != null && loan.exemplaire.ressource != null ? loan.exemplaire.ressource.titre : 'N/A'}">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Utilisateur</th>
+          <th>Email</th>
+          <th>Exemplaire</th>
+          <th>Ressource</th>
+          <th>Statut</th>
+          <th>Dates (création / emprunt / échéance / retour)</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="loan : ${loans}">
+          <td th:text="${loan.id}">1</td>
+          <td
+            th:text="${loan.user != null ? loan.user.firstname + ' ' + loan.user.lastname : 'N/A'}"
+          >
+            Nom Prénom
+          </td>
+          <td th:text="${loan.user != null ? loan.user.email : 'N/A'}">
+            email@example.com
+          </td>
+          <td
+            th:text="${loan.exemplaire != null ? loan.exemplaire.codeBarre : 'N/A'}"
+          >
+            CODE123
+          </td>
+          <td
+            th:text="${loan.exemplaire != null && loan.exemplaire.ressource != null ? loan.exemplaire.ressource.titre : 'N/A'}"
+          >
             Titre ressource
-        </td>
-        <td>
+          </td>
+          <td>
             <span th:switch="${loan.status}">
-                <span th:case="${T(com.isamm.libraryManagement.entity.LoanStatus).RESERVE}"
-                      class="badge badge-reserve" data-status="RESERVE">RÉSERVÉ</span>
-                <span th:case="${T(com.isamm.libraryManagement.entity.LoanStatus).EMPRUNTE}"
-                      class="badge badge-emprunte" data-status="EMPRUNTE">EMPRUNTÉ</span>
-                <span th:case="${T(com.isamm.libraryManagement.entity.LoanStatus).RETOURNE}"
-                      class="badge badge-retourne" data-status="RETOURNE">RETOURNÉ</span>
+              <span
+                th:case="${T(com.isamm.libraryManagement.entity.LoanStatus).RESERVE}"
+                class="badge badge-reserve"
+                data-status="RESERVE"
+                >RÉSERVÉ</span
+              >
+              <span
+                th:case="${T(com.isamm.libraryManagement.entity.LoanStatus).EMPRUNTE}"
+                class="badge badge-emprunte"
+                data-status="EMPRUNTE"
+                >EMPRUNTÉ</span
+              >
+              <span
+                th:case="${T(com.isamm.libraryManagement.entity.LoanStatus).RETOURNE}"
+                class="badge badge-retourne"
+                data-status="RETOURNE"
+                >RETOURNÉ</span
+              >
             </span>
-        </td>
-        <td>
+          </td>
+          <td>
             <div class="dates">
-                <div>
-                    <strong><i>🕒</i>Créé :</strong>
-                    <span th:text="${loan.createdAt != null ? #dates.format(loan.createdAt, 'dd/MM/yyyy HH:mm') : '-'}">-</span>
-                </div>
-                <div th:if="${loan.borrowedAt != null}">
-                    <strong><i>📚</i>Emprunté :</strong>
-                    <span th:text="${#dates.format(loan.borrowedAt, 'dd/MM/yyyy HH:mm')}">-</span>
-                </div>
-                <div th:if="${loan.dueAt != null}">
-                    <strong><i>📆</i>Échéance :</strong>
-                    <span th:text="${#dates.format(loan.dueAt, 'dd/MM/yyyy')}">-</span>
-                </div>
-                <div th:if="${loan.returnedAt != null}">
-                    <strong><i>✔</i>Retourné :</strong>
-                    <span th:text="${#dates.format(loan.returnedAt, 'dd/MM/yyyy HH:mm')}">-</span>
-                </div>
+              <div>
+                <strong><i>🕒</i>Créé :</strong>
+                <span
+                  th:text="${loan.createdAt != null ? #dates.format(loan.createdAt, 'dd/MM/yyyy HH:mm') : '-'}"
+                  >-</span
+                >
+              </div>
+              <div th:if="${loan.borrowedAt != null}">
+                <strong><i>📚</i>Emprunté :</strong>
+                <span
+                  th:text="${#dates.format(loan.borrowedAt, 'dd/MM/yyyy HH:mm')}"
+                  >-</span
+                >
+              </div>
+              <div th:if="${loan.dueAt != null}">
+                <strong><i>📆</i>Échéance :</strong>
+                <span th:text="${#dates.format(loan.dueAt, 'dd/MM/yyyy')}"
+                  >-</span
+                >
+              </div>
+              <div th:if="${loan.returnedAt != null}">
+                <strong><i>✔</i>Retourné :</strong>
+                <span
+                  th:text="${#dates.format(loan.returnedAt, 'dd/MM/yyyy HH:mm')}"
+                  >-</span
+                >
+              </div>
             </div>
-        </td>
-        <td>
-            <form th:if="${loan.status == T(com.isamm.libraryManagement.entity.LoanStatus).RESERVE}"
-                  th:action="@{'/loans/validate/' + ${loan.id}}" method="post">
-                <button class="btn-validate" type="submit">Valider (emprunt)</button>
+          </td>
+          <td>
+            <form
+              th:if="${loan.status == T(com.isamm.libraryManagement.entity.LoanStatus).RESERVE}"
+              th:action="@{'/loans/validate/' + ${loan.id}}"
+              method="post"
+            >
+              <button class="btn-validate" type="submit">
+                Valider (emprunt)
+              </button>
             </form>
-            <form th:if="${loan.status == T(com.isamm.libraryManagement.entity.LoanStatus).EMPRUNTE}"
-                  th:action="@{'/loans/return/' + ${loan.id}}" method="post">
-                <button class="btn-return" type="submit">Marquer comme retourné</button>
+            <form
+              th:if="${loan.status == T(com.isamm.libraryManagement.entity.LoanStatus).EMPRUNTE}"
+              th:action="@{'/loans/return/' + ${loan.id}}"
+              method="post"
+            >
+              <button class="btn-return" type="submit">
+                Marquer comme retourné
+              </button>
             </form>
-        </td>
-    </tr>
-    </tbody>
-</table>
-<script>
-    (function() {
-        const select = document.getElementById('statusFilter');
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <script>
+      (function () {
+        const select = document.getElementById("statusFilter");
         if (!select) return;
-        select.addEventListener('change', function() {
-            const value = this.value;
-            document.querySelectorAll('tbody tr').forEach(tr => {
-                const badge = tr.querySelector('.badge[data-status]');
-                if (!badge) return;
-                const status = badge.getAttribute('data-status') || 'OTHER';
-                tr.style.display = (value === 'ALL' || value === status) ? '' : 'none';
-            });
+        select.addEventListener("change", function () {
+          const value = this.value;
+          document.querySelectorAll("tbody tr").forEach((tr) => {
+            const badge = tr.querySelector(".badge[data-status]");
+            if (!badge) return;
+            const status = badge.getAttribute("data-status") || "OTHER";
+            tr.style.display =
+              value === "ALL" || value === status ? "" : "none";
+          });
         });
-    })();
-</script>
-</body>
+      })();
+    </script>
+  </body>
 </html>
-
-
