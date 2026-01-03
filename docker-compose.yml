@@ -1,15 +1,22 @@
+version: "3.8"
+
 services:
   db:
     image: mysql:8.0
     container_name: mysql-library
     restart: always
     environment:
-      MYSQL_DATABASE: library_db
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_USER: library_user
-      MYSQL_PASSWORD: library_pass
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     volumes:
       - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u${MYSQL_USER} -p${MYSQL_PASSWORD} || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   backend:
     build: .
@@ -19,14 +26,14 @@ services:
       - "8082:8080"
     environment:
       SERVER_PORT: 8080
-      DB_URL: jdbc:mysql://db:3306/library_db
-      DB_USERNAME: library_user
-      DB_PASSWORD: library_pass
-      MAIL_HOST: smtp.gmail.com
-      MAIL_PORT: 587
-      MAIL_USERNAME: libraryinlog@gmail.com
-      MAIL_PASSWORD: crmexicyxrtepyxa
-      MAIL_FROM: libraryinlog@gmail.com
+      DB_URL: jdbc:mysql://db:3306/${MYSQL_DATABASE}
+      DB_USERNAME: ${MYSQL_USER}
+      DB_PASSWORD: ${MYSQL_PASSWORD}
+      MAIL_HOST: ${MAIL_HOST}
+      MAIL_PORT: ${MAIL_PORT}
+      MAIL_USERNAME: ${MAIL_USERNAME}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
+      MAIL_FROM: ${MAIL_FROM}
     depends_on:
       - db
 
