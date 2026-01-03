@@ -1,0 +1,39 @@
+name: CI - Build, Test & Artifact
+
+on:
+  push:
+    branches:
+      - dev
+      - main
+  pull_request:
+    branches:
+      - dev
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Grant execute permission for mvnw
+        run: chmod +x mvnw
+
+      - name: Build application
+        run: ./mvnw clean package -DskipTests
+
+      - name: Run tests
+        run: ./mvnw test
+
+      - name: Upload JAR artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: library-management-jar
+          path: target/*.jar
