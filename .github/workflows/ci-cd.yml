@@ -103,28 +103,59 @@ jobs:
     runs-on: ubuntu-latest
     needs: publish-image
     if: github.ref == 'refs/heads/main'
+  
+    services:
+      mysql:
+        image: mysql:8
+        ports:
+          - 3306:3306
+        env:
+          MYSQL_ROOT_PASSWORD: secret
+          MYSQL_DATABASE: testdb
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=5s
+          --health-timeout=2s
+          --health-retries=10
+  
     steps:
       - name: Pull image
         run: |
           IMAGE=ghcr.io/${{ github.repository_owner }}/library-management:latest
           docker pull $IMAGE
-
-      - name: Run container
+  
+      - name: Run container (CI profile)
         run: |
           IMAGE=ghcr.io/${{ github.repository_owner }}/library-management:latest
-          docker run -d --name smoke-test-backend -p 9090:8080 $IMAGE
+  
+          docker run -d \
+            --name smoke-test-backend \
+            -p 9090:8080 \
+            --network host \
+            $IMAGE \
+            --spring.profiles.active=ci
+  
           # wait for app to start
           for i in {1..30}; do
-            if curl -sSf http://localhost:9090/actuator/health >/dev/null; then echo 'ok' && break; fi
+            if curl -sSf http://localhost:9090/actuator/health >/dev/null; then
+              echo "Backend is healthy"
+              break
+            fi
             sleep 2
           done
-
+  
       - name: Check health
         run: |
-          if curl -sSf http://localhost:9090/actuator/health; then echo 'smoke test passed'; else docker logs smoke-test-backend; exit 1; fi
-
+          if curl -sSf http://localhost:9090/actuator/health; then
+            echo "Smoke test passed"
+          else
+            docker logs smoke-test-backend
+            exit 1
+          fi
+  
       - name: Cleanup
         run: |
           docker stop smoke-test-backend || true
           docker rm smoke-test-backend || true
+
 
