@@ -130,6 +130,7 @@ jobs:
       
           docker run -d \
             --name smoke-test-backend \
+            --network ${{ job.services.mysql.network }} \
             -p 9090:8080 \
             $IMAGE \
             --spring.profiles.active=ci
@@ -159,6 +160,7 @@ jobs:
         run: |
           docker stop smoke-test-backend || true
           docker rm smoke-test-backend || true
+
 
 
 
