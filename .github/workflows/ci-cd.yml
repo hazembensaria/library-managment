@@ -127,23 +127,25 @@ jobs:
       - name: Run container (CI profile)
         run: |
           IMAGE=ghcr.io/${{ github.repository_owner }}/library-management:latest
-  
+      
           docker run -d \
             --name smoke-test-backend \
             -p 9090:8080 \
-            --network host \
             $IMAGE \
             --spring.profiles.active=ci
-  
-          # wait for app to start
+      
           for i in {1..30}; do
             if curl -sSf http://localhost:9090/actuator/health >/dev/null; then
-              echo "Backend is healthy"
-              break
+              echo "✅ Backend is healthy"
+              exit 0
             fi
             sleep 2
           done
-  
+      
+          echo "❌ Backend never became healthy"
+          docker logs smoke-test-backend
+          exit 1
+
       - name: Check health
         run: |
           if curl -sSf http://localhost:9090/actuator/health; then
@@ -157,5 +159,6 @@ jobs:
         run: |
           docker stop smoke-test-backend || true
           docker rm smoke-test-backend || true
+
 
 
