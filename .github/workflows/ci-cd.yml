@@ -160,6 +160,38 @@ jobs:
         run: |
           docker stop smoke-test-backend || true
           docker rm smoke-test-backend || true
+  deploy:
+    name: Deploy to Azure
+    runs-on: ubuntu-latest
+    needs: build  
+    if: github.ref == 'refs/heads/main'
+  
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+  
+      - name: Download JAR artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: library-management-jar
+          path: target
+  
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+  
+      - name: Login to ACR
+        run: az acr login --name libraryregistery.azurecr.io
+  
+      - name: Build & Push Docker Image
+        run: |
+          IMAGE=libraryregistry.azurecr.io/library-management
+          # Build Docker image with two tags
+          docker build -t $IMAGE:latest -t $IMAGE:${{ github.sha }} .
+          # Push both tags to ACR
+          docker push $IMAGE:latest
+          docker push $IMAGE:${{ github.sha }}
 
 
 
