@@ -185,8 +185,8 @@ jobs:
         uses: docker/login-action@v3
         with:
           registry: libraryregistry.azurecr.io   
-          username: ${{ secrets.ACR_USERNAME }}    
-          password: ${{ secrets.ACR_PASSWORD }}
+          username: libraryregistery    
+          password: 4n19xMniU+H4vsUIdnp5mV9S4MaUibzZOn7hSxO9Za+ACRA6R7l9
   
       - name: Build & Push Docker Image
         run: |
@@ -196,6 +196,7 @@ jobs:
           # Push both tags to ACR
           docker push $IMAGE:latest
           docker push $IMAGE:${{ github.sha }}
+
 
 
 
