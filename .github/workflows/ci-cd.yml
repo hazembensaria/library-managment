@@ -190,12 +190,13 @@ jobs:
   
       - name: Build & Push Docker Image
         run: |
-          IMAGE=libraryregistry.azurecr.io/library-management
+          IMAGE=libraryregistery.azurecr.io/library-management
           # Build Docker image with two tags
           docker build -t $IMAGE:latest -t $IMAGE:${{ github.sha }} .
           # Push both tags to ACR
           docker push $IMAGE:latest
           docker push $IMAGE:${{ github.sha }}
+
 
 
 
