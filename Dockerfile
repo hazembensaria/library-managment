@@ -11,4 +11,4 @@ COPY target/*.jar app.jar
 EXPOSE 8080
 
 # Run Spring Boot with CI profile
-ENTRYPOINT ["java", "-jar", "/app/app.jar", "--spring.profiles.active=ci"]
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]
