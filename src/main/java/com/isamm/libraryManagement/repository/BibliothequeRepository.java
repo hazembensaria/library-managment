@@ -6,20 +6,22 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface BibliothequeRepository extends JpaRepository<Bibliotheque, Long> {
+
     boolean existsByCode(String code);
 
-    @EntityGraph(attributePaths = {
-            "exemplaires",
-            "exemplaires.ressource",
-            "sousBibliotheques"
-    })
-
-    // utile en modification (on exclut l'id courant)
     boolean existsByCodeAndIdNot(String code, Long id);
 
-    @EntityGraph(attributePaths = { "exemplaires", "sousBibliotheques" })
-    Optional<Bibliotheque> findWithDependancesById(Long id);
+    @Query("""
+                SELECT b FROM Bibliotheque b
+                LEFT JOIN FETCH b.exemplaires e
+                LEFT JOIN FETCH e.ressource
+                LEFT JOIN FETCH b.sousBibliotheques
+                WHERE b.id = :id
+            """)
+    Optional<Bibliotheque> findWithDependances(@Param("id") Long id);
 
 }
